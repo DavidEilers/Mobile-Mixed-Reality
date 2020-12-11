@@ -1,4 +1,4 @@
-package com.example.baseapp;
+package com.example.teampraktikum;
 
 import org.junit.Test;
 
