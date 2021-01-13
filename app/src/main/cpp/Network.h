@@ -21,7 +21,7 @@ using namespace std;
 /**
  * Struct for storing the text and sender address of a message at once.
  */
-struct message{
+struct message {
     string text;
     string from_addr;
 };
@@ -29,11 +29,17 @@ struct message{
 class Server {
 public:
     void startListening();
+
     void stopListening();
+
     bool isListening();
+
     bool hasMessages();
+
     vector<struct message> getMessages();
+
     Server(int listening_port);
+
 private:
     int PORT;
     mutex msg_vector_mutex;
@@ -43,7 +49,9 @@ private:
     vector<struct message> messages;
 
     string getIPString(struct sockaddr_in addr);
+
     void storeMessage(struct message msg);
+
     void listeningFunction();
 };
 
@@ -61,9 +69,9 @@ Server::Server(int listening_port) {
  * Start the listening thread.
  */
 void Server::startListening() {
-    if(!listening.load()) {
+    if (!listening.load()) {
         listening = true;
-        listening_thread = thread([this]{listeningFunction();});
+        listening_thread = thread([this] { listeningFunction(); });
     }
 }
 
@@ -71,7 +79,7 @@ void Server::startListening() {
  * Stop the listening thread.
  */
 void Server::stopListening() {
-    if(listening.load()) {
+    if (listening.load()) {
         listening = false;
         listening_thread.join();
     }
@@ -99,7 +107,8 @@ bool Server::hasMessages() {
  */
 void Server::listeningFunction() {
 
-    __android_log_print(ANDROID_LOG_DEBUG, "server socket", "Listening thread started on port: %d.", PORT);
+    __android_log_print(ANDROID_LOG_DEBUG, "server socket", "Listening thread started on port: %d.",
+                        PORT);
 
     int server_fd, new_socket;
     struct sockaddr_in address;
@@ -115,23 +124,27 @@ void Server::listeningFunction() {
 
     err = server_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-    if(err < 0){
-        __android_log_print(ANDROID_LOG_ERROR, "server socket", "Socket creation error! Error: %d", err);
+    if (err < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "server socket", "Socket creation error! Error: %d",
+                            err);
     }
 
     err = setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
-    if (err < 0){
-        __android_log_print(ANDROID_LOG_ERROR, "server socket", "Socket option error! Error: %d", err);
+    if (err < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "server socket", "Socket option error! Error: %d",
+                            err);
     }
 
-    err = setsockopt(server_fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-    if (err < 0){
-        __android_log_print(ANDROID_LOG_ERROR, "server socket", "Socket option error! Error: %d", err);
+    err = setsockopt(server_fd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout));
+    if (err < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "server socket", "Socket option error! Error: %d",
+                            err);
     }
 
-    err = setsockopt(server_fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
-    if (err < 0){
-        __android_log_print(ANDROID_LOG_ERROR, "server socket", "Socket option error! Error: %d", err);
+    err = setsockopt(server_fd, SOL_SOCKET, SO_SNDTIMEO, (char *) &timeout, sizeof(timeout));
+    if (err < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "server socket", "Socket option error! Error: %d",
+                            err);
     }
 
     //IPv4
@@ -144,10 +157,11 @@ void Server::listeningFunction() {
      * There is another function called std::bind. Because I am using the namespace std
      * but I want to use the socket bind function I use ::bind.
      */
-    err = ::bind(server_fd, (struct sockaddr * ) &address, addr_len);
+    err = ::bind(server_fd, (struct sockaddr *) &address, addr_len);
 
     if (err < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "server socket", "could not bind to address. err: %d", err);
+        __android_log_print(ANDROID_LOG_ERROR, "server socket",
+                            "could not bind to address. err: %d", err);
     }
 
     err = listen(server_fd, 3);
@@ -156,10 +170,10 @@ void Server::listeningFunction() {
         __android_log_print(ANDROID_LOG_ERROR, "server socket", "listen err: %d", err);
     }
 
-    while(listening.load()){
+    while (listening.load()) {
 
         //address is used again but as incoming address
-        new_socket = accept(server_fd, (struct sockaddr * ) &address, (socklen_t*) &addr_len);
+        new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addr_len);
 
         if (new_socket > 0) { // new_socket <= 0 -> timeout
             __android_log_print(ANDROID_LOG_DEBUG, "server socket", "Connection accepted");
@@ -183,7 +197,8 @@ void Server::listeningFunction() {
             close(new_socket);
 
         } else {
-            __android_log_print(ANDROID_LOG_DEBUG, "server new socket value", "%d <= 0", new_socket);
+            __android_log_print(ANDROID_LOG_DEBUG, "server new socket value", "%d <= 0",
+                                new_socket);
         }
     }
 
@@ -202,7 +217,7 @@ string Server::getIPString(struct sockaddr_in addr) {
     char ip[INET6_ADDRSTRLEN];
 
     //PIv4
-    if(addr.sin_family == AF_INET){
+    if (addr.sin_family == AF_INET) {
         inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
     }
 
@@ -268,22 +283,25 @@ void sendString(string msg, string addr, int port) {
     int err = 0;
 
     err = sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(err < 0){
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket creation error! Error: %d", err);
+    if (err < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket creation error! Error: %d",
+                            err);
 
         return;
     }
 
-    err = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-    if (err < 0){
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d", err);
+    err = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout));
+    if (err < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d",
+                            err);
 
         return;
     }
 
-    err = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
-    if (err < 0){
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d", err);
+    err = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *) &timeout, sizeof(timeout));
+    if (err < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d",
+                            err);
 
         return;
     }
@@ -293,22 +311,22 @@ void sendString(string msg, string addr, int port) {
 
     // Convert IPv4 and IPv6 addresses from text to binary form
     err = inet_pton(AF_INET, addr.c_str(), &serv_addr.sin_addr);
-    if(err <= 0)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Invalid address / Address not supported! Error: %d", err);
+    if (err <= 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "client socket",
+                            "Invalid address / Address not supported! Error: %d", err);
 
         return;
     }
 
-    err = connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
-    if (err < 0)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Connection failed! Error: %d", err);
+    err = connect(sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+    if (err < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Connection failed! Error: %d",
+                            err);
 
         return;
     }
 
-    send(sock , msg.c_str() , msg.length() , 0 );
+    send(sock, msg.c_str(), msg.length(), 0);
 
     close(sock);
 
