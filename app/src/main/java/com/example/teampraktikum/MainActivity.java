@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String text = "";
 
-                for(String msg:msgs){
+                for (String msg : msgs) {
                     text += msg + "\n";
                 }
 
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         stopListening();
         TextView tv = findViewById(R.id.sample_text);
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected  void onResume(){
+    protected void onResume() {
         super.onResume();
         startListening();
         TextView tv = findViewById(R.id.sample_text);
@@ -73,8 +73,12 @@ public class MainActivity extends AppCompatActivity {
      * which is packaged with this application.
      */
     public native String stringFromJNI();
+
     public native void startListening();
+
     public native void stopListening();
+
     public native void sendString();
+
     public native String[] getMessages();
 }
