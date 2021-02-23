@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d("network", "button pressed");
-                String[] msgs = getMessages();
+                String[] msgs = getMessagesAsString();
 
                 TextView tv = findViewById(R.id.sample_text);
 
@@ -80,5 +80,5 @@ public class MainActivity extends AppCompatActivity {
 
     public native void sendString();
 
-    public native String[] getMessages();
+    public native String[] getMessagesAsString();
 }

@@ -5,10 +5,12 @@
 
 Server server(8080);
 
-extern "C" JNIEXPORT jstring
+extern "C" {
+
+JNIEXPORT jstring
 Java_com_example_teampraktikum_MainActivity_stringFromJNI(JNIEnv *env, jobject /* this */) {
     std::string hello = "";
-    if (server.isListening()) {
+    if (server.is_listening()) {
         hello = "listening";
     } else {
         hello = "not listening";
@@ -16,32 +18,42 @@ Java_com_example_teampraktikum_MainActivity_stringFromJNI(JNIEnv *env, jobject /
     return env->NewStringUTF(hello.c_str());
 }
 
-extern "C" JNIEXPORT void
+JNIEXPORT void
 Java_com_example_teampraktikum_MainActivity_startListening(JNIEnv *env, jobject /* this */) {
-    server.startListening();
+    server.start_listening();
 }
 
-extern "C" JNIEXPORT void
+JNIEXPORT void
 Java_com_example_teampraktikum_MainActivity_stopListening(JNIEnv *env, jobject /* this */) {
-    server.stopListening();
+    server.stop_listening();
 }
 
-extern "C" JNIEXPORT void
+JNIEXPORT void
 Java_com_example_teampraktikum_MainActivity_sendString(JNIEnv *env, jobject /* this */) {
-    sendString("hallo test string", "192.168.43.53", 8080);
+    server.send_string(0, "hallo test string", "192.168.43.53", 8080);
 }
 
-extern "C" JNIEXPORT jobjectArray
-Java_com_example_teampraktikum_MainActivity_getMessages(JNIEnv *env, jobject /* this */) {
-    vector<message> msgs = server.getMessages();
+JNIEXPORT jobjectArray
+Java_com_example_teampraktikum_MainActivity_getMessagesAsString(JNIEnv *env, jobject /* this */) {
+    vector<MessageContainer> msgs = server.get_messages();
 
     jobjectArray ret = (jobjectArray) env->NewObjectArray(msgs.size(),
                                                           env->FindClass("java/lang/String"),
                                                           env->NewStringUTF(""));
 
     for (int i = 0; i < msgs.size(); i++) {
-        env->SetObjectArrayElement(ret, i, env->NewStringUTF(msgs[i].text.c_str()));
+        char s[100];
+
+        u_int16_t TYPE = msgs[i].message->TYPE;
+        u_int16_t LENGTH = msgs[i].message->LENGTH;
+
+        sprintf(s, "Message Object:\nTYPE: %d\nLENGTH: %d\nPAYLOAD: %s\n", TYPE, LENGTH,
+                msgs[i].message->payload);
+
+        env->SetObjectArrayElement(ret, i, env->NewStringUTF(s));
     }
 
     return ret;
+}
+
 }
