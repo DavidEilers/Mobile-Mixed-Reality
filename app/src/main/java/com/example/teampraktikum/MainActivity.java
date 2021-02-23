@@ -8,7 +8,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
-import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,12 +30,14 @@ import androidx.core.content.ContextCompat;
 //import com.google.android.material.snackbar.Snackbar;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import android.content.res.AssetManager;
 
 public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer, DisplayManager.DisplayListener {
 
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
+        //System.loadLibrary("glbuffer");
     }
 
     private GLSurfaceView surfaceView;
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
         // Set up renderer.
         surfaceView.setPreserveEGLContextOnPause(true);
-        surfaceView.setEGLContextClientVersion(2);
+        surfaceView.setEGLContextClientVersion(3);
         surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
         surfaceView.setRenderer(this);
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
@@ -112,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     public native void onDrawFrame();
 
+    public native void nativeOnSurfaceCreated(AssetManager assetManager);
+
     @Override
     public void onDisplayAdded(int displayId) {
 
@@ -129,8 +133,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glClearColor(0.7f, 0.0f, 0.0f, 1.0f);
-
+        GLES30.glClearColor(0.7f, 0.0f, 0.0f, 1.0f);
+        nativeOnSurfaceCreated(getAssets());
     }
 
     @Override
@@ -148,7 +152,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 onDisplayGeometryChanged(displayRotation, viewPortWidth, viewPortHeight);
                 viewPortChanged = false;
             }
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            //GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            onDrawFrame();
         }
     }
 }

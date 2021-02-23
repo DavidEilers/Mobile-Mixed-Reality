@@ -1,9 +1,12 @@
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
 #include <jni.h>
 #include <string>
 #include "arcore_c_api.h"
 #include <android/log.h>
+#include "cameraBackground.h"
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
 
 extern "C" {
@@ -26,6 +29,7 @@ ArFrame *ar_frame_ = nullptr;
 int width_ = 1;
 int height_ = 1;
 int display_rotation_ = 0;
+cameraBackground* camBack= nullptr;
 
 JNIEXPORT void JNICALL
 Java_com_example_teampraktikum_MainActivity_nativeOnResume(
@@ -95,6 +99,20 @@ Java_com_example_teampraktikum_MainActivity_nativeOnResume(
     if (status != AR_SUCCESS) {
         return;
     }
+   if(glGetError()!=GL_NO_ERROR) {
+       __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "GL ERROR %d",glGetError());
+   }else{
+       __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "NO GL ERROR");
+   }
+}
+
+JNIEXPORT void JNICALL Java_com_example_teampraktikum_MainActivity_nativeOnSurfaceCreated(
+        JNIEnv* env,
+        jobject activity,
+        jobject assetManager
+        ) {
+    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
+    camBack = new cameraBackground(nullptr, nullptr,mgr);
 }
 
 JNIEXPORT void JNICALL
@@ -115,7 +133,9 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
         JNIEnv *env,
         jobject activity) {
     //glClearColor(0.7f,0.0f,0.0f,1.0f);
-    // glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
+    camBack->draw(ar_session_,ar_frame_);
+
 }
 }
 
