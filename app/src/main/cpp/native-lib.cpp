@@ -5,6 +5,7 @@
 #include "arcore_c_api.h"
 #include <android/log.h>
 #include "cameraBackground.h"
+#include "objRenderer.h"
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
@@ -30,6 +31,7 @@ int width_ = 1;
 int height_ = 1;
 int display_rotation_ = 0;
 cameraBackground* camBack= nullptr;
+ObjRenderer* objRenderer = nullptr;
 
 JNIEXPORT void JNICALL
 Java_com_example_teampraktikum_MainActivity_nativeOnResume(
@@ -90,6 +92,7 @@ Java_com_example_teampraktikum_MainActivity_nativeOnResume(
 
         ArFrame_create(ar_session_, &ar_frame_);
         ArSession_setDisplayGeometry(ar_session_, display_rotation_, width_, height_);
+        ArFrame_destroy(ar_frame_);
         __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
                             "Created AR Session successfully");
     }
@@ -113,6 +116,7 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_MainActivity_nativeOnSurfa
         ) {
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
     camBack = new cameraBackground(nullptr, nullptr,mgr);
+    objRenderer = new ObjRenderer("obj/cube.obj",mgr);
 }
 
 JNIEXPORT void JNICALL
@@ -126,6 +130,7 @@ Java_com_example_teampraktikum_MainActivity_onDisplayGeometryChanged(
     display_rotation_ = display_rotation;
     width_ = width;
     height_ = height;
+    ArSession_setDisplayGeometry(ar_session_, display_rotation_, width_, height_);
 }
 
 JNIEXPORT void JNICALL
@@ -134,7 +139,8 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
         jobject activity) {
     //glClearColor(0.7f,0.0f,0.0f,1.0f);
     //glClear(GL_COLOR_BUFFER_BIT);
-    camBack->draw(ar_session_,ar_frame_);
+    camBack->draw(ar_session_);
+    objRenderer->draw();
 
 }
 }
