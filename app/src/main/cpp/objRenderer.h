@@ -25,7 +25,7 @@ private:
     Shader* myShader;
     GLuint programID;
     GLuint vao;
-    GLuint vbo;
+    GLuint vbo[3];
     GLuint ibo;
     std::vector<GLfloat>* vertices=nullptr;
     std::vector<GLfloat>* normals=nullptr;

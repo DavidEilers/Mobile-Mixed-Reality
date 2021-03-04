@@ -12,7 +12,10 @@ Shader::~Shader(){}
 void Shader::addShader(std::string path, GLenum shaderType){
     ShaderInfo shaderInfo = {0, shaderType, false, false};
     AAsset *file = AAssetManager_open(assetManager, path.c_str(), AASSET_MODE_BUFFER);
-    const char *shaderChars = (char *) AAsset_getBuffer(file);
+    size_t size = AAsset_getLength(file);
+    char *shaderChars = (char*) malloc (sizeof(char)*size+1);
+    AAsset_read(file,shaderChars,size);
+    shaderChars[size]='\0';
     __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
                         "%s", shaderChars);
     shaderInfo.shaderID = glCreateShader(shaderInfo.shaderType);

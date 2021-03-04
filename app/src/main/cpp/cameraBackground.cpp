@@ -18,7 +18,7 @@ cameraBackground::~cameraBackground() {
 
 void cameraBackground::initGL() {
     glGenVertexArrays(1,&vao);
-    glEnableVertexAttribArray(vao);
+    glBindVertexArray(vao);
     __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
                         "BeforeGenTextures");
     glGenTextures(1, &imageID);
@@ -38,9 +38,9 @@ void cameraBackground::initGL() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 24, screenQuad, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *) 0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLfloat *) 0 + 2);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLfloat *) 0 + 2);
     glEnableVertexAttribArray(1);
-    glDisableVertexAttribArray(vao);
+    glBindVertexArray(-1);
 
 }
 
@@ -69,7 +69,7 @@ void cameraBackground::updateCameraFrame(ArFrame *frame) {
 }
 
 void cameraBackground::draw(ArSession *session) {
-    glEnableVertexAttribArray(vao);
+    glBindVertexArray(vao);
     this->arSess= session;
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -81,14 +81,8 @@ void cameraBackground::draw(ArSession *session) {
 
         glUseProgram(programID);
         glBindTexture(GL_TEXTURE_EXTERNAL_OES, imageID);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *) 0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLfloat *) 0 + 2);
-        glEnableVertexAttribArray(1);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         ArFrame_destroy(frame);
     }
-    glDisableVertexAttribArray(vao);
+    glBindVertexArray(-1);
 }
