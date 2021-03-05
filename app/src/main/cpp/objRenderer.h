@@ -13,6 +13,8 @@
 #include <android/log.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
+#include "glm.hpp"
+#include "ext.hpp"
 #include "shader.h"
 #include "objLoader.h"
 

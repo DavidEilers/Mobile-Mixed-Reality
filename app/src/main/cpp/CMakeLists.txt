@@ -12,6 +12,10 @@ set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
         INTERFACE_INCLUDE_DIRECTORIES ${ARCORE_INCLUDE}
         )
 
+# Import the glm header file from the NDK.
+add_library( glm INTERFACE )
+set_target_properties( glm PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${GLM_INCLUDE})
+
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -55,6 +59,7 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         native-lib
+        glm
         #cameraBackground
         arcore
         GLESv3
