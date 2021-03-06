@@ -32,6 +32,9 @@ int height_ = 1;
 int display_rotation_ = 0;
 cameraBackground* camBack= nullptr;
 ObjRenderer* objRenderer = nullptr;
+int canvasX_offset=0;
+int canvasY_offset=0;
+ArAnchor * anchor= nullptr;
 
 JNIEXPORT void JNICALL
 Java_com_example_teampraktikum_MainActivity_nativeOnResume(
@@ -133,14 +136,92 @@ Java_com_example_teampraktikum_MainActivity_onDisplayGeometryChanged(
     ArSession_setDisplayGeometry(ar_session_, display_rotation_, width_, height_);
 }
 
+
+JNIEXPORT void JNICALL
+Java_com_example_teampraktikum_MainActivity_nativeSetCanvasOffset(
+        JNIEnv *env,
+        jint x,
+        jint y) {
+    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Surface starts at x:%d y:%d",x,y);
+
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
+        JNIEnv *env,
+        float x,
+        float y) {
+    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Width %d  Height %d",width_,height_);
+    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Touched detected on x:%f y:%f",x,y);
+    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","RelativePosition on x:%f y:%f",x/width_,y/height_);
+
+
+    ArFrame *frame;
+    ArFrame_create(ar_session_, &frame);
+
+    if(ArSession_update(ar_session_, frame) == AR_SUCCESS) {
+        ArHitResultList *hit_result_list = nullptr;
+        ArHitResultList_create(ar_session_, &hit_result_list);
+        ArFrame_hitTestInstantPlacement(ar_session_, frame, x, y,
+                                        1.0f,
+                                        hit_result_list);
+        ArHitResult *ar_hit = nullptr;
+        ArHitResult_create(ar_session_, &ar_hit);
+        ArHitResultList_getItem(ar_session_, hit_result_list, 0, ar_hit);
+
+        if (anchor != nullptr) {
+            ArAnchor_release(anchor);
+        }
+        ArHitResult_acquireNewAnchor(ar_session_, ar_hit, &anchor);
+
+        ArHitResultList_destroy(hit_result_list);
+
+        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Anchor created successfully");
+
+    }
+
+    ArFrame_destroy(frame);
+
+}
+
+
 JNIEXPORT void JNICALL
 Java_com_example_teampraktikum_MainActivity_onDrawFrame(
         JNIEnv *env,
         jobject activity) {
     //glClearColor(0.7f,0.0f,0.0f,1.0f);
     //glClear(GL_COLOR_BUFFER_BIT);
+    ArFrame *frame;
+    ArFrame_create(ar_session_, &frame);
+
+    glm::mat4 view_mat;
+    glm::mat4 projection_mat;
+    glm::mat4 model_mat;
+    ArCamera* ar_camera;
+    ArFrame_acquireCamera(ar_session_, ar_frame_, &ar_camera);
+    ArCamera_getViewMatrix(ar_session_, ar_camera, glm::value_ptr(view_mat));
+    ArCamera_getProjectionMatrix(ar_session_, ar_camera,
+            /*near=*/0.1f, /*far=*/100.f,
+                                 glm::value_ptr(projection_mat));
+    ArCamera_release(ar_camera);
+    if(anchor!= nullptr) {
+        ArPose *pose_;
+        ArPose_create(ar_session_, nullptr, &pose_);
+        ArAnchor_getPose(ar_session_, anchor, pose_);
+        ArPose_getMatrix(ar_session_, pose_, glm::value_ptr(model_mat));
+        ArPose_destroy(pose_);
+        objRenderer->setModelMatrix(model_mat);
+    }
+
+    objRenderer->setViewMatrix(view_mat);
+    objRenderer->setProjectionMatrix(projection_mat);
+
     camBack->draw(ar_session_);
+
     objRenderer->draw();
+
+    ArFrame_destroy(frame);
 
 }
 }

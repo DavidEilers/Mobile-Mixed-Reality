@@ -23,12 +23,21 @@ public:
     ObjRenderer(std::string filename,AAssetManager* assetMgr);
     ~ObjRenderer();
     void draw();
+    void setModelMatrix(glm::mat4 model_mat);
+    void setViewMatrix(glm::mat4 view_mat);
+    void setProjectionMatrix(glm::mat4 projection_mat);
 private:
     Shader* myShader;
     GLuint programID;
     GLuint vao;
     GLuint vbo[3];
     GLuint ibo;
+    GLuint mvpMatrixID;
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 projection;
+    glm::vec3 upvec;
+    glm::vec3 lookat;
     std::vector<GLfloat>* vertices=nullptr;
     std::vector<GLfloat>* normals=nullptr;
     std::vector<GLfloat>* uvs=nullptr;

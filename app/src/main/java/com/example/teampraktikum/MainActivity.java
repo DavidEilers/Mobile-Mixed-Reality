@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     private GLSurfaceView surfaceView;
+    private GestureDetector gestureDetector;
     private int viewPortWidth;
     private int viewPortHeight;
     private boolean viewPortChanged;
@@ -59,6 +60,38 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setRenderer(this);
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         surfaceView.setWillNotDraw(false);
+
+
+        // Set up touch listener.
+        gestureDetector =
+                new GestureDetector(
+                        this,
+                        new GestureDetector.SimpleOnGestureListener() {
+                            @Override
+                            public boolean onSingleTapUp(final MotionEvent e) {
+                                // For devices that support the Depth API, shows a dialog to suggest enabling
+                                // depth-based occlusion. This dialog needs to be spawned on the UI thread.
+
+                                surfaceView.queueEvent(
+                                        () -> nativeOnTouched(e.getX(), e.getY()));
+                                return true;
+                            }
+
+                            @Override
+                            public boolean onDown(MotionEvent e) {
+                                return true;
+                            }
+                        });
+
+        surfaceView.setOnTouchListener(
+                (View v, MotionEvent event) -> gestureDetector.onTouchEvent(event));
+
+        int offset[] = new int[2];
+        surfaceView.getLocationOnScreen(offset);
+        int height= surfaceView.getHeight();
+        int width= surfaceView.getWidth();
+        nativeSetCanvasOffset(offset[0],offset[1]);
+        System.out.println("OFFSET  x: "+offset[0]+" y: "+offset[1]);
 
         //JniInterface.assetManager = getAssets();
         // Example of a call to a native method
@@ -115,6 +148,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public native void onDrawFrame();
 
     public native void nativeOnSurfaceCreated(AssetManager assetManager);
+
+    public native void nativeOnTouched(float x, float y);
+
+    public native void nativeSetCanvasOffset(int x, int y);
 
     @Override
     public void onDisplayAdded(int displayId) {

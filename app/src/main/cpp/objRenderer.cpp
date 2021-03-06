@@ -67,12 +67,48 @@ ObjRenderer::ObjRenderer(std::string filename, AAssetManager *assetMgr) {
 
     __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
                         "cube.obj uploaded to GL");
+    mvpMatrixID = glGetUniformLocation(programID,"mvp");
+
+    ////Set matrices to Identity Matrix
+    view = glm::mat4(1.0f);
+    model= glm::mat4(1.0f);
+    projection= glm::mat4(1.0f);
 
 }
 
+
+void ObjRenderer::setModelMatrix(glm::mat4 model_mat){
+    model = model_mat;
+}
+void ObjRenderer::setViewMatrix(glm::mat4 view_mat){
+    view = view_mat;
+}
+
+void ObjRenderer::setProjectionMatrix(glm::mat4 projection_mat){
+    projection = projection_mat;
+}
+
 void ObjRenderer::draw() {
-    glBindVertexArray(vao);
+    glm::mat4 mvp = projection*model*view;
+//    glm::mat4 mvp(1.0f);
+//    mvp[0][0]=0.25f;
+//    mvp[1][1]=0.25f;
+//    mvp[2][2]=0.0f;
+//    mvp[2][3]=0.5f;
+    //mvp= glm::transpose(mvp);
     glUseProgram(programID);
+
+    glUniformMatrix4fv(mvpMatrixID,1,GL_FALSE,glm::value_ptr(mvp));
+
+//    std::string matrixString="";
+//    for(int i=0;i<4;i++){
+//        for(int j=0;j<4;j++){
+//            matrixString+="\t"+std::to_string(mvp[i][j])+"\t";
+//        }
+//        matrixString+="\n";
+//    }
+    //__android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikum","MVP Matrix:\n%s", matrixString.c_str());
+    glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES,indices->size(),GL_UNSIGNED_SHORT,(void*)0);
     //glDrawArrays(GL_TRIANGLES,0,3);
     glBindVertexArray(-1);
