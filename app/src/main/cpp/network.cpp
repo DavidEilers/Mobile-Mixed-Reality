@@ -52,7 +52,6 @@ void Server::listening_function() {
     struct sockaddr_in address;
     int opt = 1;
     int addr_len = sizeof(address);
-    char buffer[BUFFER_SIZE] = {0};
 
     struct timeval timeout;
     timeout.tv_sec = 10;
@@ -131,46 +130,15 @@ void Server::listening_function() {
         if (new_socket > 0) { // new_socket <= 0 -> timeout
             __android_log_print(ANDROID_LOG_DEBUG, "server socket", "Connection accepted");
 
+            struct RawContainer container;
+
             //max message length = 1024
-            read(new_socket, buffer, BUFFER_SIZE);
+            container.buffer = new char[BUFFER_SIZE];
+            read(new_socket, container.buffer, BUFFER_SIZE);
 
             string ip_string = get_ip_string(address);
 
-            struct Message msg;
-
-            //first two bytes in message
-            msg.TYPE = ((u_int16_t *) buffer)[0];
-
-            //next two bytes
-            msg.LENGTH = ((u_int16_t *) buffer)[1];
-
-            __android_log_print(ANDROID_LOG_DEBUG, "MESSAGE CONTAINER", "TYPE = %d, LENGTH = %d",
-                                msg.TYPE, msg.LENGTH);
-            __android_log_print(ANDROID_LOG_DEBUG, "MESSAGE CONTAINER", "TYPE = %x, LENGTH = %x",
-                                msg.TYPE, msg.LENGTH);
-
-            //rest of the buffer is the payload
-
-            if (msg.LENGTH == 0) {
-                msg.payload = 0;
-            } else {
-                char *payload = new char[msg.LENGTH + 1];
-
-                for (int i = 0; i < msg.LENGTH; i++) {
-                    payload[i] = buffer[4 + i];
-                    __android_log_print(ANDROID_LOG_DEBUG, "PAYLOAD", "%d", payload[i]);
-                }
-
-                __android_log_print(ANDROID_LOG_DEBUG, "PAYLOAD", "%s", payload);
-
-                msg.payload = payload;
-
-            }
-
-            struct MessageContainer container;
-
             container.from_addr = ip_string;
-            container.message = &msg;
 
             store_message(container);
 
@@ -201,7 +169,7 @@ string Server::get_ip_string(struct sockaddr_in addr) {
     return ip_string;
 }
 
-void Server::store_message(struct MessageContainer con) {
+void Server::store_message(struct RawContainer con) {
     msg_vector_mutex.lock();
     messages.push_back(con);
     msg_vector_mutex.unlock();
@@ -209,9 +177,9 @@ void Server::store_message(struct MessageContainer con) {
     has_msg = true;
 }
 
-vector<struct MessageContainer> Server::get_messages() {
+vector<struct RawContainer> Server::get_messages() {
     msg_vector_mutex.lock();
-    vector<struct MessageContainer> copy(messages);
+    vector<struct RawContainer> copy(messages);
     messages.clear();
     msg_vector_mutex.unlock();
 
@@ -220,7 +188,7 @@ vector<struct MessageContainer> Server::get_messages() {
     return copy;
 }
 
-void Server::send_string(u_int16_t type, string msg, string addr, int port) {
+void Server::send_message(BaseMessage &msg_obj, string addr, int port) {
 
     __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending started.");
 
@@ -290,117 +258,9 @@ void Server::send_string(u_int16_t type, string msg, string addr, int port) {
         return;
     }
 
-    //first two bytes = message type
-    char *as_char = (char *) &type;
-    buffer[0] = as_char[0];
-    buffer[1] = as_char[1];
+    int size = msg_obj.to_bytes(buffer);
 
-    //next two bytes = payload length
-    u_int16_t msg_len = msg.length();
-    as_char = (char *) &msg_len;
-    buffer[2] = as_char[0];
-    buffer[3] = as_char[1];
-
-    //after that =>
-    const char *tmp = msg.c_str();
-    for (int i = 0; i < msg_len; i++) {
-        buffer[4 + i] = tmp[i];
-    }
-    send(sock, buffer, msg.length() + 4, 0);
-
-    close(sock);
-
-    __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending finished.");
-
-    return;
-}
-
-void Server::send_message(struct Message message, string addr, int port) {
-
-    __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending started.");
-
-    int sock = 0;
-    struct sockaddr_in serv_addr;
-    char buffer[BUFFER_SIZE] = {0};
-
-    struct timeval timeout;
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
-
-    int err = 0;
-
-    //create socket object
-
-    err = sock = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (err < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket creation error! Error: %d",
-                            err);
-
-        return;
-    }
-
-    //set options for socket => receive timeout
-
-    err = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout));
-    if (err < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d",
-                            err);
-
-        return;
-    }
-
-    //set options for socket => send timeout
-
-    err = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *) &timeout, sizeof(timeout));
-    if (err < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d",
-                            err);
-
-        return;
-    }
-
-    //create address struct
-
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port);
-
-    // convert IPv4 and IPv6 address strings to binary form
-
-    err = inet_pton(AF_INET, addr.c_str(), &serv_addr.sin_addr);
-    if (err <= 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "client socket",
-                            "Invalid address / Address not supported! Error: %d", err);
-
-        return;
-    }
-
-    //connect to address
-
-    err = connect(sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-    if (err < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "client socket", "Connection failed! Error: %d",
-                            err);
-
-        return;
-    }
-
-    //first two bytes = message type
-    char *as_char = (char *) (&message.TYPE);
-    buffer[0] = as_char[0];
-    buffer[1] = as_char[1];
-
-    //next two bytes = payload length
-    as_char = (char *) (&message.LENGTH);
-    buffer[2] = as_char[0];
-    buffer[3] = as_char[1];
-
-    //after that => payload
-    for (int i = 0; i < message.LENGTH; i++) {
-        buffer[4 + i] = message.payload[i];
-    }
-
-    send(sock, buffer, message.LENGTH + 4, 0);
+    send(sock, buffer, size, 0);
 
     close(sock);
 

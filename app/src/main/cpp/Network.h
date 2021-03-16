@@ -20,6 +20,59 @@
 
 using namespace std;
 
+enum MessageType {
+    MSG_STRING,
+    MSG_INTS,
+    MSG_FLOATS,
+};
+
+/**
+ * default message type for sending strings
+ */
+class BaseMessage {
+public:
+    static const MessageType TYPE = MSG_STRING;
+
+    string payload;
+
+    /**
+     * constructor
+     */
+    BaseMessage() {
+
+    }
+
+    /**
+     * converts the message to bytes to be sent over the network
+     * @param buffer buffer of size BUFFERSIZE to store the message in
+     * @return returns true size of used buffer (<= BUFFERSIZE)
+     */
+    virtual int to_bytes(char *buffer) {
+        buffer[0] = TYPE;
+        for (int i = 0; i < payload.size(); i++) {
+            buffer[1 + i] = payload.at(i);
+        }
+        //making sure one can easily find the end of the payload
+        buffer[payload.size()] = '\0';
+
+        return payload.size() + 1;
+    }
+
+    /**
+     * creates BaseMessage object containing the payload string from buffer if
+     * the buffer contains suitable data
+     * @param buffer buffer to create the message object from
+     * @param msg_obj pointer to store the message object
+     * @return returns true if the buffer contains valid data of the right type, false otherwise
+     */
+    static bool from_bytes(char *buffer, BaseMessage *msg_obj) {
+        MessageType content_type = (MessageType) buffer[0];
+        if (content_type != TYPE) return false;
+        msg_obj->payload.assign(buffer + 1);
+        return true;
+    }
+};
+
 /**
  * struct for storing messages
  * contains TYPE to identify the contents of the payload
@@ -37,11 +90,11 @@ struct Message {
 };
 
 /**
- * Struct for storing message objects and the source ip address
+ * Struct for storing buffer and the source ip address
  */
 
-struct MessageContainer {
-    struct Message *message;
+struct RawContainer {
+    char *buffer;
     string from_addr;
 };
 
@@ -79,19 +132,7 @@ public:
      * Returns vector with all received messages since the last call of this function.
      * @return vector containing the messages since last call.
      */
-    vector<struct MessageContainer> get_messages();
-
-    /**
-     * Debug function
-     * Sends a string over the network using TCP to the given address and port.
-     * Blocks until finished.
-     * The timeout for a connection is one second.
-     * @param type user defined type of the message
-     * @param msg string to send
-     * @param addr target IP address string, for example: "192.168.0.12"
-     * @param port target port
-     */
-    void send_string(u_int16_t type, string msg, string addr, int port);
+    vector<struct RawContainer> get_messages();
 
     /**
      * sends the given message to the given address and port
@@ -99,7 +140,7 @@ public:
      * @param addr target address
      * @param port target port
      */
-    void send_message(struct Message message, string addr, int port);
+    static void send_message(BaseMessage &msg_obj, string addr, int port);
 
 private:
     int PORT;
@@ -107,7 +148,7 @@ private:
     atomic<bool> listening, has_msg;
     thread listening_thread;
 
-    vector<struct MessageContainer> messages;
+    vector<struct RawContainer> messages;
 
     /**
      * Get the IP address out of the socket address struct.
@@ -120,7 +161,7 @@ private:
      * Stores messages thread safe inside the messages vector.
      * @param msg message struct to store
      */
-    void store_message(struct MessageContainer con);
+    void store_message(struct RawContainer con);
 
     /**
      * Listens on the given port for connections and stores received messages.

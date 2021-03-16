@@ -30,25 +30,29 @@ Java_com_example_teampraktikum_MainActivity_stopListening(JNIEnv *env, jobject /
 
 JNIEXPORT void
 Java_com_example_teampraktikum_MainActivity_sendString(JNIEnv *env, jobject /* this */) {
-    server.send_string(0, "hallo test string", "192.168.43.53", 8080);
+    BaseMessage bm;
+    bm.payload = "hello test string";
+    server.send_message(bm, "192.168.43.53", 8080);
 }
 
 JNIEXPORT jobjectArray
 Java_com_example_teampraktikum_MainActivity_getMessagesAsString(JNIEnv *env, jobject /* this */) {
-    vector<MessageContainer> msgs = server.get_messages();
+    vector<RawContainer> msgs = server.get_messages();
 
     jobjectArray ret = (jobjectArray) env->NewObjectArray(msgs.size(),
                                                           env->FindClass("java/lang/String"),
                                                           env->NewStringUTF(""));
 
     for (int i = 0; i < msgs.size(); i++) {
-        char s[100];
+        char s[1023];
 
-        u_int16_t TYPE = msgs[i].message->TYPE;
-        u_int16_t LENGTH = msgs[i].message->LENGTH;
+        BaseMessage bm;
 
-        sprintf(s, "Message Object:\nTYPE: %d\nLENGTH: %d\nPAYLOAD: %s\n", TYPE, LENGTH,
-                msgs[i].message->payload);
+        if (BaseMessage::from_bytes(msgs[i].buffer, &bm)) {
+            sprintf(s, "Base Message Object: PAYLOAD: %s\n", bm.payload.c_str());
+        } else {
+            sprintf(s, "Another Message Object");
+        }
 
         env->SetObjectArrayElement(ret, i, env->NewStringUTF(s));
     }
