@@ -13,81 +13,14 @@
 #include <android/log.h>
 #include <errno.h>
 
+#include "Messages.hpp"
+
 #ifndef TEAMPRAKTIKUM_NETWORK_H
 #define TEAMPRAKTIKUM_NETWORK_H
 
 #define BUFFER_SIZE 1024
 
 using namespace std;
-
-enum MessageType {
-    MSG_STRING,
-    MSG_INTS,
-    MSG_FLOATS,
-};
-
-/**
- * default message type for sending strings
- */
-class BaseMessage {
-public:
-    static const MessageType TYPE = MSG_STRING;
-
-    string payload;
-
-    /**
-     * constructor
-     */
-    BaseMessage() {
-
-    }
-
-    /**
-     * converts the message to bytes to be sent over the network
-     * @param buffer buffer of size BUFFERSIZE to store the message in
-     * @return returns true size of used buffer (<= BUFFERSIZE)
-     */
-    virtual int to_bytes(char *buffer) {
-        buffer[0] = TYPE;
-        for (int i = 0; i < payload.size(); i++) {
-            buffer[1 + i] = payload.at(i);
-        }
-        //making sure one can easily find the end of the payload
-        buffer[payload.size()] = '\0';
-
-        return payload.size() + 1;
-    }
-
-    /**
-     * creates BaseMessage object containing the payload string from buffer if
-     * the buffer contains suitable data
-     * @param buffer buffer to create the message object from
-     * @param msg_obj pointer to store the message object
-     * @return returns true if the buffer contains valid data of the right type, false otherwise
-     */
-    static bool from_bytes(char *buffer, BaseMessage *msg_obj) {
-        MessageType content_type = (MessageType) buffer[0];
-        if (content_type != TYPE) return false;
-        msg_obj->payload.assign(buffer + 1);
-        return true;
-    }
-};
-
-/**
- * struct for storing messages
- * contains TYPE to identify the contents of the payload
- * contains LENGTH of payload. 0 -> no payload
- */
-
-struct Message {
-    u_int16_t TYPE;
-    u_int16_t LENGTH;
-    char *payload;
-
-    ~Message() {
-        delete payload;
-    }
-};
 
 /**
  * Struct for storing buffer and the source ip address

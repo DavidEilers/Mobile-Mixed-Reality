@@ -11,7 +11,10 @@
 
 /**
  * struct to hold information about a connected slave
- * contains: name (string), ip (string) and port (int) of the slave
+ * contains:
+ * name (string) -> player name
+ * ip (string) -> ip to reach slave
+ * port (int) -> port to reach slave
  */
 
 struct ConnectedSlave {
@@ -39,6 +42,7 @@ public:
     /**
      * runs one iteration of the master
      * call in game loop
+     * handles connecting and leaving and calls handle messages with new messages
      */
     void tick();
 
@@ -51,14 +55,20 @@ public:
      * broadcasts a given message to all connected slaves
      * @param message message to send to all slaves
      */
-    void broadcast(struct Message message);
+    void broadcast(BaseMessage message);
 
     /**
      * sends a message to a given connected slave
      * @param message
      * @param slave
      */
-    void send_to(struct Message message, struct ConnectedSlave slave);
+    void send_to(BaseMessage message, struct ConnectedSlave slave);
+
+    /**
+     * function to override, user can react to incoming messages
+     * @param containers messages to handle
+     */
+    void handle_messages(std::vector<RawContainer> &containers);
 
     Server server;
 private:
@@ -66,6 +76,13 @@ private:
     int PORT;
     int max_slaves_count;
     std::vector<struct ConnectedSlave> slaves;
+
+    /**
+     * checks if a player with given name is connected
+     * @param name name of player to check
+     * @return true if player with name is connected, false otherwise
+     */
+    bool player_connected(const std::string &name);
 };
 
 /**
@@ -86,6 +103,7 @@ public:
     /**
      * runs one iteration of the slave
      * call in game loop
+     * handles connecting and leaving and calls handle messages with new messages
      */
     void tick();
 
@@ -98,16 +116,21 @@ public:
     /**
      * connects the slave to a master
      * @param ip ip of master
-     * @param port port of master
-     * @return returns an error code: 0 -> success, 1 -> connection error, 2 -> player name already in use, 3 -> game is full
+     * @param master_port port where master is reachable
      */
-    int connect_to_master(std::string ip, int port);
+    void connect_to_master(std::string ip, int master_port);
 
     /**
      * sends a message to the master
      * @param message message to send to the master
      */
-    void send(struct Message message);
+    void send(BaseMessage message);
+
+    /**
+     * function to override, user can react to incoming messages
+     * @param containers messages to handle
+     */
+    virtual void handle_messages(std::vector<RawContainer> &containers);
 
     Server server;
 private:
@@ -115,8 +138,11 @@ private:
     std::string player_name;
 
     bool connected;
-    std::string master_ip;
-    int master_port;
+    std::string MASTER_NAME;
+    std::string MASTER_IP;
+    int MASTER_PORT;
+
+    std::vector<struct ConnectedSlave> other_slaves;
 };
 
 #endif //TEAMPRAKTIKUM_GAMEMANAGER_H
