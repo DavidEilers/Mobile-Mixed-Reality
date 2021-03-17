@@ -35,6 +35,9 @@ void Master::handle_messages(std::vector<RawContainer> &containers) {
 }
 
 bool Master::player_connected(const std::string &name) {
+    //master is always connected
+    if (name == player_name) return true;
+    //check if a player with this name is connected
     for (const auto &player:slaves) {
         if (player.name == name)
             return true;
