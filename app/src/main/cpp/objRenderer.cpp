@@ -68,6 +68,8 @@ ObjRenderer::ObjRenderer(std::string filename, AAssetManager *assetMgr) {
     __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
                         "cube.obj uploaded to GL");
     mvpMatrixID = glGetUniformLocation(programID,"mvp");
+    mvMatrixID = glGetUniformLocation(programID,"mv");
+    viewMatrixID = glGetUniformLocation(programID,"view");
 
     ////Set matrices to Identity Matrix
     view = glm::mat4(1.0f);
@@ -89,16 +91,21 @@ void ObjRenderer::setProjectionMatrix(glm::mat4 projection_mat){
 }
 
 void ObjRenderer::draw() {
-    glm::mat4 mvp = projection*model*view;
+    //glm::mat4 scale(0.1f);
+    glm::mat4 mv = view*model;
+    glm::mat4 mvp = projection*mv;//*scale;
+
 //    glm::mat4 mvp(1.0f);
-//    mvp[0][0]=0.25f;
-//    mvp[1][1]=0.25f;
+//    mvp[0][0]*=2.0f;
+//    mvp[1][1]*=2.0f;
 //    mvp[2][2]=0.0f;
 //    mvp[2][3]=0.5f;
     //mvp= glm::transpose(mvp);
     glUseProgram(programID);
 
     glUniformMatrix4fv(mvpMatrixID,1,GL_FALSE,glm::value_ptr(mvp));
+    glUniformMatrix4fv(mvMatrixID,1,GL_FALSE,glm::value_ptr(mv));
+    glUniformMatrix4fv(viewMatrixID,1,GL_FALSE,glm::value_ptr(view));
 
 //    std::string matrixString="";
 //    for(int i=0;i<4;i++){

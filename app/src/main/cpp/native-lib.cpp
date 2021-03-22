@@ -133,6 +133,7 @@ Java_com_example_teampraktikum_MainActivity_onDisplayGeometryChanged(
     display_rotation_ = display_rotation;
     width_ = width;
     height_ = height;
+    glViewport(0, 0, width, height);
     ArSession_setDisplayGeometry(ar_session_, display_rotation_, width_, height_);
 }
 
@@ -147,6 +148,7 @@ Java_com_example_teampraktikum_MainActivity_nativeSetCanvasOffset(
 
 }
 
+//TODO x and y positions from touch event are not relative to the camera canvas
 JNIEXPORT void JNICALL
 Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
         JNIEnv *env,
@@ -164,20 +166,46 @@ Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
         ArHitResultList *hit_result_list = nullptr;
         ArHitResultList_create(ar_session_, &hit_result_list);
         ArFrame_hitTestInstantPlacement(ar_session_, frame, x, y,
-                                        1.0f,
+                                        20.0f,
                                         hit_result_list);
-        ArHitResult *ar_hit = nullptr;
-        ArHitResult_create(ar_session_, &ar_hit);
-        ArHitResultList_getItem(ar_session_, hit_result_list, 0, ar_hit);
+        int32_t hit_result_list_size = 0;
+        ArHitResultList_getSize(ar_session_, hit_result_list,
+                                &hit_result_list_size);
 
-        if (anchor != nullptr) {
-            ArAnchor_release(anchor);
+        if(hit_result_list_size>0) {
+            ArHitResult *ar_hit = nullptr;
+            ArHitResult_create(ar_session_, &ar_hit);
+            ArHitResultList_getItem(ar_session_, hit_result_list, 0, ar_hit);
+
+            ArTrackable *ar_trackable = nullptr;
+            ArHitResult_acquireTrackable(ar_session_, ar_hit, &ar_trackable);
+            ArTrackableType ar_trackable_type = AR_TRACKABLE_NOT_VALID;
+            ArTrackable_getType(ar_session_, ar_trackable, &ar_trackable_type);
+
+            std::string type;
+            switch (ar_trackable_type) {
+                case AR_TRACKABLE_POINT:
+                    type = "point";
+                    break;
+                case AR_TRACKABLE_PLANE:
+                    type = "plane";
+                    break;
+                case AR_TRACKABLE_INSTANT_PLACEMENT_POINT:
+                    type = "instant-placement-point";
+                    break;
+                default:
+                    type = "unknown";
+                    break;
+            }
+
+            if (anchor != nullptr) {
+                ArAnchor_release(anchor);
+            }
+            ArHitResult_acquireNewAnchor(ar_session_, ar_hit, &anchor);
+            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Anchor %s created successfully",type.c_str());
         }
-        ArHitResult_acquireNewAnchor(ar_session_, ar_hit, &anchor);
+            ArHitResultList_destroy(hit_result_list);
 
-        ArHitResultList_destroy(hit_result_list);
-
-        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Anchor created successfully");
 
     }
 
@@ -217,9 +245,32 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
     objRenderer->setViewMatrix(view_mat);
     objRenderer->setProjectionMatrix(projection_mat);
 
-    camBack->draw(ar_session_);
+    // Get light estimation value.
+    ArLightEstimate* ar_light_estimate;
+    ArLightEstimateState ar_light_estimate_state;
+    ArLightEstimate_create(ar_session_, &ar_light_estimate);
 
+    ArFrame_getLightEstimate(ar_session_, ar_frame_, ar_light_estimate);
+    ArLightEstimate_getState(ar_session_, ar_light_estimate,
+                             &ar_light_estimate_state);
+
+    // Set light intensity to default. Intensity value ranges from 0.0f to 1.0f.
+    // The first three components are color scaling factors.
+    // The last one is the average pixel intensity in gamma space.
+    float color_correction[4] = {1.f, 1.f, 1.f, 1.f};
+    if (ar_light_estimate_state == AR_LIGHT_ESTIMATE_STATE_VALID) {
+        ArLightEstimate_getColorCorrection(ar_session_, ar_light_estimate,
+                                           color_correction);
+    }
+
+    ArLightEstimate_destroy(ar_light_estimate);
+    ar_light_estimate = nullptr;
+
+    camBack->draw(ar_session_);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_DEPTH_BUFFER_BIT);
     objRenderer->draw();
+    glDisable(GL_DEPTH_TEST);
 
     ArFrame_destroy(frame);
 

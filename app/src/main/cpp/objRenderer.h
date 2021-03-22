@@ -33,6 +33,8 @@ private:
     GLuint vbo[3];
     GLuint ibo;
     GLuint mvpMatrixID;
+    GLuint mvMatrixID;
+    GLuint viewMatrixID;
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;

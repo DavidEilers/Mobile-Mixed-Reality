@@ -48,6 +48,25 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private static final String CAMERA_PERMISSION = Manifest.permission.CAMERA;
     private static final int CAMERA_PERMISSION_CODE = 0;
 
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        resourceId = getResources().getIdentifier("title_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result += getResources().getDimensionPixelSize(resourceId);
+        }
+
+        resourceId = getResources().getIdentifier("action_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result += getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setWillNotDraw(false);
 
 
+
         // Set up touch listener.
         gestureDetector =
                 new GestureDetector(
@@ -71,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                             public boolean onSingleTapUp(final MotionEvent e) {
                                 // For devices that support the Depth API, shows a dialog to suggest enabling
                                 // depth-based occlusion. This dialog needs to be spawned on the UI thread.
-
+                                System.out.println("Statusbar height; "+getStatusBarHeight());
                                 surfaceView.queueEvent(
                                         () -> nativeOnTouched(e.getX(), e.getY()));
                                 return true;
@@ -127,6 +147,24 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            // Standard Android full-screen functionality.
+            getWindow()
+                    .getDecorView()
+                    .setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         surfaceView.onPause();
@@ -165,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public void onDisplayChanged(int displayId) {
-
+    viewPortChanged=true;
     }
 
     @Override
