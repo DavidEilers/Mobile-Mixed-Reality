@@ -267,10 +267,13 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
     ar_light_estimate = nullptr;
 
     camBack->draw(ar_session_);
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    objRenderer->draw();
-    glDisable(GL_DEPTH_TEST);
+
+    if(anchor!= nullptr) {
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        objRenderer->draw();
+        glDisable(GL_DEPTH_TEST);
+    }
 
     ArFrame_destroy(frame);
 
