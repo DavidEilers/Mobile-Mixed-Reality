@@ -54,6 +54,10 @@ void cameraBackground::initShader() {
     myShader->addShader("shader/screenQuadTexture.v.glsl", GL_VERTEX_SHADER);
     programID= myShader->compileShader();
     glActiveTexture(GL_TEXTURE0);
+    samplerLoc = glGetUniformLocation(programID,"image");
+    glUseProgram(programID);
+    glUniform1i(samplerLoc, 0);
+    //glUseProgram(-1);
 
 }
 

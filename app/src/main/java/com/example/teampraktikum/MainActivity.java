@@ -122,13 +122,16 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     @Override
     protected void onResume() {
         super.onResume();
+        System.out.println("OnResume");
         if (ContextCompat.checkSelfPermission(this, CAMERA_PERMISSION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                     this, new String[]{CAMERA_PERMISSION}, CAMERA_PERMISSION_CODE);
             return;
         }
+        System.out.println("Camera_Permission checked");
         nativeOnResume(getApplicationContext());
+        System.out.println("NativeOnResume finished");
         surfaceView.onResume();
 //        loadingMessageSnackbar =
 //                Snackbar.make(
@@ -144,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         // Listen to display changed events to detect 180° rotation, which does not cause a config
         // change or view resize.
         getSystemService(DisplayManager.class).registerDisplayListener(this, null);
+        System.out.println("Finished OnResume");
     }
 
     @Override

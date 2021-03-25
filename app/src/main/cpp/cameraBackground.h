@@ -63,6 +63,7 @@ private:
     GLuint vao;
     GLuint vboID;
     GLuint imageID;
+    GLuint samplerLoc;
     ArSession *arSess = nullptr;
     ArFrame *arFrame = nullptr;
     int width = 0;
