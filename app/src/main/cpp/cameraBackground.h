@@ -6,7 +6,7 @@
 #define TEAMPRAKTIKUM_CAMERABACKGROUND_H
 
 //#include <GLES/gl.h>
-#include <GLES3/gl3.h>
+#include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h> //NEED GLES2Extensions for GLES3 KNOWN WORKAROUND
 #include <jni.h>
 #include "arcore_c_api.h"
@@ -55,9 +55,11 @@ public:
 
     void updateCameraFrame(ArFrame *frame);
 
+    void updateVertexData();
+
 
 private:
-    Shader* myShader=nullptr;
+    Shader *myShader = nullptr;
     AAssetManager *assetManager;
     GLuint programID;
     GLuint vao;

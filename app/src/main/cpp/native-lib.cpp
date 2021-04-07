@@ -1,5 +1,5 @@
-#include <GLES3/gl3.h>
-#include <GLES3/gl3ext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 #include <jni.h>
 #include <string>
 #include "arcore_c_api.h"
@@ -30,17 +30,19 @@ ArFrame *ar_frame_ = nullptr;
 int width_ = 1;
 int height_ = 1;
 int display_rotation_ = 0;
-cameraBackground* camBack= nullptr;
-ObjRenderer* objRenderer = nullptr;
-int canvasX_offset=0;
-int canvasY_offset=0;
-ArAnchor * anchor= nullptr;
+cameraBackground *camBack = nullptr;
+ObjRenderer *objRenderer = nullptr;
+int canvasX_offset = 0;
+int canvasY_offset = 0;
+ArAnchor *anchor = nullptr;
 
-JNIEXPORT void JNICALL
+JNIEXPORT int JNICALL
 Java_com_example_teampraktikum_MainActivity_nativeOnResume(
         JNIEnv *env,
         jobject activity,
         jobject context) {
+    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "In nativeOnResume");
+
     if (ar_session_ == nullptr) {
         bool user_requested_install = !install_requested_;
 
@@ -51,7 +53,9 @@ Java_com_example_teampraktikum_MainActivity_nativeOnResume(
                 env, activity, user_requested_install, &install_status);
         if (error != AR_SUCCESS) {
             // Inform user of error.
-            return;
+            __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
+                                "ArCore is not installed or up to date Error: %d", error);
+            return -1;
         }
 
         switch (install_status) {
@@ -68,7 +72,9 @@ Java_com_example_teampraktikum_MainActivity_nativeOnResume(
                 //    `AR_INSTALL_STATUS_INSTALLED` or throw an exception if the
                 //    installation or update did not succeed.
                 install_requested_ = true;
-                return;
+                __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
+                                    "Install ArCore");
+                return -1;
         }
 
         // Request camera permissions.
@@ -78,7 +84,7 @@ Java_com_example_teampraktikum_MainActivity_nativeOnResume(
             // Inform user of error.
             __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
                                 "ArSession couldn't be created ArStatusCode: %d", error);
-            return;
+            return -1;
         }
 
 
@@ -89,7 +95,10 @@ Java_com_example_teampraktikum_MainActivity_nativeOnResume(
         ArConfig_setInstantPlacementMode(ar_session_, ar_config,
                                          AR_INSTANT_PLACEMENT_MODE_LOCAL_Y_UP);
         if (ArSession_configure(ar_session_, ar_config) != AR_SUCCESS) {
-            return;
+
+            __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
+                                "ArSession couldn't be configured");
+            return -1;
         }
         ArConfig_destroy(ar_config);
 
@@ -103,23 +112,28 @@ Java_com_example_teampraktikum_MainActivity_nativeOnResume(
     // Normal onResume behavior
     const ArStatus status = ArSession_resume(ar_session_);
     if (status != AR_SUCCESS) {
-        return;
+        __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
+                            "ArSession resume failed");
+        return -1;
     }
-   if(glGetError()!=GL_NO_ERROR) {
-       __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "GL ERROR %d",glGetError());
-   }else{
-       __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "NO GL ERROR");
-   }
+    if (glGetError() != GL_NO_ERROR) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "GL ERROR %d", glGetError());
+    } else {
+        __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "NO GL ERROR");
+    }
+    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "GL Extensions:\n%s",
+                        glGetString(GL_EXTENSIONS));
+    return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_example_teampraktikum_MainActivity_nativeOnSurfaceCreated(
-        JNIEnv* env,
+        JNIEnv *env,
         jobject activity,
         jobject assetManager
-        ) {
-    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
-    camBack = new cameraBackground(nullptr, nullptr,mgr);
-    objRenderer = new ObjRenderer("obj/cube.obj",mgr);
+) {
+    AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
+    camBack = new cameraBackground(nullptr, nullptr, mgr);
+    objRenderer = new ObjRenderer("obj/cube.obj", mgr);
 }
 
 JNIEXPORT void JNICALL
@@ -143,7 +157,7 @@ Java_com_example_teampraktikum_MainActivity_nativeSetCanvasOffset(
         JNIEnv *env,
         jint x,
         jint y) {
-    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Surface starts at x:%d y:%d",x,y);
+    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "Surface starts at x:%d y:%d", x, y);
 
 
 }
@@ -154,15 +168,18 @@ Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
         JNIEnv *env,
         float x,
         float y) {
-    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Width %d  Height %d",width_,height_);
-    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Touched detected on x:%f y:%f",x,y);
-    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","RelativePosition on x:%f y:%f",x/width_,y/height_);
+    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "Width %d  Height %d", width_,
+                        height_);
+    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "Touched detected on x:%f y:%f", x,
+                        y);
+    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "RelativePosition on x:%f y:%f",
+                        x / width_, y / height_);
 
 
     ArFrame *frame;
     ArFrame_create(ar_session_, &frame);
 
-    if(ArSession_update(ar_session_, frame) == AR_SUCCESS) {
+    if (ArSession_update(ar_session_, frame) == AR_SUCCESS) {
         ArHitResultList *hit_result_list = nullptr;
         ArHitResultList_create(ar_session_, &hit_result_list);
         ArFrame_hitTestInstantPlacement(ar_session_, frame, x, y,
@@ -172,7 +189,7 @@ Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
         ArHitResultList_getSize(ar_session_, hit_result_list,
                                 &hit_result_list_size);
 
-        if(hit_result_list_size>0) {
+        if (hit_result_list_size > 0) {
             ArHitResult *ar_hit = nullptr;
             ArHitResult_create(ar_session_, &ar_hit);
             ArHitResultList_getItem(ar_session_, hit_result_list, 0, ar_hit);
@@ -202,9 +219,10 @@ Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
                 ArAnchor_release(anchor);
             }
             ArHitResult_acquireNewAnchor(ar_session_, ar_hit, &anchor);
-            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Anchor %s created successfully",type.c_str());
+            __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum",
+                                "Anchor %s created successfully", type.c_str());
         }
-            ArHitResultList_destroy(hit_result_list);
+        ArHitResultList_destroy(hit_result_list);
 
 
     }
@@ -226,14 +244,14 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
     glm::mat4 view_mat;
     glm::mat4 projection_mat;
     glm::mat4 model_mat;
-    ArCamera* ar_camera;
+    ArCamera *ar_camera;
     ArFrame_acquireCamera(ar_session_, ar_frame_, &ar_camera);
     ArCamera_getViewMatrix(ar_session_, ar_camera, glm::value_ptr(view_mat));
     ArCamera_getProjectionMatrix(ar_session_, ar_camera,
             /*near=*/0.1f, /*far=*/100.f,
                                  glm::value_ptr(projection_mat));
     ArCamera_release(ar_camera);
-    if(anchor!= nullptr) {
+    if (anchor != nullptr) {
         ArPose *pose_;
         ArPose_create(ar_session_, nullptr, &pose_);
         ArAnchor_getPose(ar_session_, anchor, pose_);
@@ -246,7 +264,7 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
     objRenderer->setProjectionMatrix(projection_mat);
 
     // Get light estimation value.
-    ArLightEstimate* ar_light_estimate;
+    ArLightEstimate *ar_light_estimate;
     ArLightEstimateState ar_light_estimate_state;
     ArLightEstimate_create(ar_session_, &ar_light_estimate);
 
@@ -268,7 +286,7 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
 
     camBack->draw(ar_session_);
 
-    if(anchor!= nullptr) {
+    if (anchor != nullptr) {
         glEnable(GL_DEPTH_TEST);
         glClear(GL_DEPTH_BUFFER_BIT);
         objRenderer->draw();

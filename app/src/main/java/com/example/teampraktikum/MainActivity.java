@@ -8,7 +8,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
-import android.opengl.GLES30;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +30,7 @@ import androidx.core.content.ContextCompat;
 //import com.google.android.material.snackbar.Snackbar;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
 import android.content.res.AssetManager;
 
 public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer, DisplayManager.DisplayListener {
@@ -74,12 +75,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
         // Set up renderer.
         surfaceView.setPreserveEGLContextOnPause(true);
-        surfaceView.setEGLContextClientVersion(3);
+        surfaceView.setEGLContextClientVersion(2);
         surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
         surfaceView.setRenderer(this);
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         surfaceView.setWillNotDraw(false);
-
 
 
         // Set up touch listener.
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                             public boolean onSingleTapUp(final MotionEvent e) {
                                 // For devices that support the Depth API, shows a dialog to suggest enabling
                                 // depth-based occlusion. This dialog needs to be spawned on the UI thread.
-                                System.out.println("Statusbar height; "+getStatusBarHeight());
+                                System.out.println("Statusbar height; " + getStatusBarHeight());
                                 surfaceView.queueEvent(
                                         () -> nativeOnTouched(e.getX(), e.getY()));
                                 return true;
@@ -108,10 +108,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         int offset[] = new int[2];
         surfaceView.getLocationOnScreen(offset);
-        int height= surfaceView.getHeight();
-        int width= surfaceView.getWidth();
-        nativeSetCanvasOffset(offset[0],offset[1]);
-        System.out.println("OFFSET  x: "+offset[0]+" y: "+offset[1]);
+        int height = surfaceView.getHeight();
+        int width = surfaceView.getWidth();
+        nativeSetCanvasOffset(offset[0], offset[1]);
+        System.out.println("OFFSET  x: " + offset[0] + " y: " + offset[1]);
 
         //JniInterface.assetManager = getAssets();
         // Example of a call to a native method
@@ -130,7 +130,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             return;
         }
         System.out.println("Camera_Permission checked");
-        nativeOnResume(getApplicationContext());
+        if (nativeOnResume(getApplicationContext()) != 0) {
+            System.out.println("NativeResume not finished");
+            return;
+        }
         System.out.println("NativeOnResume finished");
         surfaceView.onResume();
 //        loadingMessageSnackbar =
@@ -183,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
      */
     public native String stringFromJNI(Context context);
 
-    public native void nativeOnResume(Context context);
+    public native int nativeOnResume(Context context);
 
     public native void onDisplayGeometryChanged(int display_rotation, int width, int height);
 
@@ -207,12 +210,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public void onDisplayChanged(int displayId) {
-    viewPortChanged=true;
+        viewPortChanged = true;
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES30.glClearColor(0.7f, 0.0f, 0.0f, 1.0f);
+        GLES20.glClearColor(0.7f, 0.0f, 0.0f, 1.0f);
         nativeOnSurfaceCreated(getAssets());
     }
 
