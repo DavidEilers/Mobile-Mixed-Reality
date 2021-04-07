@@ -132,7 +132,7 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_MainActivity_nativeOnSurfa
         jobject assetManager
 ) {
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
-    camBack = new cameraBackground(nullptr, nullptr, mgr);
+    camBack = new cameraBackground(mgr);
     objRenderer = new ObjRenderer("obj/cube.obj", mgr);
 }
 

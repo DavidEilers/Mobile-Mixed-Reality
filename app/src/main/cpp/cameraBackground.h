@@ -38,23 +38,44 @@ static float screenQuadTex[8] = {
 //static final char* fragmentShader="shader/screenQuadTexture.v.glsl";
 
 
-
+/**
+ * @class cameraBackground
+ * Renders the Background(The Camera Image) on the framebuffer
+ * */
 class cameraBackground {
 public:
-    cameraBackground(ArSession *session, ArFrame *frame, AAssetManager *assetManager);
+    /**
+     * @brief cameraBackground Constructor
+     * @param assetManager Android AssetManager for loading shader-files
+     * */
+    cameraBackground(AAssetManager *assetManager);
 
     ~cameraBackground();
 
+    /**
+     * @brief Initialize needed GL Data
+     * */
     void initGL();
 
+    /**
+     * @brief Renders camera image from ARCore to framebuffer
+     * @param session active ARCore Session to aquire camera-frame from
+     * */
     void draw(ArSession *session);
 
+    /**
+     * @brief Compile and Link Shader prepare for usage
+     */
     void initShader();
 
-    void createShader(std::string path, GLenum shaderType);
-
+    /**
+     * @brief Update Texture to newest camera-frame
+     * */
     void updateCameraFrame(ArFrame *frame);
 
+    /**
+     * @brief Bind VertexBuffers and set their respective vertex attribute pointer
+     * */
     void updateVertexData();
 
 

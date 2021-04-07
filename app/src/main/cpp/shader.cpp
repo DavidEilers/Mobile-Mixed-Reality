@@ -46,7 +46,7 @@ void Shader::addShader(std::string path, GLenum shaderType){
 
 }
 
-GLuint Shader::compileShader(){
+GLuint Shader::linkShader(){
     this->programID = glCreateProgram();
     glAttachShader(programID, shaderInfos[0].shaderID);
     glAttachShader(programID, shaderInfos[1].shaderID);

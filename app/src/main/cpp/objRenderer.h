@@ -19,20 +19,36 @@
 #include "shader.h"
 #include "objLoader.h"
 
+/**
+ * @class ObjRenderer
+ * Manage and renders object-files
+ * */
 class ObjRenderer {
 public:
+    /**
+     * @brief ObjRenderer Constructor
+     * @param filename Relative path to obj-file starting at assets folder
+     * @param assetMgr Android AssetManager for loading obj-file
+     * */
     ObjRenderer(std::string filename, AAssetManager *assetMgr);
 
     ~ObjRenderer();
 
+    /**
+     * @brief Renders obj-file to framebuffer
+     * */
     void draw();
 
+    /** @brief Set the ModelMatrix*/
     void setModelMatrix(glm::mat4 model_mat);
 
+    /** @brief Set the ViewMatrix*/
     void setViewMatrix(glm::mat4 view_mat);
 
+    /** @brief Set the ProjectionMatrix*/
     void setProjectionMatrix(glm::mat4 projection_mat);
 
+    /** @brief Bind VertexBuffers and set their respective vertex attribute pointer*/
     void updateVertexData();
 
 private:

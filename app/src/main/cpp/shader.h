@@ -14,12 +14,31 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
+/**
+ * @class Shader
+ * Class for loading, compiling and linking Shaders
+ * */
 class Shader{
 public:
+    /**
+     * @brief Shader constructor
+     * @param assetMgr Android AssetManager for loading shader-files
+     * */
     Shader(AAssetManager *assetMgr);
     ~Shader();
+
+    /**
+     * @brief Add shaderCode for a Shaderstage and compile
+     * @param path Relative path to shader-file starting at assets folder
+     * @param shaderType Specify the shaderStage
+     * */
     void addShader(std::string path, GLenum shaderType);
-    GLuint compileShader();
+
+    /**
+     * @brief Link shader
+     * @return OpenGL progromID of Shader or -1 if failed
+     * */
+    GLuint linkShader();
 
 private:
     AAssetManager* assetManager;

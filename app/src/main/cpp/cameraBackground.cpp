@@ -5,9 +5,8 @@
 #include "cameraBackground.h"
 #include "shader.h"
 
-cameraBackground::cameraBackground(ArSession *session, ArFrame *frame, AAssetManager *mgr) {
-    this->arSess = session;
-    this->arFrame = frame;
+cameraBackground::cameraBackground(AAssetManager *mgr) {
+    this->arSess = nullptr; //unknown on creation
     this->assetManager = mgr;
     initGL();
 }
@@ -50,7 +49,7 @@ void cameraBackground::initShader() {
     this->myShader = new Shader(assetManager);
     myShader->addShader("shader/screenQuadTexture.f.glsl", GL_FRAGMENT_SHADER);
     myShader->addShader("shader/screenQuadTexture.v.glsl", GL_VERTEX_SHADER);
-    programID = myShader->compileShader();
+    programID = myShader->linkShader();
     samplerLoc = glGetUniformLocation(programID, "image");
     glUseProgram(programID);
     glActiveTexture(GL_TEXTURE0);

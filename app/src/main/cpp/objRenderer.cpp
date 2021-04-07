@@ -7,7 +7,7 @@ ObjRenderer::ObjRenderer(std::string filename, AAssetManager *assetMgr) {
     myShader = new Shader(assetMgr);
     myShader->addShader("shader/objects.f.glsl", GL_FRAGMENT_SHADER);
     myShader->addShader("shader/objects.v.glsl", GL_VERTEX_SHADER);
-    this->programID = myShader->compileShader();
+    this->programID = myShader->linkShader();
     __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
                         "Shaders are linked");
 
