@@ -58,6 +58,10 @@ void cameraBackground::initShader() {
 
 }
 
+GLuint cameraBackground::getTextureID() {
+    return imageID;
+}
+
 void cameraBackground::updateCameraFrame(ArFrame *frame) {
 
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, imageID);
@@ -84,17 +88,16 @@ void cameraBackground::draw(ArSession *session) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (arSess != nullptr) {
-        ArFrame *frame;
-        ArFrame_create(session, &frame);
-        updateCameraFrame(frame);
+//        ArFrame *frame;
+//        ArFrame_create(session, &frame);
+//        updateCameraFrame(frame);
         if (imageID == -1) { return; }
-
         glUseProgram(programID);
         updateVertexData();
         glUniform1i(samplerLoc, 0);
         glBindTexture(GL_TEXTURE_EXTERNAL_OES, imageID);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        ArFrame_destroy(frame);
+     //   ArFrame_destroy(frame);
     }
 //    glBindVertexArray(-1);
 }

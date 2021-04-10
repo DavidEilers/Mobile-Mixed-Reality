@@ -78,6 +78,11 @@ public:
      * */
     void updateVertexData();
 
+    /**
+     * @brief Returns the OpenGL textureID which will be drawn as background
+     * */
+    GLuint getTextureID();
+
 
 private:
     Shader *myShader = nullptr;

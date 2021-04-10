@@ -241,6 +241,13 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
     ArFrame *frame;
     ArFrame_create(ar_session_, &frame);
 
+    ArSession_setCameraTextureName(ar_session_, camBack->getTextureID());
+    if (ArSession_update(ar_session_, frame) != AR_SUCCESS) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "ArSession_update error");
+    }
+
+    camBack->draw(ar_session_);
+
     glm::mat4 view_mat;
     glm::mat4 projection_mat;
     glm::mat4 model_mat;
@@ -250,6 +257,15 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
     ArCamera_getProjectionMatrix(ar_session_, ar_camera,
             /*near=*/0.1f, /*far=*/100.f,
                                  glm::value_ptr(projection_mat));
+
+    ArTrackingState trackingState;
+    ArCamera_getTrackingState(ar_session_,ar_camera,&trackingState);
+    if(trackingState!=AR_TRACKING_STATE_TRACKING){
+        ArFrame_destroy(frame);
+        ArCamera_release(ar_camera);
+        __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikum","No Trackingstate in OnDrawFrame");
+        return;
+    }
     ArCamera_release(ar_camera);
     if (anchor != nullptr) {
         ArPose *pose_;
@@ -283,8 +299,6 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
 
     ArLightEstimate_destroy(ar_light_estimate);
     ar_light_estimate = nullptr;
-
-    camBack->draw(ar_session_);
 
     if (anchor != nullptr) {
         glEnable(GL_DEPTH_TEST);
