@@ -18,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <jni.h>
 
 /// @defgroup concepts Concepts
 /// High-Level ARCore concepts.

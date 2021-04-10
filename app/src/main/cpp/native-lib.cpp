@@ -1,3 +1,4 @@
+#pragma once
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <jni.h>
@@ -8,6 +9,7 @@
 #include "objRenderer.h"
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
+#include "arServer.h"
 
 
 extern "C" {
@@ -24,6 +26,8 @@ Java_com_example_teampraktikum_MainActivity_stringFromJNI(
     return env->NewStringUTF("Hello World!");
 }
 
+
+ArServer* arServer= nullptr;
 bool install_requested_ = false;
 ArSession *ar_session_ = nullptr;
 ArFrame *ar_frame_ = nullptr;
@@ -36,49 +40,61 @@ int canvasX_offset = 0;
 int canvasY_offset = 0;
 ArAnchor *anchor = nullptr;
 
+
+bool isArCoreInstalled(JNIEnv *env,jobject activity)
+{
+    bool user_requested_install = !install_requested_;
+
+    ArInstallStatus install_status;
+    // Ensure Google Play Services for AR and ARCore device profile data are
+    // installed and up to date.
+    ArStatus error = ArCoreApk_requestInstall(
+            env, activity, user_requested_install, &install_status);
+    if (error != AR_SUCCESS) {
+        // Inform user of error.
+        __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
+                            "ArCore is not installed or up to date Error: %d", error);
+        return false;
+    }
+
+    switch (install_status) {
+        case AR_INSTALL_STATUS_INSTALLED:
+            break;
+        case AR_INSTALL_STATUS_INSTALL_REQUESTED:
+            // When this method returns `AR_INSTALL_STATUS_INSTALL_REQUESTED`:
+            // 1. This activity will be paused.
+            // 2. The user is prompted to install or update Google Play
+            //    Services for AR (market://details?id=com.google.ar.core).
+            // 3. ARCore downloads the latest device profile data.
+            // 4. This activity is resumed. The next invocation of
+            //    ArCoreApk_requestInstall will either return
+            //    `AR_INSTALL_STATUS_INSTALLED` or throw an exception if the
+            //    installation or update did not succeed.
+            install_requested_ = true;
+            __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
+                                "Install ArCore");
+            return false;
+    }
+    return true;
+}
+
 JNIEXPORT int JNICALL
 Java_com_example_teampraktikum_MainActivity_nativeOnResume(
         JNIEnv *env,
         jobject activity,
-        jobject context) {
+        jobject context){
     __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "In nativeOnResume");
 
-    if (ar_session_ == nullptr) {
-        bool user_requested_install = !install_requested_;
 
-        ArInstallStatus install_status;
-        // Ensure Google Play Services for AR and ARCore device profile data are
-        // installed and up to date.
-        ArStatus error = ArCoreApk_requestInstall(
-                env, activity, user_requested_install, &install_status);
-        if (error != AR_SUCCESS) {
-            // Inform user of error.
-            __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
-                                "ArCore is not installed or up to date Error: %d", error);
+
+    if (ar_session_ == nullptr) {
+        if(isArCoreInstalled(env,activity)==false){
             return -1;
         }
 
-        switch (install_status) {
-            case AR_INSTALL_STATUS_INSTALLED:
-                break;
-            case AR_INSTALL_STATUS_INSTALL_REQUESTED:
-                // When this method returns `AR_INSTALL_STATUS_INSTALL_REQUESTED`:
-                // 1. This activity will be paused.
-                // 2. The user is prompted to install or update Google Play
-                //    Services for AR (market://details?id=com.google.ar.core).
-                // 3. ARCore downloads the latest device profile data.
-                // 4. This activity is resumed. The next invocation of
-                //    ArCoreApk_requestInstall will either return
-                //    `AR_INSTALL_STATUS_INSTALLED` or throw an exception if the
-                //    installation or update did not succeed.
-                install_requested_ = true;
-                __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
-                                    "Install ArCore");
-                return -1;
-        }
-
         // Request camera permissions.
-
+    ArStatus error;
+        //arServer = new ArServer();
         error = ArSession_create(env, context, &ar_session_);
         if (error != AR_SUCCESS) {
             // Inform user of error.
