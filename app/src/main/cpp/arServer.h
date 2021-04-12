@@ -9,6 +9,9 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h> //NEED GLES2Extensions for GLES3 KNOWN WORKAROUND
 #include "arcore_c_api.h"
+#include "glm.hpp"
+#include "ext.hpp"
+#include <string>
 
 
 /**
@@ -19,14 +22,32 @@ class ArServer{
 public:
     ArServer();
     ~ArServer();
-    void onDrawFrame();
+    bool onDrawAnchor();
+    bool onDrawBackground(GLuint textureID);
     void checkInstall();
+    bool onResume(JNIEnv *env_, jobject activity_, jobject context_);
+    void setDisplayGeometry(int displayRotation_, int width_, int height_);
+    void createAnchorAt(float x, float y);
+    ArAnchor * getAnchor();
+    glm::mat4 getModelMatrix();
+    glm::mat4 getViewMatrix();
+    glm::mat4 getProjectionMatrix();
 private:
+    bool isArCoreInstalled();
+    bool createArSession();
     ArSession *arSession;
     ArFrame *arFrame;
+    ArAnchor *anchor;
     bool installRequested;
+    int displayRotation;
+    int width;
+    int height;
     GLuint imageID = -1;
-
-
+    JNIEnv *env;
+    jobject context;
+    jobject activity;
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 projection;
 };
 #endif //TEAMPRAKTIKUM_ARSERVER_H

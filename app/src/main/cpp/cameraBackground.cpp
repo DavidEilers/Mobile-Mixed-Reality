@@ -6,7 +6,6 @@
 #include "shader.h"
 
 cameraBackground::cameraBackground(AAssetManager *mgr) {
-    this->arSess = nullptr; //unknown on creation
     this->assetManager = mgr;
     initGL();
 }
@@ -62,16 +61,7 @@ GLuint cameraBackground::getTextureID() {
     return imageID;
 }
 
-void cameraBackground::updateCameraFrame(ArFrame *frame) {
 
-    glBindTexture(GL_TEXTURE_EXTERNAL_OES, imageID);
-    ArSession_setCameraTextureName(arSess, imageID);
-    if (ArSession_update(arSess, frame) != AR_SUCCESS) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "ArSession_update error");
-    }
-
-
-}
 
 void cameraBackground::updateVertexData() {
     glBindBuffer(GL_ARRAY_BUFFER, vboID);
@@ -81,13 +71,12 @@ void cameraBackground::updateVertexData() {
     glEnableVertexAttribArray(1);
 }
 
-void cameraBackground::draw(ArSession *session) {
+void cameraBackground::draw() {
     //glBindVertexArray(vao);
-    this->arSess = session;
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (arSess != nullptr) {
+
 //        ArFrame *frame;
 //        ArFrame_create(session, &frame);
 //        updateCameraFrame(frame);
@@ -98,6 +87,6 @@ void cameraBackground::draw(ArSession *session) {
         glBindTexture(GL_TEXTURE_EXTERNAL_OES, imageID);
         glDrawArrays(GL_TRIANGLES, 0, 6);
      //   ArFrame_destroy(frame);
-    }
+
 //    glBindVertexArray(-1);
 }

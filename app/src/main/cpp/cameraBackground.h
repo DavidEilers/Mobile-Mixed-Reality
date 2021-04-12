@@ -61,7 +61,7 @@ public:
      * @brief Renders camera image from ARCore to framebuffer
      * @param session active ARCore Session to aquire camera-frame from
      * */
-    void draw(ArSession *session);
+    void draw();
 
     /**
      * @brief Compile and Link Shader prepare for usage
@@ -92,8 +92,6 @@ private:
     GLuint vboID;
     GLuint imageID;
     GLuint samplerLoc;
-    ArSession *arSess = nullptr;
-    ArFrame *arFrame = nullptr;
     int width = 0;
     int height = 0;
 

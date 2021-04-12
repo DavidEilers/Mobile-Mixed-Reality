@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.getLocationOnScreen(offset);
         int height = surfaceView.getHeight();
         int width = surfaceView.getWidth();
-        nativeSetCanvasOffset(offset[0], offset[1]);
+        //nativeSetCanvasOffset(offset[0], offset[1]);
         System.out.println("OFFSET  x: " + offset[0] + " y: " + offset[1]);
 
         //JniInterface.assetManager = getAssets();
@@ -184,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
      *
      * @param context
      */
-    public native String stringFromJNI(Context context);
 
     public native int nativeOnResume(Context context);
 
@@ -196,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     public native void nativeOnTouched(float x, float y);
 
-    public native void nativeSetCanvasOffset(int x, int y);
+    //public native void nativeSetCanvasOffset(int x, int y);
 
     @Override
     public void onDisplayAdded(int displayId) {
