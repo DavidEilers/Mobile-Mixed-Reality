@@ -40,7 +40,7 @@ bool ArServer::onDrawAnchor() {
     ArCamera_getTrackingState(arSession,ar_camera,&trackingState);
     if(trackingState!=AR_TRACKING_STATE_TRACKING){
         ArCamera_release(ar_camera);
-        __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikum","No Trackingstate in OnDrawFrame");
+        //__android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikum","No Trackingstate in OnDrawFrame");
         return false;
     }
     ArCamera_release(ar_camera);
@@ -117,9 +117,20 @@ bool ArServer::createArSession() {
         // Configure session
         ArConfig *ar_config = nullptr;
         ArConfig_create(arSession, &ar_config);
-        ArConfig_setDepthMode(arSession, ar_config, AR_DEPTH_MODE_DISABLED);
+        int32_t supported = 0;
+        ArSession_isDepthModeSupported(arSession, AR_DEPTH_MODE_AUTOMATIC,
+                                   &supported);
+        if(supported){
+            ArConfig_setDepthMode(arSession, ar_config, AR_DEPTH_MODE_AUTOMATIC);
+            __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
+                                "ArSession Depth Mode activated");
+        }else {
+            ArConfig_setDepthMode(arSession, ar_config, AR_DEPTH_MODE_DISABLED);
+            __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
+                                "ArSession Depth Mode disabled");
+        }
         ArConfig_setInstantPlacementMode(arSession, ar_config,
-                                         AR_INSTANT_PLACEMENT_MODE_LOCAL_Y_UP);
+        AR_INSTANT_PLACEMENT_MODE_LOCAL_Y_UP);
         if (ArSession_configure(arSession, ar_config) != AR_SUCCESS) {
 
             __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum",
@@ -178,17 +189,16 @@ void ArServer::createAnchorAt(float x, float y) {
     if (ArSession_update(arSession, arFrame) == AR_SUCCESS) {
         ArHitResultList *hit_result_list = nullptr;
         ArHitResultList_create(arSession, &hit_result_list);
-        ArFrame_hitTestInstantPlacement(arSession, arFrame, x, y,
-                                        20.0f,
+        ArFrame_hitTest(arSession, arFrame, x, y,
                                         hit_result_list);
         int32_t hit_result_list_size = 0;
         ArHitResultList_getSize(arSession, hit_result_list,
                                 &hit_result_list_size);
 
-        if (hit_result_list_size > 0) {
+        for (int i = 0; i< hit_result_list_size;i++) {
             ArHitResult *ar_hit = nullptr;
             ArHitResult_create(arSession, &ar_hit);
-            ArHitResultList_getItem(arSession, hit_result_list, 0, ar_hit);
+            ArHitResultList_getItem(arSession, hit_result_list, i, ar_hit);
 
             ArTrackable *ar_trackable = nullptr;
             ArHitResult_acquireTrackable(arSession, ar_hit, &ar_trackable);
@@ -211,12 +221,17 @@ void ArServer::createAnchorAt(float x, float y) {
                     break;
             }
 
-            if (anchor != nullptr) {
-                ArAnchor_release(anchor);
-            }
-            ArHitResult_acquireNewAnchor(arSession, ar_hit, &anchor);
             __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum",
-                                "Anchor %s created successfully", type.c_str());
+                                "Found AR_Trackable %s", type.c_str());
+
+            if(ar_trackable_type==AR_TRACKABLE_POINT || ar_trackable_type==AR_TRACKABLE_INSTANT_PLACEMENT_POINT || ar_trackable_type == AR_TRACKABLE_PLANE){
+                if (anchor != nullptr) {
+                    ArAnchor_release(anchor);
+                }
+                ArHitResult_acquireNewAnchor(arSession, ar_hit, &anchor);
+                __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum",
+                                    "Anchor %s created successfully", type.c_str());
+            }
         }
         ArHitResultList_destroy(hit_result_list);
 

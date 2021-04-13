@@ -113,9 +113,10 @@ void ObjRenderer::updateVertexData() {
 }
 
 void ObjRenderer::draw() {
-    //glm::mat4 scale(0.1f);
+    glm::mat4 scale(0.05f);//should be around 10cmx10cmx10cm cube
+    scale[3][3]=1.0f;
     glm::mat4 mv = view * model;
-    glm::mat4 mvp = projection * mv;//*scale;
+    glm::mat4 mvp = projection * mv*scale;
 
 //    glm::mat4 mvp(1.0f);
 //    mvp[0][0]*=2.0f;
