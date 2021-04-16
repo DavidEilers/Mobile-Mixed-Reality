@@ -11,6 +11,7 @@
 #include "arcore_c_api.h"
 #include "glm.hpp"
 #include "ext.hpp"
+#include "planeRenderer.h"
 #include <string>
 
 
@@ -28,11 +29,13 @@ public:
     bool onResume(JNIEnv *env_, jobject activity_, jobject context_);
     void setDisplayGeometry(int displayRotation_, int width_, int height_);
     void createAnchorAt(float x, float y);
+    void onDrawPlanes(PlaneRenderer* planeRenderer);
     ArAnchor * getAnchor();
     glm::mat4 getModelMatrix();
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();
 private:
+    void drawPlane(PlaneRenderer* renderer,ArPlane* plane);
     bool isArCoreInstalled();
     bool createArSession();
     ArSession *arSession;

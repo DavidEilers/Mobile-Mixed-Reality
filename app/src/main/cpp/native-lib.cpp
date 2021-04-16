@@ -16,6 +16,7 @@ extern "C" {
 ArServer* arServer= nullptr;
 cameraBackground *camBack = nullptr;
 ObjRenderer *objRenderer = nullptr;
+PlaneRenderer* planeRenderer = nullptr;
 
 
 JNIEXPORT int JNICALL
@@ -54,6 +55,8 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_MainActivity_nativeOnSurfa
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
     camBack = new cameraBackground(mgr);
     objRenderer = new ObjRenderer("obj/cube.obj", mgr);
+    planeRenderer = new PlaneRenderer(mgr);
+
 }
 
 JNIEXPORT void JNICALL
@@ -95,15 +98,18 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
         camBack->draw();
    }
 
+
+    glClear(GL_DEPTH_BUFFER_BIT);
     if (arServer->onDrawAnchor()==true) {
         objRenderer->setProjectionMatrix(arServer->getProjectionMatrix());
         objRenderer->setViewMatrix(arServer->getViewMatrix());
         objRenderer->setModelMatrix(arServer->getModelMatrix());
         glEnable(GL_DEPTH_TEST);
-        glClear(GL_DEPTH_BUFFER_BIT);
         objRenderer->draw();
         glDisable(GL_DEPTH_TEST);
     }
+
+    //arServer->onDrawPlanes(planeRenderer);
 
 
 }

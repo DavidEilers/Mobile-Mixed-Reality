@@ -17,8 +17,89 @@ ArServer::ArServer() {
 void ArServer::checkInstall() {
 
 }
+
 ArServer::~ArServer() {}
 
+
+void ArServer::onDrawPlanes(PlaneRenderer *planeRenderer) {
+    planeRenderer->setViewMatrix(view);
+    planeRenderer->setProjectionMatrix(projection);
+
+
+    ArTrackableList* plane_list = nullptr;
+    ArTrackableList_create(arSession, &plane_list);
+    if(plane_list==nullptr){
+        return;
+    }
+
+    ArSession_getAllTrackables(arSession, AR_TRACKABLE_PLANE, plane_list);
+
+    int32_t plane_list_size = 0;
+    ArTrackableList_getSize(arSession, plane_list, &plane_list_size);
+
+    for (int i = 0; i < plane_list_size; ++i) {
+        ArTrackable* ar_trackable = nullptr;
+        ArTrackableList_acquireItem(arSession, plane_list, i, &ar_trackable);
+        ArPlane* ar_plane = ArAsPlane(ar_trackable);
+        ArTrackingState out_tracking_state;
+        ArTrackable_getTrackingState(arSession, ar_trackable,
+                                     &out_tracking_state);
+
+        if (ArTrackingState::AR_TRACKING_STATE_TRACKING != out_tracking_state) {
+            ArTrackable_release(ar_trackable);
+            continue;
+        }
+
+        ArTrackingState plane_tracking_state;
+        ArTrackable_getTrackingState(arSession, ArAsTrackable(ar_plane),
+                                     &plane_tracking_state);
+        if (plane_tracking_state == AR_TRACKING_STATE_TRACKING) {
+            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","%ith Plane is tracking",i);
+            drawPlane(planeRenderer, ar_plane);
+            ArTrackable_release(ar_trackable);
+        }
+    }
+    ArTrackableList_destroy(plane_list);
+    //__android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "All Planes Drawn");
+
+}
+
+void ArServer::drawPlane(PlaneRenderer *renderer, ArPlane *plane) {
+
+    int32_t polygon_length;
+    ArPlane_getPolygonSize(arSession, plane, &polygon_length);
+
+    GLfloat * tempVertices = new GLfloat [polygon_length*2];
+
+    ArPlane_getPolygon(arSession, plane, tempVertices);
+
+    std::vector<GLfloat>* vertices = new std::vector<GLfloat>();
+    glm::vec3 mid(0.0f);
+    for(size_t i = 0; i+1< polygon_length;i+=2){
+        vertices->push_back(tempVertices[i+0]);mid.x+=tempVertices[i+0];
+        vertices->push_back(0);
+        vertices->push_back(tempVertices[i+1]);mid.z+=tempVertices[i+1];
+    }
+    mid.x = mid.x/(vertices->size()/3) ;
+    mid.z = mid.z/(vertices->size()/3) ;
+    vertices->push_back(mid.x);
+    vertices->push_back(0);
+    vertices->push_back(mid.z);
+//    vertices->push_back(0.25f);vertices->push_back(0.25f);vertices->push_back(0.0f);
+//    vertices->push_back(0.5f);vertices->push_back(0.25f);vertices->push_back(0.0f);
+//    vertices->push_back(0.5f);vertices->push_back(0.5f);vertices->push_back(0.0f);
+    __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikum", "Created VertexData for plane with %i triangles",vertices->size()/3);
+    renderer->setVertexData(vertices);
+    ArPose *pose_;
+    ArPose_create(arSession, nullptr, &pose_);
+    ArPlane_getCenterPose(arSession, plane, pose_);
+    ArPose_getMatrix(arSession, pose_, glm::value_ptr(model));
+    renderer->setModelMatrix(model);
+    renderer->draw();
+    ArPose_destroy(pose_);
+    //delete [] vertices;
+    //delete tempVertices;
+}
 bool ArServer::onDrawBackground(GLuint textureID) {
     ArSession_setCameraTextureName(arSession, textureID);
     if (ArSession_update(arSession, arFrame) != AR_SUCCESS) {
@@ -55,6 +136,8 @@ bool ArServer::onDrawAnchor() {
     return false;
 
 }
+
+
 
 bool ArServer::onResume(JNIEnv *env_, jobject activity_, jobject context_) {
     this->env=env_;

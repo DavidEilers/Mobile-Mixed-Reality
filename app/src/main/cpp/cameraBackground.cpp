@@ -80,7 +80,8 @@ void cameraBackground::draw() {
 //        ArFrame *frame;
 //        ArFrame_create(session, &frame);
 //        updateCameraFrame(frame);
-        if (imageID == -1) { return; }
+        if (imageID == -1) {
+            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ImageID is not right");return; }
         glUseProgram(programID);
         updateVertexData();
         glUniform1i(samplerLoc, 0);
