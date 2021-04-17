@@ -6,6 +6,7 @@
 #include <android/log.h>
 #include "cameraBackground.h"
 #include "objRenderer.h"
+#include "Scene.h"
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include "arServer.h"
@@ -15,7 +16,7 @@ extern "C" {
 
 ArServer* arServer= nullptr;
 cameraBackground *camBack = nullptr;
-ObjRenderer *objRenderer = nullptr;
+Scene * scene = nullptr;
 PlaneRenderer* planeRenderer = nullptr;
 
 
@@ -54,8 +55,8 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_MainActivity_nativeOnSurfa
 ) {
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
     camBack = new cameraBackground(mgr);
-    objRenderer = new ObjRenderer("obj/cube.obj", mgr);
     planeRenderer = new PlaneRenderer(mgr);
+    scene = new Scene(mgr);
 
 }
 
@@ -101,11 +102,24 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
 
     glClear(GL_DEPTH_BUFFER_BIT);
     if (arServer->onDrawAnchor()==true) {
-        objRenderer->setProjectionMatrix(arServer->getProjectionMatrix());
-        objRenderer->setViewMatrix(arServer->getViewMatrix());
-        objRenderer->setModelMatrix(arServer->getModelMatrix());
         glEnable(GL_DEPTH_TEST);
-        objRenderer->draw();
+        //objRenderer->draw();
+        glm::mat4 view = arServer->getViewMatrix();
+        glm::mat4 projection = arServer->getProjectionMatrix();
+        glm::mat4 model = arServer->getModelMatrix();
+        std::string viewString="";
+        for(int i=0;i<4;i++){
+            for(int j=0;j<4;j++){
+                viewString.append(std::to_string(model[i][j]));
+            }
+            viewString.append("\n");
+        }
+        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ModelMatrix in nativelib:\n %s",viewString.c_str());
+        //mesh->draw(model, view, projection);
+        scene->setModel(model);
+        scene->setView(view);
+        scene->setProjection(projection);
+        scene->draw();
         glDisable(GL_DEPTH_TEST);
     }
 
