@@ -27,14 +27,14 @@ public:
     Node();
     virtual ~Node();
     void setModel(glm::mat4 model_);
-    void addChild(Node node);
+    void addChild(Node* node);
     void draw(glm::mat4 parentTransform);
     void setMesh(Mesh *mesh);
 
 private:
     glm::mat4 model;
-    std::vector<Node>* childs;
-    Mesh* mesh;
+    std::vector<Node*>* childs;
+    Mesh* mesh=nullptr;
 
 };
 

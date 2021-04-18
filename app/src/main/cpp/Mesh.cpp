@@ -88,16 +88,14 @@ void Mesh::draw(glm::mat4 model) {
     std::string viewString="";
     for(int i=0;i<4;i++){
         for(int j=0;j<4;j++){
-            viewString.append(std::to_string(model[i][j]));
+            viewString.append(std::to_string(model[j][i])+" ");
         }
         viewString.append("\n");
     }
     __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ModelMatrix in Mesh:\n %s",viewString.c_str());
     glUseProgram(programID);
     updateVertexData();
-    glm::mat4 scale(0.05f);//should be around 10cmx10cmx10cm cube
-    scale[3][3]=1.0f;
-    glm::mat4 mv = view * model*scale;
+    glm::mat4 mv = view * model;
     glm::mat4 mvp = projection*mv;
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, glm::value_ptr(mvp));
     glUniformMatrix4fv(mvMatrixID, 1, GL_FALSE, glm::value_ptr(mv));

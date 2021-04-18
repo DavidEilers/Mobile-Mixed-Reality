@@ -22,7 +22,21 @@ Scene::Scene(AAssetManager *assetManager_) {
     std::string shaderName = "objects";
     std::string objectName = "cube";
     Mesh * mesh = new Mesh(shaderName,objectName,this);
-    rootNode->setMesh(mesh);
+    //rootNode->setMesh(mesh);
+    Node * fields[9];
+    for(int i=0; i<9;i++){
+        fields[i] = new Node();
+        rootNode->addChild(fields[i]);
+        fields[i]->setMesh(mesh);
+
+        int row = (i/3);
+        int column = i%3;
+        double x = row*0.3-0.3;
+        double z = column*0.3-0.3;
+        glm::mat4 trans = glm::translate(glm::mat4(1.0f),glm::vec3(x,0.0f,z));
+        fields[i]->setModel(trans);
+    }
+
 }
 
 AAssetManager* Scene::getAssetManager(){

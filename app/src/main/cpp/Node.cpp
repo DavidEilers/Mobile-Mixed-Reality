@@ -5,7 +5,8 @@
 #include "Node.h"
 
 Node::Node() {
-    childs = new std::vector<Node>();
+    model = glm::mat4(1.0f);//identity matrix
+    childs = new std::vector<Node*>();
 }
 
 void Node::setModel(glm::mat4 model_) {
@@ -16,7 +17,7 @@ Node::~Node() {
 
 }
 
-void Node::addChild(Node node) {
+void Node::addChild(Node* node) {
     childs->push_back(node);
 }
 
@@ -25,11 +26,11 @@ void Node::setMesh(Mesh *mesh) {
 }
 
 void Node::draw(glm::mat4 parentTransform) {
-    glm::mat4 newModel = parentTransform * model;
+    glm::mat4 newModel = model*parentTransform;
     if(mesh!= nullptr) {
         mesh->draw(newModel);
     }
-    for(Node e: *childs){
-        e.draw(newModel);
+    for(Node* e: *childs){
+        e->draw(newModel);
     }
 }
