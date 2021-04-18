@@ -26,7 +26,7 @@ void Node::setMesh(Mesh *mesh) {
 }
 
 void Node::draw(glm::mat4 parentTransform) {
-    glm::mat4 newModel = model*parentTransform;
+    glm::mat4 newModel = parentTransform*model;
     if(mesh!= nullptr) {
         mesh->draw(newModel);
     }

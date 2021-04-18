@@ -19,15 +19,23 @@ void Scene::setProjection(glm::mat4 projection_) {
 Scene::Scene(AAssetManager *assetManager_) {
     this->assetManager = assetManager_;
     this->rootNode = new Node();
-    std::string shaderName = "objects";
-    std::string objectName = "cube";
-    Mesh * mesh = new Mesh(shaderName,objectName,this);
-    //rootNode->setMesh(mesh);
+    Mesh * fieldMesh = new Mesh("objects","field",this);
+    Node* fieldNode = new Node();
+    rootNode->addChild(fieldNode);
+    fieldNode->setMesh(fieldMesh);
+
+    Mesh * crossMesh = new Mesh("objects","cross",this);
+    Mesh * circleMesh = new Mesh("objects","circle",this);
+
     Node * fields[9];
     for(int i=0; i<9;i++){
         fields[i] = new Node();
-        rootNode->addChild(fields[i]);
-        fields[i]->setMesh(mesh);
+        fieldNode->addChild(fields[i]);
+        if(i%2==0){
+            fields[i]->setMesh(circleMesh);
+        }else{
+            fields[i]->setMesh(crossMesh);
+        }
 
         int row = (i/3);
         int column = i%3;
