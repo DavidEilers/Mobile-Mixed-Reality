@@ -1,63 +1,69 @@
 #include <jni.h>
 #include <string>
 
-#include "Network.h"
+#include "TicTacToe.hpp"
 
-Server server(8080);
+TTTMaster master;
+TTTSlave slave;
+
+bool hosting = false;
 
 extern "C" {
 
-JNIEXPORT jstring
-Java_com_example_teampraktikum_MainActivity_stringFromJNI(JNIEnv *env, jobject /* this */) {
-    std::string hello = "";
-    if (server.is_listening()) {
-        hello = "listening";
-    } else {
-        hello = "not listening";
+JNIEXPORT void
+Java_com_example_teampraktikum_MainActivity_boardPressedAt(JNIEnv *env, jobject /* this */, jint x,
+                                                           jint y) {
+    TTTClickMessage clickMessage;
+    clickMessage.pos_x = x;
+    clickMessage.pos_y = y;
+
+    if (hosting) {
+        master.send_to(clickMessage, master.get_connected_slaves()[0]);
+        master.my_turn = false;
+        return;
     }
-    return env->NewStringUTF(hello.c_str());
+    slave.send(clickMessage);
+    slave.my_turn = false;
 }
 
 JNIEXPORT void
-Java_com_example_teampraktikum_MainActivity_startListening(JNIEnv *env, jobject /* this */) {
-    server.start_listening();
-}
+Java_com_example_teampraktikum_MainActivity_startButtonPressed(JNIEnv *env, jobject /* this */,
+                                                               jstring ip) {
+    const char *ip_chars = env->GetStringUTFChars(ip, NULL);
+    std::string ip_string = std::string(ip_chars);
+    env->ReleaseStringUTFChars(ip, ip_chars);
 
-JNIEXPORT void
-Java_com_example_teampraktikum_MainActivity_stopListening(JNIEnv *env, jobject /* this */) {
-    server.stop_listening();
-}
-
-JNIEXPORT void
-Java_com_example_teampraktikum_MainActivity_sendString(JNIEnv *env, jobject /* this */) {
-    BaseMessage bm;
-    bm.payload = "hello test string";
-    server.send_message(bm, "192.168.43.53", 8080);
-}
-
-JNIEXPORT jobjectArray
-Java_com_example_teampraktikum_MainActivity_getMessagesAsString(JNIEnv *env, jobject /* this */) {
-    vector<RawContainer> msgs = server.get_messages();
-
-    jobjectArray ret = (jobjectArray) env->NewObjectArray(msgs.size(),
-                                                          env->FindClass("java/lang/String"),
-                                                          env->NewStringUTF(""));
-
-    for (int i = 0; i < msgs.size(); i++) {
-        char s[1023];
-
-        BaseMessage bm;
-
-        if (BaseMessage::from_bytes(msgs[i].buffer, &bm)) {
-            sprintf(s, "Base Message Object: PAYLOAD: %s\n", bm.payload.c_str());
-        } else {
-            sprintf(s, "Another Message Object");
-        }
-
-        env->SetObjectArrayElement(ret, i, env->NewStringUTF(s));
+    if (ip_string.empty()) {
+        // HOST
+        hosting = true;
+        return;
     }
-
-    return ret;
+    // CLIENT
+    hosting = false;
 }
 
+JNIEXPORT jint
+Java_com_example_teampraktikum_MainActivity_getStatusAt(JNIEnv *env, jobject /* this */, jint x,
+                                                        jint y) {
+    if (hosting) {
+        return (jint) master.board.get((int) x, (int) y);
+    }
+    return (jint) slave.board.get((int) x, (int) y);
+}
+
+JNIEXPORT jboolean
+Java_com_example_teampraktikum_MainActivity_getMyTurn(JNIEnv *env, jobject /* this */) {
+    if (hosting) {
+        return (jboolean) master.my_turn;
+    }
+    return (jboolean) slave.my_turn;
+}
+
+JNIEXPORT jboolean
+Java_com_example_teampraktikum_MainActivity_getGameRunning(JNIEnv *env, jobject /* this */) {
+    if (hosting) {
+        return (jboolean) master.get_connected_slaves().size() > 0;
+    }
+    return (jboolean) slave.connected;
+}
 }
