@@ -68,10 +68,10 @@ public:
      * function to override, user can react to incoming messages
      * @param containers messages to handle
      */
-    void handle_messages(std::vector<RawContainer> &containers);
+    virtual void handle_messages(std::vector<RawContainer> &containers);
 
     Server server;
-private:
+
     std::string player_name;
     int PORT;
     int max_slaves_count;
@@ -133,7 +133,7 @@ public:
     virtual void handle_messages(std::vector<RawContainer> &containers);
 
     Server server;
-private:
+
     int PORT;
     std::string player_name;
 

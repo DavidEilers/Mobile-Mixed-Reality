@@ -1,23 +1,28 @@
 #include <string>
 
+#ifndef TEAMPRAKTIKUM_MESSAGES_HPP
+#define TEAMPRAKTIKUM_MESSAGES_HPP
+
 using namespace std;
 
 enum MessageType {
-    MSG_BASE,
-    MSG_STRING,
-    MSG_INTS,
-    MSG_FLOATS,
-    MSG_CONNECT,
-    MSG_ERR_NAME_IN_USE,
-    MSG_LEAVE
+    MSG_BASE = 0,
+    MSG_STRING = 1,
+    MSG_INTS = 2,
+    MSG_FLOATS = 3,
+    MSG_CONNECT = 4,
+    MSG_ERR_NAME_IN_USE = 5,
+    MSG_LEAVE = 6,
+    MSG_ERR_GAME_FULL
 };
+// TYPE > 7 can be used for own custom messages
 
 /**
  * default message type for sending strings
  */
 class BaseMessage {
 public:
-    static const MessageType TYPE = MSG_BASE;
+    static const char TYPE = MSG_BASE;
 
     /**
      * constructor
@@ -43,8 +48,7 @@ public:
      * @return returns true if the buffer contains valid data of the right type, false otherwise
      */
     static bool from_bytes(char *buffer, BaseMessage *msg_obj) {
-        MessageType content_type = (MessageType) buffer[0];
-        return content_type == TYPE;
+        return buffer[0] == TYPE;
     }
 };
 
@@ -53,7 +57,7 @@ public:
  */
 class StringMessage : public BaseMessage {
 public:
-    static const MessageType TYPE = MSG_STRING;
+    static const char TYPE = MSG_STRING;
 
     string payload;
 
@@ -81,8 +85,7 @@ public:
      * @return returns true if the buffer contains valid data of the right type, false otherwise
      */
     static bool from_bytes(char *buffer, StringMessage *msg_obj) {
-        MessageType content_type = (MessageType) buffer[0];
-        if (content_type != TYPE) return false;
+        if (buffer[0] != TYPE) return false;
         msg_obj->payload.assign(buffer + 1);
         return true;
     }
@@ -96,7 +99,7 @@ public:
  */
 class ConnectMessage : public BaseMessage {
 public:
-    static const MessageType TYPE = MSG_CONNECT;
+    static const char TYPE = MSG_CONNECT;
 
     string player_name;
     u_int16_t port;
@@ -131,11 +134,10 @@ public:
      * @return returns true if the buffer contains valid data of the right type, false otherwise
      */
     static bool from_bytes(char *buffer, ConnectMessage *msg_obj) {
-        MessageType content_type = (MessageType) buffer[0];
+        if (buffer[0] != TYPE) return false;
 
         int s = sizeof(u_int16_t);
 
-        if (content_type != TYPE) return false;
         //get one u_int16_t with one byte offset
         msg_obj->port = ((u_int16_t *) (buffer + 1))[0];
         //following bytes are player name
@@ -154,6 +156,17 @@ public:
     static const MessageType TYPE = MSG_ERR_NAME_IN_USE;
 };
 
+
+/**
+ * error message sent by master to the connecting slave
+ * if the maximum number of connected slaves is already reached
+ */
+class ErrorGameFullMessage : public BaseMessage {
+public:
+    static const MessageType TYPE = MSG_ERR_GAME_FULL;
+};
+
+
 /**
  * leave message can be sent by slave to disconnect from master
  * or by master to disconnect a slave
@@ -162,7 +175,7 @@ public:
  */
 class LeaveMessage : public BaseMessage {
 public:
-    static const MessageType TYPE = MSG_LEAVE;
+    static const char TYPE = MSG_LEAVE;
     string player_name;
 
     /**
@@ -189,9 +202,10 @@ public:
      * @return returns true if the buffer contains valid data, false otherwise
      */
     static bool from_bytes(char *buffer, LeaveMessage *msg_obj) {
-        MessageType content_type = (MessageType) buffer[0];
-        if (content_type != TYPE) return false;
+        if (buffer[0] != TYPE) return false;
         msg_obj->player_name.assign(buffer + 1);
         return true;
     }
 };
+
+#endif //TEAMPRAKTIKUM_MESSAGES_HPP

@@ -48,33 +48,38 @@ bool Master::player_connected(const std::string &name) {
 void Master::tick() {
     auto containers = server.get_messages();
     for (const auto &container:containers) {
-        ConnectMessage *cm;
-        if (ConnectMessage::from_bytes(container.buffer, cm)) {
+        ConnectMessage cm;
+        if (ConnectMessage::from_bytes(container.buffer, &cm)) {
             //add player if name unused
             struct ConnectedSlave new_slave;
 
-            new_slave.name = cm->player_name;
+            new_slave.name = cm.player_name;
             new_slave.ip = container.from_addr;
-            new_slave.port = cm->port;
+            new_slave.port = cm.port;
 
-            if (!player_connected(cm->player_name)) {
+            if (!player_connected(cm.player_name)) {
                 //name free
-                slaves.push_back(new_slave);
-                //reusing cm object but filling it with info about master
-                cm->player_name = player_name;
-                cm->port = PORT;
-                send_to(*cm, new_slave);
+                if (slaves.size() < max_slaves_count) {
+                    slaves.push_back(new_slave);
+                    //reusing cm object but filling it with info about master
+                    cm.player_name = player_name;
+                    cm.port = PORT;
+                    send_to(cm, new_slave);
+                } else {
+                    ErrorGameFullMessage em;
+                    send_to(em, new_slave);
+                }
             } else {
                 //name already in use
                 ErrorNameInUseMessage error;
                 send_to(error, new_slave);
             }
         }
-        LeaveMessage *lm;
-        if (LeaveMessage::from_bytes(container.buffer, lm)) {
-            if (player_connected(lm->player_name)) {
+        LeaveMessage lm;
+        if (LeaveMessage::from_bytes(container.buffer, &lm)) {
+            if (player_connected(lm.player_name)) {
                 for (int i = 0; i < slaves.size(); i++) {
-                    if (slaves[i].name == lm->player_name) {
+                    if (slaves[i].name == lm.player_name) {
                         slaves.erase(slaves.begin() + i);
                         break;
                     }
@@ -126,15 +131,19 @@ void Slave::tick() {
     auto containers = server.get_messages();
     for (const auto &container:containers) {
         //Master accepts connection
-        ConnectMessage *cm;
-        if (ConnectMessage::from_bytes(container.buffer, cm)) {
+        ConnectMessage cm;
+        if (ConnectMessage::from_bytes(container.buffer, &cm)) {
             MASTER_IP = container.from_addr;
-            MASTER_PORT = cm->port;
-            MASTER_NAME = cm->player_name;
+            MASTER_PORT = cm.port;
+            MASTER_NAME = cm.player_name;
             connected = true;
         }
-            //Master disconnects this slave
-        else if (LeaveMessage::from_bytes(container.buffer, 0)) {
+        //Master disconnects this slave
+        if (LeaveMessage::from_bytes(container.buffer, 0)) {
+            connected = false;
+        }
+
+        if (ErrorGameFullMessage::from_bytes(container.buffer, 0)) {
             connected = false;
         }
     }

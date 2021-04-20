@@ -20,10 +20,12 @@ Java_com_example_teampraktikum_MainActivity_boardPressedAt(JNIEnv *env, jobject 
     if (hosting) {
         master.send_to(clickMessage, master.get_connected_slaves()[0]);
         master.my_turn = false;
+        master.board.set(x, y, PLAYER_X);
         return;
     }
     slave.send(clickMessage);
     slave.my_turn = false;
+    slave.board.set(x, y, PLAYER_O);
 }
 
 JNIEXPORT void
@@ -40,6 +42,7 @@ Java_com_example_teampraktikum_MainActivity_startButtonPressed(JNIEnv *env, jobj
     }
     // CLIENT
     hosting = false;
+    slave.connect_to_master(ip_string, 8080);
 }
 
 JNIEXPORT jint
