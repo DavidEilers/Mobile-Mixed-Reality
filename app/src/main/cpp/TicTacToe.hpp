@@ -164,7 +164,7 @@ public:
 
     bool my_turn = true;
 
-    TTTMaster() : Master("master", 8080, 1) {}
+    TTTMaster() : Master("master", 7080, 1) {}
 
     virtual void handleMessages(std::vector<RawContainer> &containers) {
         for (auto container : containers) {
@@ -198,7 +198,7 @@ public:
 
     bool my_turn = false;
 
-    TTTSlave() : Slave("slave", 8081) {}
+    TTTSlave() : Slave("slave", 7081) {}
 
     virtual void handleMessages(std::vector<RawContainer> &containers) {
         for (auto container : containers) {

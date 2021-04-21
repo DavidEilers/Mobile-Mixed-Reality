@@ -13,7 +13,7 @@ enum MessageType {
     MSG_CONNECT = 4,
     MSG_ERR_NAME_IN_USE = 5,
     MSG_LEAVE = 6,
-    MSG_ERR_GAME_FULL
+    MSG_ERR_GAME_FULL = 7
 };
 // TYPE > 7 can be used for own custom messages
 
