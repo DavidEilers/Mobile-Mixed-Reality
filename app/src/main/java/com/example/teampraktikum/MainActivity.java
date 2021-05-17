@@ -69,31 +69,36 @@ public class MainActivity extends AppCompatActivity {
         TimerTask updateTask = new TimerTask() {
             @Override
             public void run() {
-                myTurn = getMyTurn();
-                gameRunning = getGameRunning();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        myTurn = getMyTurn();
+                        gameRunning = getGameRunning();
 
-                startButton.setEnabled(!gameRunning);
+                        startButton.setEnabled(!gameRunning);
 
-                if (gameRunning) {
-                    for (int i = 0; i < 3; i++) {
-                        for (int j = 0; j < 3; j++) {
-                            switch (getStatusAt(i, j)) {
-                                case 0: //FIELD_EMPTY
-                                    board[i][j].setText("");
-                                    board[i][j].setEnabled(myTurn);
-                                    break;
-                                case 1: //PLAYER O
-                                    board[i][j].setText("O");
-                                    board[i][j].setEnabled(false);
-                                    break;
-                                case 2: //PLAYER 1
-                                    board[i][j].setText("X");
-                                    board[i][j].setEnabled(false);
-                                    break;
+                        if (gameRunning) {
+                            for (int i = 0; i < 3; i++) {
+                                for (int j = 0; j < 3; j++) {
+                                    switch (getStatusAt(i, j)) {
+                                        case 0: //FIELD_EMPTY
+                                            board[i][j].setText("");
+                                            board[i][j].setEnabled(myTurn);
+                                            break;
+                                        case 1: //PLAYER O
+                                            board[i][j].setText("O");
+                                            board[i][j].setEnabled(false);
+                                            break;
+                                        case 2: //PLAYER 1
+                                            board[i][j].setText("X");
+                                            board[i][j].setEnabled(false);
+                                            break;
+                                    }
+                                }
                             }
                         }
                     }
-                }
+                });
             }
         };
 
