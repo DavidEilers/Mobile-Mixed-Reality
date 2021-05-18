@@ -121,7 +121,7 @@ public:
             buffer[1 + s + i] = player_name.at(i);
         }
         //making sure one can easily find the end of the player_name
-        buffer[player_name.size()] = '\0';
+        buffer[3 + player_name.size()] = '\0';
 
         return 1 + s + player_name.size();
     }

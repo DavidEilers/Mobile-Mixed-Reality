@@ -42,7 +42,7 @@ Java_com_example_teampraktikum_MainActivity_startButtonPressed(JNIEnv *env, jobj
     }
     // CLIENT
     hosting = false;
-    slave.connect_to_master(ip_string, 8080);
+    slave.connect_to_master(ip_string, 7080);
 }
 
 JNIEXPORT jint
