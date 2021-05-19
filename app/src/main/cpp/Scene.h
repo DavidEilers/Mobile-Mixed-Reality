@@ -32,11 +32,13 @@ public:
     void setView(glm::mat4 view_);
     void setProjection(glm::mat4 projection_);
     void draw();
+    void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination);
     glm::mat4 getView();
     glm::mat4 getProjection();
     AAssetManager* getAssetManager();
 
 private:
+
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;

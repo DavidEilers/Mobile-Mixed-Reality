@@ -73,6 +73,7 @@ Mesh::Mesh(std::string shaderName, std::string objectName , Scene* scene_) {
     mvpMatrixID = glGetUniformLocation(programID, "mvp");
     mvMatrixID = glGetUniformLocation(programID, "mv");
     viewMatrixID = glGetUniformLocation(programID, "view");
+    baseColorID = glGetUniformLocation(programID, "baseColor");
 
 
 }
@@ -81,8 +82,8 @@ Mesh::~Mesh() {
 
 }
 
-void Mesh::draw(glm::mat4 model) {
-    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum","In draw in Mesh");
+void Mesh::draw(glm::mat4 model,glm::vec4 color) {
+    //__android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum","In draw in Mesh");
     glm::mat4 view = scene->getView();
     glm::mat4 projection = scene->getProjection();
     std::string viewString="";
@@ -92,7 +93,7 @@ void Mesh::draw(glm::mat4 model) {
         }
         viewString.append("\n");
     }
-    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ModelMatrix in Mesh:\n %s",viewString.c_str());
+    //__android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ModelMatrix in Mesh:\n %s",viewString.c_str());
     glUseProgram(programID);
     updateVertexData();
     glm::mat4 mv = view * model;
@@ -100,6 +101,7 @@ void Mesh::draw(glm::mat4 model) {
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, glm::value_ptr(mvp));
     glUniformMatrix4fv(mvMatrixID, 1, GL_FALSE, glm::value_ptr(mv));
     glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr(view));
+    glUniform4fv(baseColorID,1,glm::value_ptr(color));
     glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_SHORT, (void *) 0);
 }
 

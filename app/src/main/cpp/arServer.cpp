@@ -4,6 +4,7 @@
 #include "arServer.h"
 
 ArServer::ArServer() {
+    anchor=nullptr;
     arSession= nullptr;
     arFrame= nullptr;
     installRequested=false;

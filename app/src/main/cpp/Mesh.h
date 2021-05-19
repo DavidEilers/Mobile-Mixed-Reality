@@ -26,9 +26,10 @@ class Mesh {
 public:
     Mesh(std::string shaderName, std::string objectName, Scene *scene_);
     virtual ~Mesh();
-    void draw(glm::mat4 model);
+    void draw(glm::mat4 model,glm::vec4 baseColor);
     void updateVertexData();
 private:
+    GLuint baseColorID;
     GLuint vboID[3];
     Shader *myShader;
     GLuint programID;

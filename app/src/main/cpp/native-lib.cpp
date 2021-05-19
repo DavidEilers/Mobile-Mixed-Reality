@@ -18,6 +18,8 @@ ArServer* arServer= nullptr;
 cameraBackground *camBack = nullptr;
 Scene * scene = nullptr;
 PlaneRenderer* planeRenderer = nullptr;
+int displayWidth=0;
+int displayHeight=0;
 
 
 JNIEXPORT int JNICALL
@@ -68,6 +70,8 @@ Java_com_example_teampraktikum_MainActivity_onDisplayGeometryChanged(
         int width,
         int height
 ) {
+    displayWidth= width;
+    displayHeight= height;
     glViewport(0, 0, width, height);
     if(arServer!= nullptr){
         arServer->setDisplayGeometry(display_rotation,width,height);
@@ -84,8 +88,18 @@ Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
         float x,
         float y) {
     if(arServer!= nullptr){
-        arServer->createAnchorAt(x,y);
+        if(arServer->getAnchor() == nullptr){
+            arServer->createAnchorAt(x,y);
+        }
     }
+
+    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Will do a hitTest");
+    glm::vec3 rayOrigin((2.0f*x/(float)displayWidth)-1.0f,(2.0f*y/(float)displayHeight)-1.0f,1);
+    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum","Float x: %.2f Float y: %.2f\n DisplayHeight: %d DisplayWidth: %d\n",x,y,displayHeight,displayWidth);
+    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","RayOrigin: %0.4f %.4f %.4f",rayOrigin.x, rayOrigin.y,rayOrigin.z);
+    glm::vec3 rayDirection((2.0f*x/(float)displayWidth)-1.0f,(2.0f*y/(float)displayHeight)-1.0f,-1);
+    scene->hitTest(rayOrigin,rayDirection);
+    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Did a hitTest");
 
 }
 
@@ -114,7 +128,7 @@ Java_com_example_teampraktikum_MainActivity_onDrawFrame(
             }
             viewString.append("\n");
         }
-        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ModelMatrix in nativelib:\n %s",viewString.c_str());
+        //__android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ModelMatrix in nativelib:\n %s",viewString.c_str());
         //mesh->draw(model, view, projection);
         scene->setModel(model);
         scene->setView(view);
