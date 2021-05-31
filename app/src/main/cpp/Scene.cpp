@@ -81,15 +81,17 @@ void Scene::draw() {
 
 void Scene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
     glm::vec4 rayOriginVS = glm::inverse(projection)*glm::vec4(rayOrigin,1.0f);
-    rayOriginVS.x /= rayOriginVS.w;
-    rayOriginVS.y /= rayOriginVS.w;
-    rayOriginVS.z /= rayOriginVS.w;
+    //rayOriginVS.x /= rayOriginVS.w;
+    //rayOriginVS.y /= rayOriginVS.w;
+    //rayOriginVS.z /= rayOriginVS.w;
     glm::vec4 rayDirectionVS = glm::inverse(projection)*glm::vec4(rayDestination, 1.0f);
-    rayDirectionVS.x /= rayDirectionVS.w;
-    rayDirectionVS.y /= rayDirectionVS.w;
-    rayDirectionVS.z /= rayDirectionVS.w;
-    glm::vec3 rayOriginWS = glm::vec3(glm::inverse(view)*rayOriginVS);
-    glm::vec3 rayDirectionWS = glm::vec3(glm::inverse(view)*rayDirectionVS)-rayOriginWS;
+    //rayDirectionVS.x /= rayDirectionVS.w;
+    //rayDirectionVS.y /= rayDirectionVS.w;
+    //rayDirectionVS.z /= rayDirectionVS.w;
+    rayDirectionVS.z = -1.0f;
+    rayDirectionVS.w=0.0f;
+    glm::vec3 rayOriginWS = glm::vec3(glm::inverse(view)*glm::vec4(0,0,0,1.0f));
+    glm::vec3 rayDirectionWS =glm::normalize(glm::vec3(glm::inverse(view)*rayDirectionVS)); //glm::vec3(glm::inverse(view)*rayDirectionVS)-rayOriginWS;
 
 
     rootNode->setModel(model);

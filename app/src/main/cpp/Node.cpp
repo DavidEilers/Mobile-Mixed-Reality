@@ -89,7 +89,7 @@ void Node::draw(glm::mat4 parentTransform) {
 }
 
 void Node::setBoundingBox(glm::vec3 *box) {
-    boundingBox = new BoundingBox(box);
+    boundingBox = new BoundingBox();
     this->box = box;
 }
 

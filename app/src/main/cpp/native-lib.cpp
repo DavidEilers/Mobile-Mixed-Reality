@@ -90,16 +90,19 @@ Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
     if(arServer!= nullptr){
         if(arServer->getAnchor() == nullptr){
             arServer->createAnchorAt(x,y);
+        }else{
+            //Do Hit Test
+
+            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Will do a hitTest");
+            glm::vec3 rayOrigin((2.0f*x/(float)displayWidth)-1.0f,-1.0f*((2.0f*y/(float)displayHeight)-1.0f),1.0);
+            __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum","Float x: %.2f Float y: %.2f\n DisplayHeight: %d DisplayWidth: %d\n",x,y,displayHeight,displayWidth);
+            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","RayOrigin: %0.4f %.4f %.4f",rayOrigin.x, rayOrigin.y,rayOrigin.z);
+            glm::vec3 rayDirection((2.0f*x/(float)displayWidth)-1.0f,-1.0f*((2.0f*y/(float)displayHeight)-1.0f),-1.0);
+            scene->hitTest(rayOrigin,rayDirection);
+            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Did a hitTest");
         }
     }
 
-    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Will do a hitTest");
-    glm::vec3 rayOrigin((2.0f*x/(float)displayWidth)-1.0f,(2.0f*y/(float)displayHeight)-1.0f,1);
-    __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum","Float x: %.2f Float y: %.2f\n DisplayHeight: %d DisplayWidth: %d\n",x,y,displayHeight,displayWidth);
-    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","RayOrigin: %0.4f %.4f %.4f",rayOrigin.x, rayOrigin.y,rayOrigin.z);
-    glm::vec3 rayDirection((2.0f*x/(float)displayWidth)-1.0f,(2.0f*y/(float)displayHeight)-1.0f,-1);
-    scene->hitTest(rayOrigin,rayDirection);
-    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Did a hitTest");
 
 }
 
