@@ -6,12 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".MenueActivity">
 
-    <Button
-        android:id="@+id/button_arCore"
-        android:layout_width="418dp"
-        android:layout_height="43dp"
-        android:text="Start ArCore"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="359dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/button_TicTacToe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start TicTacToe" />
+
+        <Button
+            android:id="@+id/button_arCore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start ArCore" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

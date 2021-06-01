@@ -6,3 +6,4 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 add_subdirectory("my_ar_src")
+add_subdirectory("network_lib")
