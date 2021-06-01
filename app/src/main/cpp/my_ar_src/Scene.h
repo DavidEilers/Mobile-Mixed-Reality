@@ -19,7 +19,7 @@
 #include "objLoader.h"
 #include "Mesh.h"
 #include "Node.h"
-#include "../../../libs/third_party/glm/ext.hpp"
+#include "ext.hpp"
 
 extern class Mesh;
 extern class Node;

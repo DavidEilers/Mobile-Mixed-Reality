@@ -23,7 +23,7 @@ int displayHeight=0;
 
 
 JNIEXPORT int JNICALL
-Java_com_example_teampraktikum_MainActivity_nativeOnResume(
+Java_com_example_teampraktikum_ARCoreActivity_nativeOnResume(
         JNIEnv *env,
         jobject activity,
         jobject context){
@@ -50,7 +50,7 @@ Java_com_example_teampraktikum_MainActivity_nativeOnResume(
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_com_example_teampraktikum_MainActivity_nativeOnSurfaceCreated(
+JNIEXPORT void JNICALL Java_com_example_teampraktikum_ARCoreActivity_nativeOnSurfaceCreated(
         JNIEnv *env,
         jobject activity,
         jobject assetManager
@@ -63,7 +63,7 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_MainActivity_nativeOnSurfa
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_teampraktikum_MainActivity_onDisplayGeometryChanged(
+Java_com_example_teampraktikum_ARCoreActivity_onDisplayGeometryChanged(
         JNIEnv *env,
         jobject activity,
         int display_rotation,
@@ -82,7 +82,7 @@ Java_com_example_teampraktikum_MainActivity_onDisplayGeometryChanged(
 
 //TODO x and y positions from touch event are not relative to the camera canvas
 JNIEXPORT void JNICALL
-Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
+Java_com_example_teampraktikum_ARCoreActivity_nativeOnTouched(
         JNIEnv *env,
         jobject activity,
         float x,
@@ -108,7 +108,7 @@ Java_com_example_teampraktikum_MainActivity_nativeOnTouched(
 
 
 JNIEXPORT void JNICALL
-Java_com_example_teampraktikum_MainActivity_onDrawFrame(
+Java_com_example_teampraktikum_ARCoreActivity_onDrawFrame(
         JNIEnv *env,
         jobject activity) {
 

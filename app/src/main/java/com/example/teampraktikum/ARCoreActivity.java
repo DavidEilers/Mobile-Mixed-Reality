@@ -33,11 +33,11 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.content.res.AssetManager;
 
-public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer, DisplayManager.DisplayListener {
+public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.Renderer, DisplayManager.DisplayListener {
 
     // Used to load the 'native-lib' library on application startup.
     static {
-        System.loadLibrary("native-lib");
+        System.loadLibrary("my-AR-lib");
         //System.loadLibrary("glbuffer");
     }
 

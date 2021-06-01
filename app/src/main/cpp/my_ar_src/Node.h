@@ -19,7 +19,7 @@
 #include "Mesh.h"
 #include "objLoader.h"
 #include "BoundingBox.h"
-#include "../../../libs/third_party/glm/ext.hpp"
+#include "ext.hpp"
 
 extern class Mesh;
 extern class Scene;

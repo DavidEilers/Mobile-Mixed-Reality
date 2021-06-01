@@ -18,7 +18,7 @@
 #include "shader.h"
 #include "objLoader.h"
 #include "Scene.h"
-#include "../../../libs/third_party/glm/ext.hpp"
+#include "ext.hpp"
 
 extern class Scene;
 
