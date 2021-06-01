@@ -11,7 +11,7 @@ bool hosting = false;
 extern "C" {
 
 JNIEXPORT void
-Java_com_example_teampraktikum_MainActivity_boardPressedAt(JNIEnv *env, jobject /* this */, jint x,
+Java_com_example_teampraktikum_TicTacToeActivity_boardPressedAt(JNIEnv *env, jobject /* this */, jint x,
                                                            jint y) {
     TTTClickMessage clickMessage;
     clickMessage.pos_x = x;
@@ -29,7 +29,7 @@ Java_com_example_teampraktikum_MainActivity_boardPressedAt(JNIEnv *env, jobject 
 }
 
 JNIEXPORT void
-Java_com_example_teampraktikum_MainActivity_startButtonPressed(JNIEnv *env, jobject /* this */,
+Java_com_example_teampraktikum_TicTacToeActivity_startButtonPressed(JNIEnv *env, jobject /* this */,
                                                                jstring ip) {
     const char *ip_chars = env->GetStringUTFChars(ip, NULL);
     std::string ip_string = std::string(ip_chars);
@@ -46,7 +46,7 @@ Java_com_example_teampraktikum_MainActivity_startButtonPressed(JNIEnv *env, jobj
 }
 
 JNIEXPORT jint
-Java_com_example_teampraktikum_MainActivity_getStatusAt(JNIEnv *env, jobject /* this */, jint x,
+Java_com_example_teampraktikum_TicTacToeActivity_getStatusAt(JNIEnv *env, jobject /* this */, jint x,
                                                         jint y) {
     if (hosting) {
         return (jint) master.board.get((int) x, (int) y);
@@ -55,7 +55,7 @@ Java_com_example_teampraktikum_MainActivity_getStatusAt(JNIEnv *env, jobject /* 
 }
 
 JNIEXPORT jboolean
-Java_com_example_teampraktikum_MainActivity_getMyTurn(JNIEnv *env, jobject /* this */) {
+Java_com_example_teampraktikum_TicTacToeActivity_getMyTurn(JNIEnv *env, jobject /* this */) {
     if (hosting) {
         return (jboolean) master.my_turn;
     }
@@ -63,7 +63,7 @@ Java_com_example_teampraktikum_MainActivity_getMyTurn(JNIEnv *env, jobject /* th
 }
 
 JNIEXPORT jboolean
-Java_com_example_teampraktikum_MainActivity_getGameRunning(JNIEnv *env, jobject /* this */) {
+Java_com_example_teampraktikum_TicTacToeActivity_getGameRunning(JNIEnv *env, jobject /* this */) {
     if (hosting) {
         return (jboolean) master.get_connected_slaves().size() > 0;
     }
