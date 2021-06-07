@@ -78,11 +78,22 @@ public:
     std::vector<struct ConnectedSlave> slaves;
 
     /**
+     * setting this value allows or stops new connections to the master
+     * default is true
+     */
+    bool acceptConnections = true;
+
+    /**
      * checks if a player with given name is connected
      * @param name name of player to check
      * @return true if player with name is connected, false otherwise
      */
     bool player_connected(const std::string &name);
+
+    /**
+     * disconnects all slaves from master;
+     */
+    void disconnectAllSlaves();
 };
 
 /**
@@ -143,6 +154,11 @@ public:
     int MASTER_PORT;
 
     std::vector<struct ConnectedSlave> other_slaves;
+
+    /**
+     * disconnects the slave from the master.
+     */
+    void disconnect();
 };
 
 #endif //TEAMPRAKTIKUM_GAMEMANAGER_H

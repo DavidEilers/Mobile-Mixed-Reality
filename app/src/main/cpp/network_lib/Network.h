@@ -72,8 +72,9 @@ public:
      * @param message message to send
      * @param addr target address
      * @param port target port
+     * @return returns true if sending was successful, false otherwise
      */
-    static void send_message(BaseMessage &msg_obj, string addr, int port);
+    static bool send_message(BaseMessage &msg_obj, string addr, int port);
 
 private:
     int PORT;

@@ -57,22 +57,28 @@ void Master::tick() {
             new_slave.ip = container.from_addr;
             new_slave.port = cm.port;
 
-            if (!player_connected(cm.player_name)) {
-                //name free
-                if (slaves.size() < max_slaves_count) {
-                    slaves.push_back(new_slave);
-                    //reusing cm object but filling it with info about master
-                    cm.player_name = player_name;
-                    cm.port = PORT;
-                    send_to(cm, new_slave);
+            if (acceptConnections) {
+                if (!player_connected(cm.player_name)) {
+                    //name free
+                    if (slaves.size() < max_slaves_count) {
+                        slaves.push_back(new_slave);
+                        //reusing cm object but filling it with info about master
+                        cm.player_name = player_name;
+                        cm.port = PORT;
+                        send_to(cm, new_slave);
+                    } else {
+                        ErrorGameFullMessage em;
+                        send_to(em, new_slave);
+                    }
                 } else {
-                    ErrorGameFullMessage em;
-                    send_to(em, new_slave);
+                    //name already in use
+                    ErrorNameInUseMessage error;
+                    send_to(error, new_slave);
                 }
             } else {
-                //name already in use
-                ErrorNameInUseMessage error;
-                send_to(error, new_slave);
+                //no new connections allowed
+                ErrorGameFullMessage em;
+                send_to(em, new_slave);
             }
         }
         LeaveMessage lm;
@@ -96,6 +102,13 @@ void Master::tick() {
         delete container.buffer;
     }
     containers.clear();
+}
+
+void Master::disconnectAllSlaves() {
+    LeaveMessage lm;
+    lm.player_name = player_name;
+    broadcast(lm);
+    slaves.clear();
 }
 
 //--------------Slave-------------------
@@ -156,4 +169,13 @@ void Slave::tick() {
         delete container.buffer;
     }
     containers.clear();
+}
+
+void Slave::disconnect() {
+    if (connected) {
+        connected = false;
+        LeaveMessage lm;
+        lm.player_name = player_name;
+        send(lm);
+    }
 }

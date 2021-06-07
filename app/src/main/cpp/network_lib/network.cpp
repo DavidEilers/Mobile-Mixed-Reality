@@ -188,7 +188,7 @@ vector<struct RawContainer> Server::get_messages() {
     return copy;
 }
 
-void Server::send_message(BaseMessage &msg_obj, string addr, int port) {
+bool Server::send_message(BaseMessage &msg_obj, string addr, int port) {
 
     __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending started.");
 
@@ -210,7 +210,7 @@ void Server::send_message(BaseMessage &msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket creation error! Error: %d",
                             err);
 
-        return;
+        return false;
     }
 
     //set options for socket => receive timeout
@@ -220,7 +220,7 @@ void Server::send_message(BaseMessage &msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d",
                             err);
 
-        return;
+        return false;
     }
 
     //set options for socket => send timeout
@@ -230,7 +230,7 @@ void Server::send_message(BaseMessage &msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d",
                             err);
 
-        return;
+        return false;
     }
 
     //create address struct
@@ -245,7 +245,7 @@ void Server::send_message(BaseMessage &msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket",
                             "Invalid address / Address not supported! Error: %d", err);
 
-        return;
+        return false;
     }
 
     //connect to address
@@ -255,7 +255,7 @@ void Server::send_message(BaseMessage &msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket", "Connection failed! Error: %d",
                             err);
 
-        return;
+        return false;
     }
 
     int size = msg_obj.to_bytes(buffer);
@@ -266,5 +266,5 @@ void Server::send_message(BaseMessage &msg_obj, string addr, int port) {
 
     __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending finished.");
 
-    return;
+    return true;
 }

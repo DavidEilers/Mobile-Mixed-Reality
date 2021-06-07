@@ -9,6 +9,7 @@
 
 #define MSG_TTT_CLICK 100
 #define MSG_TTT_END 101
+#define MSG_TTT_BOARD_UPDATE 102
 
 #define FIELD_EMPTY 0
 #define PLAYER_O 1
@@ -19,10 +20,25 @@
  */
 class TTTBoard {
 public:
-    char board[3][3];
+    char **board;
 
+    /**
+     * Constructor
+     */
     TTTBoard() {
+        board = new char *[3];
+        board[0] = new char[3];
+        board[1] = new char[3];
+        board[2] = new char[3];
+
         reset();
+    }
+
+    /**
+     * Destructor
+     */
+    ~TTTBoard() {
+        delete[] board;
     }
 
     void reset() {
@@ -103,6 +119,15 @@ public:
 
         return 0; //No one has won yet
     }
+
+    /**
+     * checks if a player can use the given board position
+     * @param x x-coord of board position
+     * @param y y-coord of board position
+     */
+    bool isValidMove(int x, int y) {
+        return board[x][y] == FIELD_EMPTY;
+    }
 };
 
 /**
@@ -158,6 +183,53 @@ public:
 };
 
 
+/**
+ * Stores the TicTacToe board state to be sent via network
+ * also stores if it is the hosts turn or not
+ */
+class TTTBoardUpdateMessage : public BaseMessage {
+public:
+    static const char TYPE = MSG_TTT_BOARD_UPDATE;
+
+    char **board;
+
+    char hosts_turn = 0;
+
+    /**
+     * Constructor
+     * @param board_ptr pointer to the board of a TTTBoard to update
+     */
+    TTTBoardUpdateMessage(char **board_ptr) {
+        board = board_ptr;
+    }
+
+    virtual int to_bytes(char *buffer) {
+        buffer[0] = TYPE;
+        buffer[1] = hosts_turn;
+        int i = 2;
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                buffer[i] = board[x][y];
+                i++;
+            }
+        }
+    }
+
+    static bool from_bytes(char *buffer, TTTBoardUpdateMessage *msg_obj) {
+        if (buffer[0] != TYPE) return false;
+        msg_obj->hosts_turn = buffer[1];
+        int i = 2;
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                msg_obj->board[x][y] = buffer[i];
+                i++;
+            }
+        }
+        return true;
+    }
+};
+
+
 class TTTMaster : public Master {
 public:
     TTTBoard board;
@@ -171,23 +243,44 @@ public:
             TTTClickMessage clickMessage;
             if (TTTClickMessage::from_bytes(container.buffer, &clickMessage)) {
                 //Master is always X and Slave always O
-                board.set(clickMessage.pos_x, clickMessage.pos_y, PLAYER_O);
-
-                my_turn = true;
+                if (!my_turn) {
+                    board.set(clickMessage.pos_x, clickMessage.pos_y, PLAYER_O);
+                    my_turn = true;
+                    broadCastBoardUpdate();
+                }
             }
         }
+    }
 
-        TTTGameEndMessage em;
+    /**
+     * broadcasts the current board state to the slave
+     */
+    void broadCastBoardUpdate() {
+        TTTBoardUpdateMessage bum(board.board);
+        bum.hosts_turn = my_turn;
+        broadcast(bum);
+    }
 
-        switch (board.check_win()) {
-            case PLAYER_O:
-                em.host_won = false;
-                if (slaves.size() > 0) send_to(em, slaves[0]);
-                board.reset();
-                break;
-            case PLAYER_X:
-                em.host_won = true;
-                if (slaves.size() > 0) send_to(em, slaves[0]);
+    /**
+     * restarts the game and broadcasts the clear board
+     */
+    void restartGame() {
+        board.reset();
+        my_turn = true;
+        broadCastBoardUpdate();
+    }
+
+    /**
+     * lets the master make a move and place his X at the given position (x, y) on the board.
+     * 0, 0 means top left and 2, 2 bottom right.
+     * If the move is not allowed or it is not the masters turn, nothing happens.
+     * @param x x-coord of position
+     * @param y y-coord of position
+     */
+    void makeMove(int x, int y) {
+        if (my_turn && board.isValidMove(x, y)) {
+            board.set(x, y, PLAYER_X);
+            my_turn = false;
         }
     }
 };
@@ -200,23 +293,34 @@ public:
 
     TTTSlave() : Slave("slave", 7081) {}
 
+    /**
+     * handles incoming messages that are specific to the TicTacToe game.
+     * @param containers contains the raw message data.
+     */
     virtual void handleMessages(std::vector<RawContainer> &containers) {
         for (auto container : containers) {
-            TTTClickMessage clickMessage;
-            if (TTTClickMessage::from_bytes(container.buffer, &clickMessage)) {
-                //Master is always X and Slave always O
-                board.set(clickMessage.pos_x, clickMessage.pos_y, PLAYER_X);
-
-                my_turn = true;
-            }
-
-            TTTGameEndMessage em;
-            if (TTTGameEndMessage::from_bytes(container.buffer, &em)) {
-                LeaveMessage lm;
-                send(lm);
-                board.reset();
+            TTTBoardUpdateMessage bum(board.board);
+            if (TTTBoardUpdateMessage::from_bytes(container.buffer, &bum)) {
+                // if incoming message is TTTBoardUpdateMessage the board is updated now
+                my_turn = bum.hosts_turn == 0;
             }
         }
+    }
+
+    /**
+     * lets the slave make a move and place his O at the given position (x, y) on the board.
+     * 0, 0 means top left and 2, 2 bottom right.
+     * If the move is not allowed or it is not the slaves turn, nothing happens.
+     * All checks are made on the masters side.
+     * @param x
+     * @param y
+     */
+    void makeMove(int x, int y) {
+        TTTClickMessage cm;
+        cm.pos_x = x;
+        cm.pos_y = y;
+
+        send(cm);
     }
 };
 
