@@ -20,6 +20,8 @@ Scene * scene = nullptr;
 PlaneRenderer* planeRenderer = nullptr;
 int displayWidth=0;
 int displayHeight=0;
+bool anchorWasTracked=false;
+int frameCount=0;
 
 
 JNIEXPORT int JNICALL
@@ -47,6 +49,7 @@ Java_com_example_teampraktikum_ARCoreActivity_nativeOnResume(
     }
     __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "GL Extensions:\n%s",
                         glGetString(GL_EXTENSIONS));
+
     return 0;
 }
 
@@ -112,39 +115,58 @@ Java_com_example_teampraktikum_ARCoreActivity_onDrawFrame(
         JNIEnv *env,
         jobject activity) {
 
+    __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum", "");
+
    if(arServer->onDrawBackground(camBack->getTextureID())==true){
         camBack->draw();
    }
 
 
     glClear(GL_DEPTH_BUFFER_BIT);
-    if (arServer->onDrawAnchor()==true) {
-        glEnable(GL_DEPTH_TEST);
-        //objRenderer->draw();
-        glm::mat4 view = arServer->getViewMatrix();
-        glm::mat4 projection = arServer->getProjectionMatrix();
-        glm::mat4 model = arServer->getModelMatrix();
-        std::string viewString="";
-        for(int i=0;i<4;i++){
-            for(int j=0;j<4;j++){
-                viewString.append(std::to_string(model[i][j]));
+
+    //if(frameCount==0) {
+        anchorWasTracked = arServer->onDrawAnchor();
+   // }
+    //frameCount=(frameCount+1)%2;
+    if(anchorWasTracked==true){
+            glEnable(GL_DEPTH_TEST);
+            //objRenderer->draw();
+            glm::mat4 view = arServer->getViewMatrix();
+            glm::mat4 projection = arServer->getProjectionMatrix();
+            glm::mat4 model = arServer->getModelMatrix();
+            std::string viewString="";
+            for(int i=0;i<4;i++){
+                for(int j=0;j<4;j++){
+                    viewString.append(std::to_string(model[i][j]));
+                }
+                viewString.append("\n");
             }
-            viewString.append("\n");
+            //__android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ModelMatrix in nativelib:\n %s",viewString.c_str());
+            //mesh->draw(model, view, projection);
+            scene->setModel(model);
+            scene->setView(view);
+            scene->setProjection(projection);
+            scene->draw();
+            glDisable(GL_DEPTH_TEST);
         }
-        //__android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","ModelMatrix in nativelib:\n %s",viewString.c_str());
-        //mesh->draw(model, view, projection);
-        scene->setModel(model);
-        scene->setView(view);
-        scene->setProjection(projection);
-        scene->draw();
-        glDisable(GL_DEPTH_TEST);
-    }
 
     //arServer->onDrawPlanes(planeRenderer);
 
 
 }
+JNIEXPORT jboolean JNICALL
+        Java_com_example_teampraktikum_ARCoreActivity_hasDetectedSurface(
+                JNIEnv *env,
+                jobject activity){
+        if(arServer== nullptr){
+            return static_cast<jboolean>(JNI_FALSE);
+        }
+        return static_cast<jboolean>(arServer->hasDetectedSurface()
+                                                               ? JNI_TRUE : JNI_FALSE);
 }
+
+}
+
 
 
 

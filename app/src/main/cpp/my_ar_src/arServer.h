@@ -13,6 +13,7 @@
 #include "ext.hpp"
 #include "planeRenderer.h"
 #include <string>
+#include <sys/time.h>
 
 
 /**
@@ -30,6 +31,7 @@ public:
     void setDisplayGeometry(int displayRotation_, int width_, int height_);
     void createAnchorAt(float x, float y);
     void onDrawPlanes(PlaneRenderer* planeRenderer);
+    bool hasDetectedSurface();
     ArAnchor * getAnchor();
     glm::mat4 getModelMatrix();
     glm::mat4 getViewMatrix();
@@ -52,5 +54,6 @@ private:
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;
+    int32_t plane_list_size = 0;
 };
 #endif //TEAMPRAKTIKUM_ARSERVER_H

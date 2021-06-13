@@ -112,6 +112,15 @@ bool ArServer::onDrawBackground(GLuint textureID) {
 
 bool ArServer::onDrawAnchor() {
 
+    //update Number of Planes detected
+    ArTrackableList* plane_list = nullptr;
+    ArTrackableList_create(arSession, &plane_list);
+    ArSession_getAllTrackables(arSession,AR_TRACKABLE_PLANE,plane_list);
+    ArTrackableList_getSize(arSession, plane_list, &plane_list_size);
+    __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikum","List size %d",plane_list_size);
+    ArTrackableList_destroy(plane_list);
+
+
     ArCamera *ar_camera;
     ArFrame_acquireCamera(arSession, arFrame, &ar_camera);
     ArCamera_getViewMatrix(arSession, ar_camera, glm::value_ptr(view));
@@ -325,6 +334,10 @@ void ArServer::createAnchorAt(float x, float y) {
 
 ArAnchor * ArServer::getAnchor() {
     return anchor;
+}
+
+bool ArServer::hasDetectedSurface() {
+    return plane_list_size>0;
 }
 
 
