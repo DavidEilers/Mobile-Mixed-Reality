@@ -155,6 +155,7 @@ def run_master():
 
 def run_slave(ip):
     n = Network(SLAVE_PORT)
+    n.start()
 
     n.send(ip, MASTER_PORT, buildConnectMessage(MASTER_PORT, "slave"))
 
