@@ -9,6 +9,8 @@ import android.hardware.display.DisplayManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,17 +18,18 @@ import android.view.WindowManager;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-//import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.snackbar.Snackbar;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.res.AssetManager;
 
+
 public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.Renderer, DisplayManager.DisplayListener {
 
     // Used to load the 'native-lib' library on application startup.
     static {
-        System.loadLibrary("my-AR-lib");
+        System.loadLibrary("full-lib");
         //System.loadLibrary("glbuffer");
     }
 
@@ -37,6 +40,33 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
     private boolean viewPortChanged;
     private static final String CAMERA_PERMISSION = Manifest.permission.CAMERA;
     private static final int CAMERA_PERMISSION_CODE = 0;
+    private double prevTimeInMillis;
+
+
+    //This SnackbarCode is from Hello_AR_C example project
+    private static final int SNACKBAR_UPDATE_INTERVAL_MILLIS = 1000;
+    private Snackbar loadingMessageSnackbar;
+    private Handler planeStatusCheckingHandler;
+    private final Runnable planeStatusCheckingRunnable =
+            new Runnable() {
+                @Override
+                public void run() {
+                    // The runnable is executed on main UI thread.
+                    try {
+                        if (hasDetectedSurface()) {
+                            if (loadingMessageSnackbar != null) {
+                                loadingMessageSnackbar.dismiss();
+                            }
+                            loadingMessageSnackbar = null;
+                        } else {
+                            planeStatusCheckingHandler.postDelayed(
+                                    planeStatusCheckingRunnable, SNACKBAR_UPDATE_INTERVAL_MILLIS);
+                        }
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            };
 
     public int getStatusBarHeight() {
         int result = 0;
@@ -80,7 +110,7 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
                             public boolean onSingleTapUp(final MotionEvent e) {
                                 // For devices that support the Depth API, shows a dialog to suggest enabling
                                 // depth-based occlusion. This dialog needs to be spawned on the UI thread.
-                                System.out.println("Statusbar height; " + getStatusBarHeight());
+                                //System.out.println("Statusbar height; " + getStatusBarHeight());
                                 surfaceView.queueEvent(
                                         () -> nativeOnTouched(e.getX(), e.getY()));
                                 return true;
@@ -106,6 +136,8 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
         // Example of a call to a native method
         //TextView tv = findViewById(R.id.sample_text);
         //tv.setText(stringFromJNI(getApplicationContext()));
+        planeStatusCheckingHandler = new Handler();
+        prevTimeInMillis=System.currentTimeMillis();
     }
 
     @Override
@@ -125,16 +157,16 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
         }
         System.out.println("NativeOnResume finished");
         surfaceView.onResume();
-//        loadingMessageSnackbar =
-//                Snackbar.make(
-//                        HelloArActivity.this.findViewById(android.R.id.content),
-//                        "Searching for surfaces...",
-//                        Snackbar.LENGTH_INDEFINITE);
-//        // Set the snackbar background to light transparent black color.
-//        loadingMessageSnackbar.getView().setBackgroundColor(0xbf323232);
-//        loadingMessageSnackbar.show();
-//        planeStatusCheckingHandler.postDelayed(
-//                planeStatusCheckingRunnable, SNACKBAR_UPDATE_INTERVAL_MILLIS);
+        loadingMessageSnackbar =
+                Snackbar.make(
+                        ARCoreActivity.this.findViewById(android.R.id.content),
+                        "Searching for surfaces...",
+                        Snackbar.LENGTH_INDEFINITE);
+        // Set the snackbar background to light transparent black color.
+        loadingMessageSnackbar.getView().setBackgroundColor(0xbf323232);
+        loadingMessageSnackbar.show();
+        planeStatusCheckingHandler.postDelayed(
+                planeStatusCheckingRunnable, SNACKBAR_UPDATE_INTERVAL_MILLIS);
 
         // Listen to display changed events to detect 180° rotation, which does not cause a config
         // change or view resize.
@@ -184,6 +216,7 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
 
     public native void nativeOnTouched(float x, float y);
 
+    public native boolean hasDetectedSurface();
     //public native void nativeSetCanvasOffset(int x, int y);
 
     @Override
@@ -216,6 +249,10 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        double timeNow = System.currentTimeMillis();
+        double frameTime = timeNow-prevTimeInMillis;
+        //System.out.println("Frametime: "+frameTime+"ms or"+(1000/frameTime)+"fps");
+        prevTimeInMillis=timeNow;
         synchronized (this) {
             if (viewPortChanged == true) {
                 int displayRotation = getWindowManager().getDefaultDisplay().getRotation();

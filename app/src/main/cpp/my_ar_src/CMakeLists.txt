@@ -29,7 +29,8 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        native-lib.cpp cameraBackground.cpp objLoader.cpp shader.cpp objRenderer.cpp arServer.cpp planeRenderer.cpp Mesh.cpp Node.cpp Scene.cpp BoundingBox.cpp)
+        #native-lib.cpp
+        cameraBackground.cpp objLoader.cpp shader.cpp objRenderer.cpp arServer.cpp planeRenderer.cpp Mesh.cpp Node.cpp Scene.cpp BoundingBox.cpp)
 
 #add_library(cameraBackground SHARED cameraBackground.cpp)
 
@@ -56,6 +57,9 @@ find_library( # Sets the name of the path variable.
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
+#find_library(networkLib network-lib)
+
+target_include_directories (my-AR-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries( # Specifies the target library.
         my-AR-lib
