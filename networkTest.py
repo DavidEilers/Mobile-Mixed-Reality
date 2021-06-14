@@ -202,7 +202,7 @@ class Network:
 
         self.received_data = []
 
-        self.running = True
+        self.running = False
 
     def send(self, ip, port, data):
         tmp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
