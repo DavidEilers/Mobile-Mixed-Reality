@@ -117,7 +117,7 @@ bool ArServer::onDrawAnchor() {
     ArTrackableList_create(arSession, &plane_list);
     ArSession_getAllTrackables(arSession,AR_TRACKABLE_PLANE,plane_list);
     ArTrackableList_getSize(arSession, plane_list, &plane_list_size);
-    __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikum","List size %d",plane_list_size);
+    //__android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikum","List size %d",plane_list_size);
     ArTrackableList_destroy(plane_list);
 
 

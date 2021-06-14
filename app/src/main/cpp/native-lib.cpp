@@ -2,7 +2,7 @@
 #include <GLES2/gl2ext.h>
 #include <jni.h>
 #include <string>
-#include "arcore_c_api.h"
+//#include "arcore_c_api.h"
 #include <android/log.h>
 #include "cameraBackground.h"
 #include "objRenderer.h"
@@ -12,7 +12,10 @@
 #include "arServer.h"
 
 
+extern char* test();
+
 extern "C" {
+
 
 ArServer* arServer= nullptr;
 cameraBackground *camBack = nullptr;
@@ -30,7 +33,7 @@ Java_com_example_teampraktikum_ARCoreActivity_nativeOnResume(
         jobject activity,
         jobject context){
     __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "In nativeOnResume");
-
+    //__android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum","%s",test());
 
     if(arServer==nullptr){
         arServer = new ArServer();
@@ -91,8 +94,10 @@ Java_com_example_teampraktikum_ARCoreActivity_nativeOnTouched(
         float x,
         float y) {
     if(arServer!= nullptr){
-        if(arServer->getAnchor() == nullptr){
+    //__android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","Trying to create Anchor");
+    if(arServer->getAnchor() == nullptr){
             arServer->createAnchorAt(x,y);
+            if(arServer->getAnchor()==nullptr){__android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum","COULDN'T CREATE ANCHOR probably need device restart");}//WORKAROUND FOR BUGGY DEVICES
         }else{
             //Do Hit Test
 
@@ -129,6 +134,7 @@ Java_com_example_teampraktikum_ARCoreActivity_onDrawFrame(
    // }
     //frameCount=(frameCount+1)%2;
     if(anchorWasTracked==true){
+            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","RENDERING");
             glEnable(GL_DEPTH_TEST);
             //objRenderer->draw();
             glm::mat4 view = arServer->getViewMatrix();

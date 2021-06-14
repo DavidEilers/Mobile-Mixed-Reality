@@ -29,7 +29,7 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
 
     // Used to load the 'native-lib' library on application startup.
     static {
-        System.loadLibrary("my-AR-lib");
+        System.loadLibrary("full-lib");
         //System.loadLibrary("glbuffer");
     }
 
@@ -110,7 +110,7 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
                             public boolean onSingleTapUp(final MotionEvent e) {
                                 // For devices that support the Depth API, shows a dialog to suggest enabling
                                 // depth-based occlusion. This dialog needs to be spawned on the UI thread.
-                                System.out.println("Statusbar height; " + getStatusBarHeight());
+                                //System.out.println("Statusbar height; " + getStatusBarHeight());
                                 surfaceView.queueEvent(
                                         () -> nativeOnTouched(e.getX(), e.getY()));
                                 return true;
@@ -251,7 +251,7 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
     public void onDrawFrame(GL10 gl) {
         double timeNow = System.currentTimeMillis();
         double frameTime = timeNow-prevTimeInMillis;
-        System.out.println("Frametime: "+frameTime+"ms or"+(1000/frameTime)+"fps");
+        //System.out.println("Frametime: "+frameTime+"ms or"+(1000/frameTime)+"fps");
         prevTimeInMillis=timeNow;
         synchronized (this) {
             if (viewPortChanged == true) {
