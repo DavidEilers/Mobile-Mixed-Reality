@@ -45,9 +45,11 @@ def buildClickMessage(x, y):
     return bytes([100, x, y])
 
 def getClickMessage(msg):
-    data = msg[1]
+    data = bytes(msg[1])
+    
+    print("0: "+str(data[0])+" 1: ")#+str(data[1])+" 2: ")#+str(data[2]))
 
-    if data[0] == 100:
+    if data[0] == 1:
         x = data[1]
         y = data[2]
 
@@ -143,15 +145,19 @@ def run_master():
         n.send(slave_ip, SLAVE_PORT, buildBoardMessage(board, hosts_turn))
 
         #wait for messages and act accordingly
-        for msg in n.received_data:
-            val = getClickMessage(msg)
+        while hosts_turn==0:
+            for msg in n.received_data:
+                print("received: "+ str(msg))
+                val = getClickMessage(msg)
 
-            if val:
-                x = val[0]
-                y = val[1]
-                board = make_move(board, x, y, PLAYER_O)
-                hosts_turn = 1
-                n.send(slave_ip, SLAVE_PORT, buildBoardMessage(board, hosts_turn))
+                if val:
+                    print("val !=NULL")
+                    x = val[0]
+                    y = val[1]
+                    board = make_move(board, x, y, PLAYER_O)
+                    hosts_turn = 1
+                    n.send(slave_ip, SLAVE_PORT, buildBoardMessage(board, hosts_turn))
+            time.sleep(0.1)
     
 
 def run_slave(ip):

@@ -138,7 +138,7 @@ class TTTClickMessage : public BaseMessage {
 public:
     static const char TYPE = MSG_TTT_CLICK;
 
-    char pos_x, pos_y;
+    unsigned char pos_x, pos_y;
 
     void set_coords(char x, char y) {
         pos_x = x;
@@ -299,9 +299,9 @@ public:
      * @param containers contains the raw message data.
      */
     virtual void handle_messages(std::vector<RawContainer> &containers)override {
-        __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Handle Messages was called");
+        //__android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Handle Messages was called");
         for (auto container : containers) {
-            __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Got an fieldUpdate");
+           // __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Got an fieldUpdate");
             TTTBoardUpdateMessage bum(&board);
             if (TTTBoardUpdateMessage::from_bytes(container.buffer, &bum)) {
                 // if incoming message is TTTBoardUpdateMessage the board is updated now

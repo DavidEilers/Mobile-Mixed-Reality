@@ -35,7 +35,7 @@ public:
     void setBoundingBox(glm::vec3 *box);
     void prepareBoundingBoxShader();
     void renderBoundingBox(glm::mat4 model);
-    void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDirection,glm::mat4 parentTransform, glm::mat4 view);
+    Node* hitTest(glm::vec3 rayOrigin, glm::vec3 rayDirection,glm::mat4 parentTransform, glm::mat4 view);
 
 private:
     GLuint programID;

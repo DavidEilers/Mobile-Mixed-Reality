@@ -135,6 +135,7 @@ void Slave::connect_to_master(std::string ip, int master_port) {
 
 void Slave::send(BaseMessage message) {
     if (connected) {
+        __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","Sending Message");
         server.send_message(message, MASTER_IP, MASTER_PORT);
     }
 }

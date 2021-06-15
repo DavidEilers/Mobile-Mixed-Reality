@@ -115,6 +115,18 @@ void Scene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
 
     rootNode->setModel(model);
     glm::mat4 identityMatrix(1.0f);
-    rootNode->hitTest(rayOriginWS,rayDirectionWS,identityMatrix,view);
+    Node* result = rootNode->hitTest(rayOriginWS,rayDirectionWS,identityMatrix,view);
+    int row;int column;
+    for(int i=0; i<9; i++){
+        if(fields[i]==result){
+            row = (i/3);
+            column = i%3;
+            break;
+        }
+        if(i==8){
+            return;//The result is no field
+        }
+    }
+    boardPressedAt(row,column);
 
 }
