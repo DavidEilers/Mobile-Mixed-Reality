@@ -75,7 +75,7 @@ void Node::draw(glm::mat4 parentTransform) {
     glm::mat4 newModel = parentTransform*model;
     if(mesh!= nullptr) {
         if(wasHit==false){
-            if(box!= nullptr)mesh->draw(newModel,glm::vec4(1.0f,0.0f,0.0f,1.0f));
+            mesh->draw(newModel,glm::vec4(1.0f,0.0f,0.0f,1.0f));
         }else{
             mesh->draw(newModel,glm::vec4(0.0f,1.0f,0.0f,1.0f));
         }

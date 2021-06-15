@@ -1,14 +1,54 @@
 #include <jni.h>
 #include <string>
 
+
+#include <android/log.h>
+
 #include "TicTacToe.hpp"
+#include "NetworkInterface.h"
 
 TTTMaster master;
 TTTSlave slave;
 
 bool hosting = false;
 
+int fieldGetStatusAt(int x,int y) {
+    __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","fieldGetStatusAt()");
+    if (hosting) {
+        return  master.board.get((int) x, (int) y);
+    }
+    return slave.board.get((int) x, (int) y);
+}
+
+void tick(){
+    if(hosting){
+        master.tick();
+    }else{
+        slave.tick();
+    }
+}
+
+
+
 extern "C" {
+
+
+JNIEXPORT void
+Java_com_example_teampraktikum_ARCoreActivity_startConnection(JNIEnv *env, jobject /* this */,
+                                                              jstring ip) {
+    const char *ip_chars = env->GetStringUTFChars(ip, NULL);
+    std::string ip_string = std::string(ip_chars);
+    env->ReleaseStringUTFChars(ip, ip_chars);
+
+    if (ip_string.empty()) {
+        // HOST
+        hosting = true;
+        return;
+    }
+    // CLIENT
+    hosting = false;
+    slave.connect_to_master(ip_string, 7080);
+}
 
 JNIEXPORT void
 Java_com_example_teampraktikum_TicTacToeActivity_boardPressedAt(JNIEnv *env, jobject /* this */, jint x,

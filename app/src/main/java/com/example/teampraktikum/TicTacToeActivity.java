@@ -1,12 +1,23 @@
 package com.example.teampraktikum;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
+import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,7 +25,7 @@ public class TicTacToeActivity extends AppCompatActivity {
 
     // Used to load the 'native-lib' library on application startup.
     static {
-        System.loadLibrary("network-lib");
+        System.loadLibrary("full-lib");
     }
 
     Button startButton;
@@ -31,6 +42,46 @@ public class TicTacToeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tictactoe);
+
+
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
+                    String ipAddress = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+                    TextView a = (TextView) findViewById(R.id.textViewTitle);
+                    a.setText("Your IP-Adress is: "+ipAddress);
+                }catch(Exception e){
+                    System.out.println("Exception : "+e.toString());
+                }
+            }
+        });
+
+        Button btn = (Button) findViewById(R.id.QRCodeButton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentIntegrator integrator = new IntentIntegrator(TicTacToeActivity.this);
+                integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+                integrator.setPrompt("Scan");
+                integrator.setCameraId(0);
+                integrator.setBeepEnabled(false);
+                integrator.setBarcodeImageEnabled(false);
+                integrator.initiateScan();
+            }
+        });
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            System.out.println("INTERNET PERMISSION NOT GRANTED");
+            ActivityCompat.requestPermissions(
+                    this, new String[]{Manifest.permission.ACCESS_WIFI_STATE}, 0);
+            return;
+        }
+        thread.start();
+
 
         startButton = (Button) findViewById(R.id.start_button);
         ipEdit = (EditText) findViewById(R.id.editTextIP);
@@ -57,8 +108,9 @@ public class TicTacToeActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startButtonPressed(ipEdit.getText().toString());
+                //startButtonPressed();
                 startButton.setEnabled(false);
+                switchToArCore(ipEdit.getText().toString());
             }
         });
 
@@ -130,6 +182,32 @@ public class TicTacToeActivity extends AppCompatActivity {
                 setBoardEnabled(false);
             }
         };
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if(result != null) {
+            if(result.getContents() == null) {
+                System.out.println("Cancelled scan");
+
+            } else {
+                System.out.println("Scanned");
+
+                EditText ipInput = (EditText) findViewById(R.id.editTextIP);
+                ipInput.setText(result.getContents());
+                //Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            // This is important, otherwise the result will not be passed to the fragment
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void switchToArCore(String ipAddress){
+        Intent switchActivityIntent = new Intent(this,ARCoreActivity.class);
+        switchActivityIntent.putExtra("ipAddress",ipAddress);
+        startActivity(switchActivityIntent);
     }
 
     /**

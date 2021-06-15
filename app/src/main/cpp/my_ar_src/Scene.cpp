@@ -3,6 +3,7 @@
 //
 
 #include "Scene.h"
+#include "NetworkInterface.h"
 
 void Scene::setModel( glm::mat4 model_) {
     this->model = model_;
@@ -24,21 +25,26 @@ Scene::Scene(AAssetManager *assetManager_) {
     rootNode->addChild(fieldNode);
     fieldNode->setMesh(fieldMesh);
 
-    Mesh * crossMesh = new Mesh("objects","cross",this);
-    Mesh * circleMesh = new Mesh("objects","circle",this);
+    crossMesh = new Mesh("objects","cross",this);
+    circleMesh = new Mesh("objects","circle",this);
 
-    Node * fields[9];
+    //Node * fields[9];
     for(int i=0; i<9;i++){
         fields[i] = new Node(this);
         fieldNode->addChild(fields[i]);
-        if(i%2==0){
-            fields[i]->setMesh(circleMesh);
-        }else{
-            fields[i]->setMesh(crossMesh);
-        }
+//        if(i%2==0){
+//            fields[i]->setMesh(circleMesh);
+//        }else{
+//            fields[i]->setMesh(crossMesh);
+//        }
 
         int row = (i/3);
         int column = i%3;
+        if(fieldGetStatusAt(row,column)==1){
+            fields[i]->setMesh(circleMesh);
+        }else if(fieldGetStatusAt(row,column)==2){
+            fields[i]->setMesh(crossMesh);
+        }
         double x = row*0.3-0.3;
         double z = column*0.3-0.3;
         glm::mat4 trans = glm::translate(glm::mat4(1.0f),glm::vec3(x,0.0f,z));
@@ -74,6 +80,19 @@ glm::mat4 Scene::getProjection(){
 }
 
 void Scene::draw() {
+    tick();
+    for(int i=0;i<9;i++){
+        int row = (i/3);
+        int column = i%3;
+//        if(row==1&&column==1){
+//            fields[i]->setMesh(circleMesh);
+//        }
+        if(fieldGetStatusAt(row,column)==1){
+            fields[i]->setMesh(circleMesh);
+        }else if(fieldGetStatusAt(row,column)==2){
+            fields[i]->setMesh(crossMesh);
+        }
+    }
     rootNode->setModel(model);
     glm::mat4 identityMatrix(1.0f);
     rootNode->draw(identityMatrix);

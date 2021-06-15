@@ -134,7 +134,7 @@ Java_com_example_teampraktikum_ARCoreActivity_onDrawFrame(
    // }
     //frameCount=(frameCount+1)%2;
     if(anchorWasTracked==true){
-            __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","RENDERING");
+            //__android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","RENDERING");
             glEnable(GL_DEPTH_TEST);
             //objRenderer->draw();
             glm::mat4 view = arServer->getViewMatrix();

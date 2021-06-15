@@ -14,7 +14,7 @@ add_library(full-lib SHARED native-lib.cpp)
 
 target_link_libraries(
         full-lib
-        network-lib
+        #network-lib
         my-AR-lib
         ${log-lib}
         ${android-lib}
