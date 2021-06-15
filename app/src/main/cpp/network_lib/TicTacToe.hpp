@@ -2,6 +2,7 @@
 #include <string>
 #include "GameManager.h"
 #include "Messages.hpp"
+#include <android/log.h>
 
 #ifndef TEAMPRAKTIKUM_TICTACTOE_HPP
 #define TEAMPRAKTIKUM_TICTACTOE_HPP
@@ -191,7 +192,7 @@ class TTTBoardUpdateMessage : public BaseMessage {
 public:
     static const char TYPE = MSG_TTT_BOARD_UPDATE;
 
-    char **board;
+    TTTBoard *board;
 
     char hosts_turn = 0;
 
@@ -199,7 +200,7 @@ public:
      * Constructor
      * @param board_ptr pointer to the board of a TTTBoard to update
      */
-    TTTBoardUpdateMessage(char **board_ptr) {
+    TTTBoardUpdateMessage(TTTBoard *board_ptr) {
         board = board_ptr;
     }
 
@@ -209,7 +210,7 @@ public:
         int i = 2;
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                buffer[i] = board[x][y];
+                buffer[i] = board->board[x][y];
                 i++;
             }
         }
@@ -221,7 +222,7 @@ public:
         int i = 2;
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                msg_obj->board[x][y] = buffer[i];
+                msg_obj->board->board[x][y] = buffer[i];
                 i++;
             }
         }
@@ -238,7 +239,7 @@ public:
 
     TTTMaster() : Master("master", 7080, 1) {}
 
-    virtual void handleMessages(std::vector<RawContainer> &containers) {
+    virtual void handle_messages(std::vector<RawContainer> &containers) override {
         for (auto container : containers) {
             TTTClickMessage clickMessage;
             if (TTTClickMessage::from_bytes(container.buffer, &clickMessage)) {
@@ -256,7 +257,7 @@ public:
      * broadcasts the current board state to the slave
      */
     void broadCastBoardUpdate() {
-        TTTBoardUpdateMessage bum(board.board);
+        TTTBoardUpdateMessage bum(&board);
         bum.hosts_turn = my_turn;
         broadcast(bum);
     }
@@ -297,9 +298,11 @@ public:
      * handles incoming messages that are specific to the TicTacToe game.
      * @param containers contains the raw message data.
      */
-    virtual void handleMessages(std::vector<RawContainer> &containers) {
+    virtual void handle_messages(std::vector<RawContainer> &containers)override {
+        __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Handle Messages was called");
         for (auto container : containers) {
-            TTTBoardUpdateMessage bum(board.board);
+            __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Got an fieldUpdate");
+            TTTBoardUpdateMessage bum(&board);
             if (TTTBoardUpdateMessage::from_bytes(container.buffer, &bum)) {
                 // if incoming message is TTTBoardUpdateMessage the board is updated now
                 my_turn = bum.hosts_turn == 0;

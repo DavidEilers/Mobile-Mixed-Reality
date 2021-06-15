@@ -80,6 +80,14 @@ public class TicTacToeActivity extends AppCompatActivity {
                     this, new String[]{Manifest.permission.ACCESS_WIFI_STATE}, 0);
             return;
         }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED) {
+            System.out.println("INTERNET PERMISSION NOT GRANTED");
+            ActivityCompat.requestPermissions(
+                    this, new String[]{Manifest.permission.INTERNET}, 0);
+            return;
+        }
         thread.start();
 
 

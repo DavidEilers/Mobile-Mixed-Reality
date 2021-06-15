@@ -3,7 +3,7 @@
 //
 
 #include <vector>
-
+#include <android/log.h>
 #include "GameManager.h"
 
 //--------------Master-------------------
@@ -125,9 +125,12 @@ void Slave::connect_to_master(std::string ip, int master_port) {
     ConnectMessage cm;
 
     cm.player_name = player_name;
+    MASTER_IP=ip;
+    MASTER_PORT=master_port;
     cm.port = PORT; //own port, master can reach us here
 
     server.send_message(cm, ip, master_port);
+    server.start_listening();
 }
 
 void Slave::send(BaseMessage message) {
@@ -136,18 +139,21 @@ void Slave::send(BaseMessage message) {
     }
 }
 
-void Slave::handle_messages(std::vector<RawContainer> &containers) {
+void Slave::handle_messages(std::vector<RawContainer> &containers){
     //override by user
 }
 
 void Slave::tick() {
     auto containers = server.get_messages();
     for (const auto &container:containers) {
+
+        __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","Got a networkPacket");
         //Master accepts connection
         ConnectMessage cm;
         if (ConnectMessage::from_bytes(container.buffer, &cm)) {
-            MASTER_IP = container.from_addr;
-            MASTER_PORT = cm.port;
+            __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","Got a networkPacket");
+            //MASTER_IP = container.from_addr;
+            //MASTER_PORT = cm.port;
             MASTER_NAME = cm.player_name;
             connected = true;
         }

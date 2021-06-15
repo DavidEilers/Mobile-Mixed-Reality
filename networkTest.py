@@ -7,7 +7,7 @@ import time
 google = "216.58.210.3"
 
 HOST = '192.168.43.1'
-HOST = "192.168.178.20"
+HOST = "192.168.178.26"
 MASTER_PORT = 7080
 SLAVE_PORT = 7081
 
@@ -31,7 +31,8 @@ def getConnectMessage(msg):
     if data[0] == 4:
         connection_info = {}
         
-        connection_info["ip"] = addr
+        connection_info["ip"] = addr[0]
+        print("Address: "+str(addr[0]))
         
         connection_info["port"] = int.from_bytes(data[1:3], "little")
 
@@ -214,8 +215,10 @@ class Network:
             tmp.connect((ip, port))
             tmp.send(data)
             tmp.close()
+            print("Sending returned True")
             return True
         except:
+            print("Sending returned False")
             return False
 
     def start(self):

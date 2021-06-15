@@ -13,7 +13,7 @@ TTTSlave slave;
 bool hosting = false;
 
 int fieldGetStatusAt(int x,int y) {
-    __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","fieldGetStatusAt()");
+    //__android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","fieldGetStatusAt()");
     if (hosting) {
         return  master.board.get((int) x, (int) y);
     }
