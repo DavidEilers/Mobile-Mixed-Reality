@@ -44,6 +44,9 @@ private:
     glm::mat4 projection;
     Node * rootNode= nullptr;
     AAssetManager *assetManager=nullptr;
+    Node * fields[9];
+    Mesh * crossMesh;
+    Mesh * circleMesh;
 
 };
 

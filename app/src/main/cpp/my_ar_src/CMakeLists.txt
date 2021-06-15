@@ -67,6 +67,7 @@ target_link_libraries( # Specifies the target library.
         #cameraBackground
         arcore
         GLESv2
+        network-lib
         #test-lib
         # Links the target library to the log library
         # included in the NDK.

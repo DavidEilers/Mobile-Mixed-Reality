@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLES20;
@@ -100,6 +101,11 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         surfaceView.setWillNotDraw(false);
 
+        Intent intent=getIntent();
+        String ipAddress = intent.getStringExtra("ipAddress");
+        if(ipAddress!=null){
+            startConnection(ipAddress);
+        }
 
         // Set up touch listener.
         gestureDetector =
@@ -218,6 +224,8 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
 
     public native boolean hasDetectedSurface();
     //public native void nativeSetCanvasOffset(int x, int y);
+
+    public native void startConnection(String ipAddress);
 
     @Override
     public void onDisplayAdded(int displayId) {
