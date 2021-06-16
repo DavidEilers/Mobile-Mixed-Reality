@@ -47,7 +47,7 @@ public:
      * @param msg_obj pointer to store the message object
      * @return returns true if the buffer contains valid data of the right type, false otherwise
      */
-    static bool from_bytes(char *buffer, BaseMessage *msg_obj) {
+    virtual bool from_bytes(char *buffer) {
         return buffer[0] == TYPE;
     }
 };
@@ -57,7 +57,7 @@ public:
  */
 class StringMessage : public BaseMessage {
 public:
-    static const char TYPE = MSG_STRING;
+    const char TYPE = MSG_STRING;
 
     string payload;
 
@@ -66,7 +66,7 @@ public:
      * @param buffer buffer of size BUFFERSIZE to store the message in
      * @return returns size of used buffer (<= BUFFERSIZE)
      */
-    virtual int to_bytes(char *buffer) {
+    virtual int to_bytes(char *buffer) override {
         buffer[0] = TYPE;
         for (int i = 0; i < payload.size(); i++) {
             buffer[1 + i] = payload.at(i);
@@ -81,12 +81,11 @@ public:
      * creates StringMessage object containing the payload string from buffer if
      * the buffer contains suitable data
      * @param buffer buffer to create the message object from
-     * @param msg_obj pointer to store the message object
      * @return returns true if the buffer contains valid data of the right type, false otherwise
      */
-    static bool from_bytes(char *buffer, StringMessage *msg_obj) {
+    virtual bool from_bytes(char *buffer) override {
         if (buffer[0] != TYPE) return false;
-        msg_obj->payload.assign(buffer + 1);
+        this->payload.assign(buffer + 1);
         return true;
     }
 };
@@ -99,7 +98,7 @@ public:
  */
 class ConnectMessage : public BaseMessage {
 public:
-    static const char TYPE = MSG_CONNECT;
+    const char TYPE = MSG_CONNECT;
 
     string player_name;
     u_int16_t port;
@@ -130,18 +129,17 @@ public:
      * creates StringMessage object containing the player_name string from buffer if
      * the buffer contains suitable data
      * @param buffer buffer to create the message object from
-     * @param msg_obj pointer to store the message object
      * @return returns true if the buffer contains valid data of the right type, false otherwise
      */
-    static bool from_bytes(char *buffer, ConnectMessage *msg_obj) {
+    virtual bool from_bytes(char *buffer) override {
         if (buffer[0] != TYPE) return false;
 
         int s = sizeof(u_int16_t);
 
         //get one u_int16_t with one byte offset
-        msg_obj->port = ((u_int16_t *) (buffer + 1))[0];
+        this->port = ((u_int16_t *) (buffer + 1))[0];
         //following bytes are player name
-        msg_obj->player_name.assign(buffer + 1 + s);
+        this->player_name.assign(buffer + 1 + s);
         return true;
     }
 };
@@ -153,7 +151,7 @@ public:
  */
 class ErrorNameInUseMessage : public BaseMessage {
 public:
-    static const MessageType TYPE = MSG_ERR_NAME_IN_USE;
+    const MessageType TYPE = MSG_ERR_NAME_IN_USE;
 };
 
 
@@ -163,7 +161,7 @@ public:
  */
 class ErrorGameFullMessage : public BaseMessage {
 public:
-    static const MessageType TYPE = MSG_ERR_GAME_FULL;
+    const MessageType TYPE = MSG_ERR_GAME_FULL;
 };
 
 
@@ -175,7 +173,7 @@ public:
  */
 class LeaveMessage : public BaseMessage {
 public:
-    static const char TYPE = MSG_LEAVE;
+    const char TYPE = MSG_LEAVE;
     string player_name;
 
     /**
@@ -183,7 +181,7 @@ public:
      * @param buffer buffer of size BUFFERSIZE to store the message in
      * @return returns size of used buffer (<= BUFFERSIZE)
      */
-    virtual int to_bytes(char *buffer) {
+    virtual int to_bytes(char *buffer) override {
         buffer[0] = TYPE;
         for (int i = 0; i < player_name.size(); i++) {
             buffer[1 + i] = player_name.at(i);
@@ -198,12 +196,11 @@ public:
      * creates LeaveMessage object containing the player_name string from buffer if
      * the buffer contains suitable data
      * @param buffer buffer to create the message object from
-     * @param msg_obj pointer to store the message object
      * @return returns true if the buffer contains valid data, false otherwise
      */
-    static bool from_bytes(char *buffer, LeaveMessage *msg_obj) {
+    virtual bool from_bytes(char *buffer) override {
         if (buffer[0] != TYPE) return false;
-        msg_obj->player_name.assign(buffer + 1);
+        this->player_name.assign(buffer + 1);
         return true;
     }
 };

@@ -137,6 +137,7 @@ void Scene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
             return;//The result is no field
         }
     }
-    slave.makeMove(row,column);
+    __android_log_print(ANDROID_LOG_VERBOSE, "HitTest", "%d, %d", row, column);
+    slave.makeMove(row, column);
 
 }

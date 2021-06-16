@@ -194,7 +194,7 @@ vector<struct RawContainer> Server::get_messages() {
     return copy;
 }
 
-bool Server::send_message(BaseMessage &msg_obj, string addr, int port) {
+bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
 
     __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending started.");
 
@@ -264,7 +264,9 @@ bool Server::send_message(BaseMessage &msg_obj, string addr, int port) {
         return false;
     }
 
-    int size = msg_obj.to_bytes(buffer);
+    int size = msg_obj->to_bytes(buffer);
+
+    __android_log_print(ANDROID_LOG_VERBOSE, "network send", "%d", buffer[0]);
 
     send(sock, buffer, size, 0);
 

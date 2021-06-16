@@ -35,12 +35,12 @@ void boardPressedAt(int x, int y) {
     __android_log_print(ANDROID_LOG_VERBOSE,"boardPress","Pressed at x:%d, y:%d",x,y);
 
     if (hosting) {
-        master.send_to(clickMessage, master.get_connected_slaves()[0]);
+        master.send_to(&clickMessage, master.get_connected_slaves()[0]);
         master.my_turn = false;
         master.board.set(x, y, PLAYER_X);
         return;
     }
-    slave.send(clickMessage);
+    slave.send(&clickMessage);
     slave.my_turn = false;
     slave.board.set(x, y, PLAYER_O);
 }
@@ -74,12 +74,12 @@ Java_com_example_teampraktikum_TicTacToeActivity_boardPressedAt(JNIEnv *env, job
     clickMessage.pos_x = x;
     clickMessage.pos_y = y;
     if (hosting) {
-        master.send_to(clickMessage, master.get_connected_slaves()[0]);
+        master.send_to(&clickMessage, master.get_connected_slaves()[0]);
         master.my_turn = false;
         master.board.set(x, y, PLAYER_X);
         return;
     }
-    slave.send(clickMessage);
+    slave.send(&clickMessage);
     slave.my_turn = false;
     slave.board.set(x, y, PLAYER_O);
 }

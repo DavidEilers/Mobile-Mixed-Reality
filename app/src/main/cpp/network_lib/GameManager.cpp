@@ -14,13 +14,13 @@ Master::Master(std::string player_name, int port, int max_slaves_count) : server
     this->max_slaves_count = max_slaves_count;
 }
 
-void Master::broadcast(BaseMessage message) {
+void Master::broadcast(BaseMessage *message) {
     for (int i = 0; i < slaves.size(); i++) {
         send_to(message, slaves[i]);
     }
 }
 
-void Master::send_to(BaseMessage message, struct ConnectedSlave slave) {
+void Master::send_to(BaseMessage *message, struct ConnectedSlave slave) {
     server.send_message(message, slave.ip, slave.port);
 }
 
@@ -49,7 +49,7 @@ void Master::tick() {
     auto containers = server.get_messages();
     for (const auto &container:containers) {
         ConnectMessage cm;
-        if (ConnectMessage::from_bytes(container.buffer, &cm)) {
+        if (cm.from_bytes(container.buffer)) {
             //add player if name unused
             struct ConnectedSlave new_slave;
 
@@ -65,24 +65,24 @@ void Master::tick() {
                         //reusing cm object but filling it with info about master
                         cm.player_name = player_name;
                         cm.port = PORT;
-                        send_to(cm, new_slave);
+                        send_to(&cm, new_slave);
                     } else {
                         ErrorGameFullMessage em;
-                        send_to(em, new_slave);
+                        send_to(&em, new_slave);
                     }
                 } else {
                     //name already in use
                     ErrorNameInUseMessage error;
-                    send_to(error, new_slave);
+                    send_to(&error, new_slave);
                 }
             } else {
                 //no new connections allowed
                 ErrorGameFullMessage em;
-                send_to(em, new_slave);
+                send_to(&em, new_slave);
             }
         }
         LeaveMessage lm;
-        if (LeaveMessage::from_bytes(container.buffer, &lm)) {
+        if (lm.from_bytes(container.buffer)) {
             if (player_connected(lm.player_name)) {
                 for (int i = 0; i < slaves.size(); i++) {
                     if (slaves[i].name == lm.player_name) {
@@ -107,7 +107,7 @@ void Master::tick() {
 void Master::disconnectAllSlaves() {
     LeaveMessage lm;
     lm.player_name = player_name;
-    broadcast(lm);
+    broadcast(&lm);
     slaves.clear();
 }
 
@@ -129,13 +129,13 @@ void Slave::connect_to_master(std::string ip, int master_port) {
     MASTER_PORT=master_port;
     cm.port = PORT; //own port, master can reach us here
 
-    server.send_message(cm, ip, master_port);
+    server.send_message(&cm, ip, master_port);
     server.start_listening();
 }
 
-void Slave::send(BaseMessage message) {
+void Slave::send(BaseMessage *message) {
     if (connected) {
-        __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","Sending Message");
+        __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikumNetwork", "Sending Message");
         server.send_message(message, MASTER_IP, MASTER_PORT);
     }
 }
@@ -151,19 +151,21 @@ void Slave::tick() {
         __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","Got a networkPacket");
         //Master accepts connection
         ConnectMessage cm;
-        if (ConnectMessage::from_bytes(container.buffer, &cm)) {
-            __android_log_print(ANDROID_LOG_VERBOSE,"TeamPraktikumNetwork","Got a networkPacket");
-            //MASTER_IP = container.from_addr;
-            //MASTER_PORT = cm.port;
+        if (cm.from_bytes(container.buffer)) {
+            __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikumNetwork", "Got a networkPacket");
+            MASTER_IP = container.from_addr;
+            MASTER_PORT = cm.port;
             MASTER_NAME = cm.player_name;
             connected = true;
         }
         //Master disconnects this slave
-        if (LeaveMessage::from_bytes(container.buffer, 0)) {
+        LeaveMessage lm;
+        if (lm.from_bytes(container.buffer)) {
             connected = false;
         }
 
-        if (ErrorGameFullMessage::from_bytes(container.buffer, 0)) {
+        ErrorGameFullMessage egm;
+        if (egm.from_bytes(container.buffer)) {
             connected = false;
         }
     }
@@ -183,6 +185,6 @@ void Slave::disconnect() {
         connected = false;
         LeaveMessage lm;
         lm.player_name = player_name;
-        send(lm);
+        send(&lm);
     }
 }
