@@ -74,7 +74,7 @@ public:
      * @param port target port
      * @return returns true if sending was successful, false otherwise
      */
-    static bool send_message(BaseMessage &msg_obj, string addr, int port);
+    static bool send_message(BaseMessage *msg_obj, string addr, int port);
 
 private:
     int PORT;

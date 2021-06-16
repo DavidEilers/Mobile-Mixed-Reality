@@ -21,12 +21,14 @@
 #include "Node.h"
 #include "ext.hpp"
 
+#include "TicTacToe.hpp"
+
 extern class Mesh;
 extern class Node;
 
 class Scene {
 public:
-    Scene(AAssetManager *assetManager_);
+    Scene(AAssetManager *assetManager_,std::string ip);
     virtual ~Scene();
     void setModel(glm::mat4 model_);
     void setView(glm::mat4 view_);
@@ -47,6 +49,7 @@ private:
     Node * fields[9];
     Mesh * crossMesh;
     Mesh * circleMesh;
+    TTTSlave slave;
 
 };
 

@@ -7,7 +7,7 @@ import time
 google = "216.58.210.3"
 
 HOST = '192.168.43.1'
-HOST = "192.168.178.20"
+HOST = "192.168.178.26"
 MASTER_PORT = 7080
 SLAVE_PORT = 7081
 
@@ -31,7 +31,8 @@ def getConnectMessage(msg):
     if data[0] == 4:
         connection_info = {}
         
-        connection_info["ip"] = addr
+        connection_info["ip"] = addr[0]
+        print("Address: "+str(addr[0]))
         
         connection_info["port"] = int.from_bytes(data[1:3], "little")
 
@@ -44,7 +45,9 @@ def buildClickMessage(x, y):
     return bytes([100, x, y])
 
 def getClickMessage(msg):
-    data = msg[1]
+    data = bytes(msg[1])
+    
+    print(f"message type: {data[0]}")
 
     if data[0] == 100:
         x = data[1]
@@ -121,7 +124,7 @@ def run_master():
     waiting = True
     while waiting:
         time.sleep(0.1)
-        for msg in n.received_data:
+        for msg in n.get_data():
             connection_info = getConnectMessage(msg)
             if connection_info:
                 waiting = False
@@ -142,15 +145,19 @@ def run_master():
         n.send(slave_ip, SLAVE_PORT, buildBoardMessage(board, hosts_turn))
 
         #wait for messages and act accordingly
-        for msg in n.received_data:
-            val = getClickMessage(msg)
+        while hosts_turn==0:
+            for msg in n.get_data():
+                print("received: " + str(msg))
+                val = getClickMessage(msg)
 
-            if val:
-                x = val[0]
-                y = val[1]
-                board = make_move(board, x, y, PLAYER_O)
-                hosts_turn = 1
-                n.send(slave_ip, SLAVE_PORT, buildBoardMessage(board, hosts_turn))
+                if val:
+                    print("val !=NULL")
+                    x = val[0]
+                    y = val[1]
+                    board[x][y] = PLAYER_O
+                    hosts_turn = 1
+                    n.send(slave_ip, SLAVE_PORT, buildBoardMessage(board, hosts_turn))
+            time.sleep(0.1)
     
 
 def run_slave(ip):
@@ -167,10 +174,10 @@ def run_slave(ip):
     waiting = True
     while waiting:
         time.sleep(0.1)
-        for msg in n.received_data:
+        for msg in n.get_data():
             connection_info = getConnectMessage(msg)
             if connection_info:
-                #connected
+                # connected
                 print("Connected:")
                 print(connection_info)
                 waiting = False
@@ -180,7 +187,7 @@ def run_slave(ip):
         waiting = True
         while waiting:
             time.sleep(0.1)
-            for msg in n.received_data:
+            for msg in n.get_data():
                 val = getBoardMessage(msg)
                 if val:
                     board = val[0]
@@ -214,8 +221,10 @@ class Network:
             tmp.connect((ip, port))
             tmp.send(data)
             tmp.close()
+            print("Sending returned True")
             return True
         except:
+            print("Sending returned False")
             return False
 
     def start(self):
@@ -231,8 +240,17 @@ class Network:
                     self.received_data.append((addr, conn.recv(1024)))
             except:
                 pass
+
     def stop(self):
         self.running = False
+
+    def get_data(self):
+        data = self.received_data
+
+        self.received_data = []
+
+        return data
+
 
 if __name__ == "__main__":
     ip = input("Enter IP-address. Empty for Host: ")

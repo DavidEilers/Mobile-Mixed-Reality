@@ -2,6 +2,7 @@
 #include <string>
 #include "GameManager.h"
 #include "Messages.hpp"
+#include <android/log.h>
 
 #ifndef TEAMPRAKTIKUM_TICTACTOE_HPP
 #define TEAMPRAKTIKUM_TICTACTOE_HPP
@@ -135,26 +136,27 @@ public:
  */
 class TTTClickMessage : public BaseMessage {
 public:
-    static const char TYPE = MSG_TTT_CLICK;
+    const char TYPE = MSG_TTT_CLICK;
 
-    char pos_x, pos_y;
+    unsigned char pos_x, pos_y;
 
     void set_coords(char x, char y) {
         pos_x = x;
         pos_y = y;
     }
 
-    virtual int to_bytes(char *buffer) {
+    virtual int to_bytes(char *buffer) override {
+        __android_log_print(ANDROID_LOG_VERBOSE, "TTTClick -> to_bytes", "%d", TYPE);
         buffer[0] = TYPE;
         buffer[1] = pos_x;
         buffer[2] = pos_y;
         return 3;
     }
 
-    static bool from_bytes(char *buffer, TTTClickMessage *msg_obj) {
+    virtual bool from_bytes(char *buffer) override {
         if (buffer[0] != TYPE) return false;
-        msg_obj->pos_x = buffer[1];
-        msg_obj->pos_y = buffer[2];
+        this->pos_x = buffer[1];
+        this->pos_y = buffer[2];
         return true;
     }
 };
@@ -164,20 +166,20 @@ public:
  */
 class TTTGameEndMessage : public BaseMessage {
 public:
-    static const char TYPE = MSG_TTT_END;
+    const char TYPE = MSG_TTT_END;
 
     bool host_won = false;
 
-    virtual int to_bytes(char *buffer) {
+    virtual int to_bytes(char *buffer) override {
         buffer[0] = TYPE;
         if (host_won) buffer[1] = 1;
         else buffer[1] = 0;
         return 2;
     }
 
-    static bool from_bytes(char *buffer, TTTGameEndMessage *msg_obj) {
+    virtual bool from_bytes(char *buffer) override {
         if (buffer[0] != TYPE) return false;
-        msg_obj->host_won = buffer[1] == 1;
+        this->host_won = buffer[1] == 1;
         return true;
     }
 };
@@ -189,9 +191,9 @@ public:
  */
 class TTTBoardUpdateMessage : public BaseMessage {
 public:
-    static const char TYPE = MSG_TTT_BOARD_UPDATE;
+    const char TYPE = MSG_TTT_BOARD_UPDATE;
 
-    char **board;
+    TTTBoard *board;
 
     char hosts_turn = 0;
 
@@ -199,29 +201,29 @@ public:
      * Constructor
      * @param board_ptr pointer to the board of a TTTBoard to update
      */
-    TTTBoardUpdateMessage(char **board_ptr) {
+    TTTBoardUpdateMessage(TTTBoard *board_ptr) {
         board = board_ptr;
     }
 
-    virtual int to_bytes(char *buffer) {
+    virtual int to_bytes(char *buffer) override {
         buffer[0] = TYPE;
         buffer[1] = hosts_turn;
         int i = 2;
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                buffer[i] = board[x][y];
+                buffer[i] = board->board[x][y];
                 i++;
             }
         }
     }
 
-    static bool from_bytes(char *buffer, TTTBoardUpdateMessage *msg_obj) {
+    virtual bool from_bytes(char *buffer) override {
         if (buffer[0] != TYPE) return false;
-        msg_obj->hosts_turn = buffer[1];
+        this->hosts_turn = buffer[1];
         int i = 2;
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                msg_obj->board[x][y] = buffer[i];
+                this->board->board[x][y] = buffer[i];
                 i++;
             }
         }
@@ -238,10 +240,10 @@ public:
 
     TTTMaster() : Master("master", 7080, 1) {}
 
-    virtual void handleMessages(std::vector<RawContainer> &containers) {
+    virtual void handle_messages(std::vector<RawContainer> &containers) override {
         for (auto container : containers) {
             TTTClickMessage clickMessage;
-            if (TTTClickMessage::from_bytes(container.buffer, &clickMessage)) {
+            if (clickMessage.from_bytes(container.buffer)) {
                 //Master is always X and Slave always O
                 if (!my_turn) {
                     board.set(clickMessage.pos_x, clickMessage.pos_y, PLAYER_O);
@@ -256,9 +258,9 @@ public:
      * broadcasts the current board state to the slave
      */
     void broadCastBoardUpdate() {
-        TTTBoardUpdateMessage bum(board.board);
+        TTTBoardUpdateMessage bum(&board);
         bum.hosts_turn = my_turn;
-        broadcast(bum);
+        broadcast(&bum);
     }
 
     /**
@@ -281,6 +283,8 @@ public:
         if (my_turn && board.isValidMove(x, y)) {
             board.set(x, y, PLAYER_X);
             my_turn = false;
+
+            broadCastBoardUpdate();
         }
     }
 };
@@ -297,10 +301,12 @@ public:
      * handles incoming messages that are specific to the TicTacToe game.
      * @param containers contains the raw message data.
      */
-    virtual void handleMessages(std::vector<RawContainer> &containers) {
+    virtual void handle_messages(std::vector<RawContainer> &containers)override {
+        //__android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Handle Messages was called");
         for (auto container : containers) {
-            TTTBoardUpdateMessage bum(board.board);
-            if (TTTBoardUpdateMessage::from_bytes(container.buffer, &bum)) {
+           // __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Got an fieldUpdate");
+            TTTBoardUpdateMessage bum(&board);
+            if (bum.from_bytes(container.buffer)) {
                 // if incoming message is TTTBoardUpdateMessage the board is updated now
                 my_turn = bum.hosts_turn == 0;
             }
@@ -320,7 +326,7 @@ public:
         cm.pos_x = x;
         cm.pos_y = y;
 
-        send(cm);
+        send(&cm);
     }
 };
 

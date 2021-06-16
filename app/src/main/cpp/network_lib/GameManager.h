@@ -55,14 +55,14 @@ public:
      * broadcasts a given message to all connected slaves
      * @param message message to send to all slaves
      */
-    void broadcast(BaseMessage message);
+    void broadcast(BaseMessage *message);
 
     /**
      * sends a message to a given connected slave
      * @param message
      * @param slave
      */
-    void send_to(BaseMessage message, struct ConnectedSlave slave);
+    void send_to(BaseMessage *message, struct ConnectedSlave slave);
 
     /**
      * function to override, user can react to incoming messages
@@ -135,7 +135,7 @@ public:
      * sends a message to the master
      * @param message message to send to the master
      */
-    void send(BaseMessage message);
+    void send(BaseMessage *message);
 
     /**
      * function to override, user can react to incoming messages

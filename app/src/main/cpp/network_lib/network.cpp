@@ -124,6 +124,7 @@ void Server::listening_function() {
 
     while (listening.load()) {
 
+        do{
         //address is used again but as incoming address
         new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addr_len);
 
@@ -141,13 +142,18 @@ void Server::listening_function() {
             container.from_addr = ip_string;
 
             store_message(container);
+            __android_log_print(ANDROID_LOG_VERBOSE,"server","received message");
 
             close(new_socket);
 
         } else {
             __android_log_print(ANDROID_LOG_DEBUG, "server new_socket value", "%d <= 0",
-                                new_socket);
+                                errno);
+
+            __android_log_print(ANDROID_LOG_DEBUG, "server new_socket value", "%s",
+                                strerror(errno));
         }
+        }while(new_socket==-1&&errno==11);
     }
 
     close(server_fd);
@@ -188,7 +194,7 @@ vector<struct RawContainer> Server::get_messages() {
     return copy;
 }
 
-bool Server::send_message(BaseMessage &msg_obj, string addr, int port) {
+bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
 
     __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending started.");
 
@@ -258,7 +264,9 @@ bool Server::send_message(BaseMessage &msg_obj, string addr, int port) {
         return false;
     }
 
-    int size = msg_obj.to_bytes(buffer);
+    int size = msg_obj->to_bytes(buffer);
+
+    __android_log_print(ANDROID_LOG_VERBOSE, "network send", "%d", buffer[0]);
 
     send(sock, buffer, size, 0);
 
