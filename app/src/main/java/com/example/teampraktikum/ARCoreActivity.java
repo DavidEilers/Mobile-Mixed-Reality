@@ -101,11 +101,6 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         surfaceView.setWillNotDraw(false);
 
-        Intent intent=getIntent();
-        String ipAddress = intent.getStringExtra("ipAddress");
-        if(ipAddress!=null){
-            startConnection(ipAddress);
-        }
 
         // Set up touch listener.
         gestureDetector =
@@ -218,7 +213,7 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
 
     public native void onDrawFrame();
 
-    public native void nativeOnSurfaceCreated(AssetManager assetManager);
+    public native void nativeOnSurfaceCreated(AssetManager assetManager,String ip);
 
     public native void nativeOnTouched(float x, float y);
 
@@ -245,7 +240,9 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(0.7f, 0.0f, 0.0f, 1.0f);
-        nativeOnSurfaceCreated(getAssets());
+        Intent intent=getIntent();
+        String ipAddress = intent.getStringExtra("ipAddress");
+        nativeOnSurfaceCreated(getAssets(),ipAddress);
     }
 
     @Override

@@ -3,7 +3,6 @@
 //
 
 #include "Scene.h"
-#include "NetworkInterface.h"
 
 void Scene::setModel( glm::mat4 model_) {
     this->model = model_;
@@ -17,7 +16,7 @@ void Scene::setProjection(glm::mat4 projection_) {
     this->projection = projection_;
 }
 
-Scene::Scene(AAssetManager *assetManager_) {
+Scene::Scene(AAssetManager *assetManager_,std::string ip) {
     this->assetManager = assetManager_;
     this->rootNode = new Node(this);
     Mesh * fieldMesh = new Mesh("objects","field",this);
@@ -27,7 +26,8 @@ Scene::Scene(AAssetManager *assetManager_) {
 
     crossMesh = new Mesh("objects","cross",this);
     circleMesh = new Mesh("objects","circle",this);
-
+    slave.connect_to_master(ip,7080);
+    slave.tick();
     //Node * fields[9];
     for(int i=0; i<9;i++){
         fields[i] = new Node(this);
@@ -40,9 +40,10 @@ Scene::Scene(AAssetManager *assetManager_) {
 
         int row = (i/3);
         int column = i%3;
-        if(fieldGetStatusAt(row,column)==1){
+
+        if(slave.board.board[row][column]==1){
             fields[i]->setMesh(circleMesh);
-        }else if(fieldGetStatusAt(row,column)==2){
+        }else if(slave.board.board[row][column]==2){
             fields[i]->setMesh(crossMesh);
         }
         double x = row*0.3-0.3;
@@ -80,14 +81,14 @@ glm::mat4 Scene::getProjection(){
 }
 
 void Scene::draw() {
-    tick();
+    slave.tick();
     for(int i=0;i<9;i++){
         int row = (i/3);
         int column = i%3;
 //        if(row==1&&column==1){
 //            fields[i]->setMesh(circleMesh);
 //        }
-        switch(fieldGetStatusAt(row,column)){
+        switch(slave.board.board[row][column]){
             case 0:
                 fields[i]->setMesh(nullptr);
                 break;
@@ -136,6 +137,6 @@ void Scene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
             return;//The result is no field
         }
     }
-    boardPressedAt(row,column);
+    slave.makeMove(row,column);
 
 }
