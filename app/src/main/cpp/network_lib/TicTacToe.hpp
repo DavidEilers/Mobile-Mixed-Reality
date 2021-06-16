@@ -282,6 +282,8 @@ public:
         if (my_turn && board.isValidMove(x, y)) {
             board.set(x, y, PLAYER_X);
             my_turn = false;
+
+            broadCastBoardUpdate();
         }
     }
 };
