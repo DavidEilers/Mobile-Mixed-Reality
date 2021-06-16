@@ -87,10 +87,19 @@ void Scene::draw() {
 //        if(row==1&&column==1){
 //            fields[i]->setMesh(circleMesh);
 //        }
-        if(fieldGetStatusAt(row,column)==1){
-            fields[i]->setMesh(circleMesh);
-        }else if(fieldGetStatusAt(row,column)==2){
-            fields[i]->setMesh(crossMesh);
+        switch(fieldGetStatusAt(row,column)){
+            case 0:
+                fields[i]->setMesh(nullptr);
+                break;
+            case 1:
+                fields[i]->setMesh(crossMesh);
+                break;
+            case 2:
+                fields[i]->setMesh(circleMesh);
+                break;
+            default:
+                fields[i]->setMesh(nullptr);
+                break;
         }
     }
     rootNode->setModel(model);
