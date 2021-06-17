@@ -28,7 +28,7 @@ extern class Node;
 
 class Scene {
 public:
-    Scene(AAssetManager *assetManager_,std::string ip);
+    Scene(AAssetManager *assetManager_,jlong serverPointer, jboolean isMaster);
     virtual ~Scene();
     void setModel(glm::mat4 model_);
     void setView(glm::mat4 view_);
@@ -49,7 +49,9 @@ private:
     Node * fields[9];
     Mesh * crossMesh;
     Mesh * circleMesh;
-    TTTSlave slave;
+    TTTSlave *slave;
+    TTTMaster *master;
+    bool isMaster;
 
 };
 

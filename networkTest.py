@@ -183,19 +183,18 @@ def run_slave(ip):
                 print("Connected:")
                 print(connection_info)
                 waiting = False
-                    
-    while True:
-        #wait for board update message
-        waiting = True
-        while waiting:
-            time.sleep(0.1)
-            for msg in n.get_data():
-                val = getBoardMessage(msg)
-                if val:
-                    board = val[0]
-                    hosts_turn = val[1]
-                    if hosts_turn == 0:
-                        waiting = False
+
+    #wait for board update message
+    waiting = True
+    while waiting:
+        time.sleep(0.1)
+        for msg in n.get_data():
+            val = getBoardMessage(msg)
+            if val:
+                board = val[0]
+                hosts_turn = val[1]
+                if hosts_turn == 0:
+                    waiting = False
 
         for i in board:
             print(i)

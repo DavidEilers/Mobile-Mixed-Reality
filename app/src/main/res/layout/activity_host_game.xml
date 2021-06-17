@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MenueActivity">
+    tools:context=".HostGameActivity">
 
     <LinearLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="20dp"
@@ -17,29 +18,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/button_hostGame"
+        <TextView
+            android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Host a Game" />
+            android:text="Scan the QR-Code with the other Device:" />
 
-        <Button
-            android:id="@+id/button_joinGame"
+        <TextView
+            android:id="@+id/ipView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Join a Game" />
+            android:text="TextView"
+            android:visibility="invisible" />
 
-        <Button
-            android:id="@+id/button_TicTacToe"
+        <ImageView
+            android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TicTacToe Debug" />
+            app:srcCompat="@mipmap/ic_launcher" />
 
-        <Button
-            android:id="@+id/button_arCore"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ArCore Debug" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -213,7 +213,7 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
 
     public native void onDrawFrame();
 
-    public native void nativeOnSurfaceCreated(AssetManager assetManager,String ip);
+    public native void nativeOnSurfaceCreated(AssetManager assetManager,long pointer, boolean isMaster);
 
     public native void nativeOnTouched(float x, float y);
 
@@ -241,8 +241,11 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(0.7f, 0.0f, 0.0f, 1.0f);
         Intent intent=getIntent();
-        String ipAddress = intent.getStringExtra("ipAddress");
-        nativeOnSurfaceCreated(getAssets(),ipAddress);
+        if(intent.getStringExtra("Type").equals("master")){
+            nativeOnSurfaceCreated(getAssets(),intent.getLongExtra("TTTMasterPointer",0),true);
+        }else if (intent.getStringExtra("Type").equals("slave")){
+            nativeOnSurfaceCreated(getAssets(),intent.getLongExtra("TTTSlavePointer",0),false);
+        }
     }
 
     @Override

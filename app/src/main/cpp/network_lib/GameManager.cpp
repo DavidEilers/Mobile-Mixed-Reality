@@ -12,6 +12,7 @@ Master::Master(std::string player_name, int port, int max_slaves_count) : server
     this->player_name = player_name;
     this->PORT = port;
     this->max_slaves_count = max_slaves_count;
+    this->server.start_listening();
 }
 
 void Master::broadcast(BaseMessage *message) {

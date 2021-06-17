@@ -60,14 +60,13 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_ARCoreActivity_nativeOnSur
         JNIEnv *env,
         jobject activity,
         jobject assetManager,
-        jstring ip
+        jlong serverPointer,
+        jboolean isMaster
 ) {
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
-    const char *ip_chars = env->GetStringUTFChars(ip, NULL);
-    std::string ip_string = std::string(ip_chars);
     camBack = new cameraBackground(mgr);
     planeRenderer = new PlaneRenderer(mgr);
-    scene = new Scene(mgr,ip_string);
+    scene = new Scene(mgr,serverPointer,isMaster);
 
 }
 

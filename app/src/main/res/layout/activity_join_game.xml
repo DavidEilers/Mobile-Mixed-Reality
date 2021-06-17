@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MenueActivity">
+    tools:context=".JoinGameActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,29 +17,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/button_hostGame"
+        <TextView
+            android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Host a Game" />
+            android:text="Join a game by scanning the QR-Code of the Host" />
 
         <Button
-            android:id="@+id/button_joinGame"
+            android:id="@+id/button_qrCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Join a Game" />
+            android:text="Scan a QR Code" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Or manually typing the IP:" />
+
+        <EditText
+            android:id="@+id/editText_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="IP address" />
 
         <Button
-            android:id="@+id/button_TicTacToe"
+            android:id="@+id/button_connect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TicTacToe Debug" />
+            android:text="Connect" />
 
-        <Button
-            android:id="@+id/button_arCore"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ArCore Debug" />
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

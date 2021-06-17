@@ -16,7 +16,13 @@ void Scene::setProjection(glm::mat4 projection_) {
     this->projection = projection_;
 }
 
-Scene::Scene(AAssetManager *assetManager_,std::string ip) {
+Scene::Scene(AAssetManager *assetManager_,jlong serverPointer, jboolean isMaster) {
+    this->isMaster = isMaster==JNI_TRUE?true:false;
+    if(isMaster){
+        this->master = (TTTMaster*)serverPointer;
+    }else{
+        this->slave = (TTTSlave *) serverPointer;
+    }
     this->assetManager = assetManager_;
     this->rootNode = new Node(this);
     Mesh * fieldMesh = new Mesh("objects","field",this);
@@ -26,8 +32,11 @@ Scene::Scene(AAssetManager *assetManager_,std::string ip) {
 
     crossMesh = new Mesh("objects","cross",this);
     circleMesh = new Mesh("objects","circle",this);
-    slave.connect_to_master(ip,7080);
-    slave.tick();
+
+    TTTBoard *board;
+    __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","Before usage");
+    if(isMaster){master->tick();board = &(master->board);}else{slave->tick();board = &(slave->board);}
+    __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","After usage");
     //Node * fields[9];
     for(int i=0; i<9;i++){
         fields[i] = new Node(this);
@@ -41,9 +50,9 @@ Scene::Scene(AAssetManager *assetManager_,std::string ip) {
         int row = (i/3);
         int column = i%3;
 
-        if(slave.board.board[row][column]==1){
+        if(board->board[row][column]==1){
             fields[i]->setMesh(circleMesh);
-        }else if(slave.board.board[row][column]==2){
+        }else if(board->board[row][column]==2){
             fields[i]->setMesh(crossMesh);
         }
         double x = row*0.3-0.3;
@@ -81,14 +90,17 @@ glm::mat4 Scene::getProjection(){
 }
 
 void Scene::draw() {
-    slave.tick();
+
+    TTTBoard *board;
+    if(isMaster){master->tick();board = &(master->board);}else{slave->tick();board = &(slave->board);}
+
     for(int i=0;i<9;i++){
         int row = (i/3);
         int column = i%3;
 //        if(row==1&&column==1){
 //            fields[i]->setMesh(circleMesh);
 //        }
-        switch(slave.board.board[row][column]){
+        switch(board->board[row][column]){
             case 0:
                 fields[i]->setMesh(nullptr);
                 break;
@@ -138,6 +150,6 @@ void Scene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
         }
     }
     __android_log_print(ANDROID_LOG_VERBOSE, "HitTest", "%d, %d", row, column);
-    slave.makeMove(row, column);
+    if(isMaster){master->makeMove(row,column);}else{slave->makeMove(row, column);}
 
 }
