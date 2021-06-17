@@ -3,6 +3,7 @@
 import socket
 import _thread
 import time
+import createQRCode #needs pip install pyqrcode
 
 google = "216.58.210.3"
 
@@ -110,6 +111,7 @@ def get_move():
     return x, y
 
 def run_master():
+    createQRCode.showImage()
     n = Network(MASTER_PORT)
 
     n.start()
