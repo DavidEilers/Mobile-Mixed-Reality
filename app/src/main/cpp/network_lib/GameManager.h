@@ -29,7 +29,7 @@ struct ConnectedSlave {
  * the master can send direct messages or broadcasts to slaves
  */
 
-class Master {
+class Master : public IMessageListener {
 public:
     /**
      * constructor
@@ -40,11 +40,16 @@ public:
     Master(std::string player_name, int port, int max_slaves_count);
 
     /**
-     * runs one iteration of the master
-     * call in game loop
-     * handles connecting and leaving and calls handle messages with new messages
+     * Callback from server for incoming messages
+     * @param container contains message data and the source address
      */
-    void tick();
+    void on_handle_message(RawContainer container) override;
+
+    /**
+     * function to override, user can react to incoming messages
+     * @param containers messages to handle
+     */
+    virtual void on_game_specific_message(RawContainer container);
 
     /**
      * @return returns a vector containing all connected slaves
@@ -63,12 +68,6 @@ public:
      * @param slave
      */
     void send_to(BaseMessage *message, struct ConnectedSlave slave);
-
-    /**
-     * function to override, user can react to incoming messages
-     * @param containers messages to handle
-     */
-    virtual void handle_messages(std::vector<RawContainer> &containers);
 
     Server server;
 
@@ -102,7 +101,7 @@ public:
  * a slave listens for direct messages and broadcasts from the master
  */
 
-class Slave {
+class Slave : public IMessageListener {
 public:
     /**
      * constructor
@@ -110,19 +109,6 @@ public:
      * @param port port to listen on for incoming messages
      */
     Slave(std::string player_name, int port);
-
-    /**
-     * runs one iteration of the slave
-     * call in game loop
-     * handles connecting and leaving and calls handle messages with new messages
-     */
-    void tick();
-
-    /**
-     * scans for running masters in local network
-     * @param port port the masters are running on
-     */
-    std::vector<std::string> scan_for_masters(int port);
 
     /**
      * connects the slave to a master
@@ -138,10 +124,16 @@ public:
     void send(BaseMessage *message);
 
     /**
+     * Callback from server for incoming messages
+     * @param container contains message data and the source address
+     */
+    virtual void on_handle_message(RawContainer container);
+
+    /**
      * function to override, user can react to incoming messages
      * @param containers messages to handle
      */
-    virtual void handle_messages(std::vector<RawContainer> &containers);
+    virtual void on_game_specific_message(RawContainer container);
 
     Server server;
 

@@ -240,16 +240,14 @@ public:
 
     TTTMaster() : Master("master", 7080, 1) {}
 
-    virtual void handle_messages(std::vector<RawContainer> &containers) override {
-        for (auto container : containers) {
-            TTTClickMessage clickMessage;
-            if (clickMessage.from_bytes(container.buffer)) {
-                //Master is always X and Slave always O
-                if (!my_turn) {
-                    board.set(clickMessage.pos_x, clickMessage.pos_y, PLAYER_O);
-                    my_turn = true;
-                    broadCastBoardUpdate();
-                }
+    virtual void on_game_specific_message(RawContainer container) override {
+        TTTClickMessage clickMessage;
+        if (clickMessage.from_bytes(container.buffer)) {
+            //Master is always X and Slave always O
+            if (!my_turn) {
+                board.set(clickMessage.pos_x, clickMessage.pos_y, PLAYER_O);
+                my_turn = true;
+                broadCastBoardUpdate();
             }
         }
     }
@@ -301,15 +299,12 @@ public:
      * handles incoming messages that are specific to the TicTacToe game.
      * @param containers contains the raw message data.
      */
-    virtual void handle_messages(std::vector<RawContainer> &containers)override {
-        //__android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Handle Messages was called");
-        for (auto container : containers) {
-           // __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Got an fieldUpdate");
-            TTTBoardUpdateMessage bum(&board);
-            if (bum.from_bytes(container.buffer)) {
-                // if incoming message is TTTBoardUpdateMessage the board is updated now
-                my_turn = bum.hosts_turn == 0;
-            }
+    virtual void on_game_specific_message(RawContainer container) override {
+        // __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Got an fieldUpdate");
+        TTTBoardUpdateMessage bum(&board);
+        if (bum.from_bytes(container.buffer)) {
+            // if incoming message is TTTBoardUpdateMessage the board is updated now
+            my_turn = bum.hosts_turn == 0;
         }
     }
 

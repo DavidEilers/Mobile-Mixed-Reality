@@ -12,35 +12,33 @@
 #include <vector>
 #include <android/log.h>
 #include <errno.h>
+#include <chrono>
 
 #include "Network.h"
 
 Server::Server(int listening_port) {
     PORT = listening_port;
-    listening = false;
+    running = false;
     has_msg = false;
 }
 
-void Server::start_listening() {
-    if (!listening.load()) {
-        listening = true;
+void Server::start() {
+    if (!running.load()) {
+        running = true;
         listening_thread = thread([this] { listening_function(); });
+        sending_thread = thread([this] { sending_function(); });
     }
 }
 
-void Server::stop_listening() {
-    if (listening.load()) {
-        listening = false;
+void Server::stop() {
+    if (running.load()) {
+        running = false;
         listening_thread.join();
     }
 }
 
-bool Server::is_listening() {
-    return listening.load();
-}
-
-bool Server::has_messages() {
-    return has_msg.load();
+bool Server::is_running() {
+    return running.load();
 }
 
 void Server::listening_function() {
@@ -114,7 +112,7 @@ void Server::listening_function() {
                             "could not bind to address. err: %d", err);
     }
 
-    //start listening for TCP connections
+    //start running for TCP connections
 
     err = listen(server_fd, 3);
 
@@ -122,31 +120,35 @@ void Server::listening_function() {
         __android_log_print(ANDROID_LOG_ERROR, "server socket", "listen err: %d", err);
     }
 
-    while (listening.load()) {
+    while (running.load()) {
 
-        do{
-        //address is used again but as incoming address
-        new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addr_len);
+        do {
+            //address is used again but as incoming address
+            new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addr_len);
 
-        if (new_socket > 0) { // new_socket <= 0 -> timeout
-            __android_log_print(ANDROID_LOG_DEBUG, "server socket", "Connection accepted");
+            if (new_socket > 0) { // new_socket <= 0 -> timeout
+                __android_log_print(ANDROID_LOG_DEBUG, "server socket", "Connection accepted");
 
-            struct RawContainer container;
+                struct RawContainer container;
 
-            //max message length = 1024
-            container.buffer = new char[BUFFER_SIZE];
-            read(new_socket, container.buffer, BUFFER_SIZE);
+                //max message length = 1024
+                container.buffer = new char[BUFFER_SIZE];
+                read(new_socket, container.buffer, BUFFER_SIZE);
 
-            string ip_string = get_ip_string(address);
+                string ip_string = get_ip_string(address);
 
-            container.from_addr = ip_string;
+                container.from_addr = ip_string;
 
-            store_message(container);
-            __android_log_print(ANDROID_LOG_VERBOSE,"server","received message");
+                for (IMessageListener *listener: listeners) {
+                    listener->on_handle_message(container);
+                }
+                __android_log_print(ANDROID_LOG_VERBOSE, "server", "received message");
 
-            close(new_socket);
+                delete[] container.buffer;
 
-        } else {
+                close(new_socket);
+
+            } else {
             __android_log_print(ANDROID_LOG_DEBUG, "server new_socket value", "%d <= 0",
                                 errno);
 
@@ -175,32 +177,12 @@ string Server::get_ip_string(struct sockaddr_in addr) {
     return ip_string;
 }
 
-void Server::store_message(struct RawContainer con) {
-    msg_vector_mutex.lock();
-    messages.push_back(con);
-    msg_vector_mutex.unlock();
-
-    has_msg = true;
-}
-
-vector<struct RawContainer> Server::get_messages() {
-    msg_vector_mutex.lock();
-    vector<struct RawContainer> copy(messages);
-    messages.clear();
-    msg_vector_mutex.unlock();
-
-    has_msg = false;
-
-    return copy;
-}
-
-bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
+void Server::send_data(char *buffer, int size, string addr, int port) {
 
     __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending started.");
 
     int sock = 0;
     struct sockaddr_in serv_addr;
-    char buffer[BUFFER_SIZE] = {0};
 
     struct timeval timeout;
     timeout.tv_sec = 1;
@@ -216,7 +198,7 @@ bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket creation error! Error: %d",
                             err);
 
-        return false;
+        return;
     }
 
     //set options for socket => receive timeout
@@ -226,7 +208,7 @@ bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d",
                             err);
 
-        return false;
+        return;
     }
 
     //set options for socket => send timeout
@@ -236,7 +218,7 @@ bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket", "Socket option error! Error: %d",
                             err);
 
-        return false;
+        return;
     }
 
     //create address struct
@@ -251,7 +233,7 @@ bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket",
                             "Invalid address / Address not supported! Error: %d", err);
 
-        return false;
+        return;
     }
 
     //connect to address
@@ -261,11 +243,8 @@ bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
         __android_log_print(ANDROID_LOG_ERROR, "client socket", "Connection failed! Error: %d",
                             err);
 
-        return false;
+        return;
     }
-
-    int size = msg_obj->to_bytes(buffer);
-
     __android_log_print(ANDROID_LOG_VERBOSE, "network send", "%d", buffer[0]);
 
     send(sock, buffer, size, 0);
@@ -273,6 +252,44 @@ bool Server::send_message(BaseMessage *msg_obj, string addr, int port) {
     close(sock);
 
     __android_log_print(ANDROID_LOG_DEBUG, "client socket", "Sending finished.");
+}
 
-    return true;
+void Server::add_message_listener(IMessageListener *listener) {
+    listeners.push_back(listener);
+}
+
+void Server::sending_function() {
+    while (running.load()) {
+        if (messages.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        } else {
+            msg_vector_mutex.lock();
+
+            MessageData msg_data = messages[0];
+            messages.erase(messages.begin());
+
+            char *buffer = new char[BUFFER_SIZE];
+            int size = msg_data.msg->to_bytes(buffer);
+
+            send_data(buffer, size, msg_data.addr, msg_data.port);
+
+            delete[] buffer;
+
+            msg_vector_mutex.unlock();
+        }
+    }
+}
+
+void Server::send_message(BaseMessage *msg_obj, string addr, int port) {
+    msg_vector_mutex.lock();
+
+    struct MessageData msg_data;
+
+    msg_data.msg = msg_obj;
+    msg_data.addr = addr;
+    msg_data.port = port;
+
+    messages.push_back(msg_data);
+
+    msg_vector_mutex.unlock();
 }
