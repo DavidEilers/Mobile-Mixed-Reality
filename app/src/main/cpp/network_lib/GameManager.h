@@ -49,7 +49,7 @@ public:
      * function to override, user can react to incoming messages
      * @param containers messages to handle
      */
-    virtual void on_game_specific_message(RawContainer container);
+    virtual void on_game_specific_message(RawContainer container)=0;
 
     /**
      * @return returns a vector containing all connected slaves
@@ -133,7 +133,7 @@ public:
      * function to override, user can react to incoming messages
      * @param containers messages to handle
      */
-    virtual void on_game_specific_message(RawContainer container);
+    virtual void on_game_specific_message(RawContainer container)=0;
 
     Server server;
 

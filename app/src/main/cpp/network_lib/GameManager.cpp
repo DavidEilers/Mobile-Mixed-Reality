@@ -13,6 +13,7 @@ Master::Master(std::string player_name, int port, int max_slaves_count) : server
     this->PORT = port;
     this->max_slaves_count = max_slaves_count;
     this->server.start();
+    this->server.add_message_listener(this);
 }
 
 void Master::broadcast(BaseMessage *message) {
@@ -43,37 +44,39 @@ bool Master::player_connected(const std::string &name) {
 }
 
 void Master::on_handle_message(RawContainer container) {
-    ConnectMessage cm;
-    if (cm.from_bytes(container.buffer)) {
+    ConnectMessage * cm = new ConnectMessage();
+
+    __android_log_print(ANDROID_LOG_VERBOSE, "TeamPraktikumNetwork", "Master::on_handle_message");
+    if (cm->from_bytes(container.buffer)) {
         //add player if name unused
         struct ConnectedSlave new_slave;
 
-        new_slave.name = cm.player_name;
+        new_slave.name = cm->player_name;
         new_slave.ip = container.from_addr;
-        new_slave.port = cm.port;
+        new_slave.port = cm->port;
 
         if (acceptConnections) {
-            if (!player_connected(cm.player_name)) {
+            if (!player_connected(cm->player_name)) {
                 //name free
                 if (slaves.size() < max_slaves_count) {
                     slaves.push_back(new_slave);
                     //reusing cm object but filling it with info about master
-                    cm.player_name = player_name;
-                    cm.port = PORT;
-                    send_to(&cm, new_slave);
+                    cm->player_name = player_name;
+                    cm->port = PORT;
+                    send_to(cm, new_slave);
                 } else {
-                    ErrorGameFullMessage em;
-                    send_to(&em, new_slave);
+                    ErrorGameFullMessage * em = new ErrorGameFullMessage();
+                    send_to(em, new_slave);
                 }
             } else {
                 //name already in use
-                ErrorNameInUseMessage error;
-                send_to(&error, new_slave);
+                ErrorNameInUseMessage * error = new ErrorNameInUseMessage();
+                send_to(error, new_slave);
             }
         } else {
             //no new connections allowed
-            ErrorGameFullMessage em;
-            send_to(&em, new_slave);
+            ErrorGameFullMessage * em = new ErrorGameFullMessage();
+            send_to(em, new_slave);
         }
     }
     LeaveMessage lm;
@@ -93,9 +96,9 @@ void Master::on_handle_message(RawContainer container) {
 }
 
 void Master::disconnectAllSlaves() {
-    LeaveMessage lm;
-    lm.player_name = player_name;
-    broadcast(&lm);
+    LeaveMessage * lm = new LeaveMessage();
+    lm->player_name = player_name;
+    broadcast(lm);
     slaves.clear();
 }
 
@@ -107,19 +110,21 @@ Slave::Slave(std::string player_name, int port) : server(port) {
 
     connected = false;
 
+    __android_log_print(ANDROID_LOG_DEBUG, "server socket", "Created Slave");
     server.start();
+    server.add_message_listener(this);
 }
 
 void Slave::connect_to_master(std::string ip, int master_port) {
 
-    ConnectMessage cm;
+    ConnectMessage *cm= new ConnectMessage();
 
-    cm.player_name = player_name;
+    cm->player_name = player_name;
     MASTER_IP=ip;
     MASTER_PORT=master_port;
-    cm.port = PORT; //own port, master can reach us here
+    cm->port = PORT; //own port, master can reach us here
 
-    server.send_message(&cm, ip, master_port);
+    server.send_message(cm, ip, master_port);
     server.start();
 }
 
@@ -159,8 +164,8 @@ void Slave::on_handle_message(RawContainer container) {
 void Slave::disconnect() {
     if (connected) {
         connected = false;
-        LeaveMessage lm;
-        lm.player_name = player_name;
-        send(&lm);
+        LeaveMessage * lm = new LeaveMessage();
+        lm->player_name = player_name;
+        send(lm);
     }
 }

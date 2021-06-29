@@ -35,7 +35,7 @@ Scene::Scene(AAssetManager *assetManager_,jlong serverPointer, jboolean isMaster
 
     TTTBoard *board;
     __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","Before usage");
-    if(isMaster){master->tick();board = &(master->board);}else{slave->tick();board = &(slave->board);}
+    if(isMaster){board = &(master->board);}else{board = &(slave->board);}
     __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","After usage");
     //Node * fields[9];
     for(int i=0; i<9;i++){
@@ -92,7 +92,7 @@ glm::mat4 Scene::getProjection(){
 void Scene::draw() {
 
     TTTBoard *board;
-    if(isMaster){master->tick();board = &(master->board);}else{slave->tick();board = &(slave->board);}
+    if(isMaster){board = &(master->board);}else{board = &(slave->board);}
 
     for(int i=0;i<9;i++){
         int row = (i/3);

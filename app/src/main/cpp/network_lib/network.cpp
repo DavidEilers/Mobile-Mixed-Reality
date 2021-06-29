@@ -18,13 +18,14 @@
 
 Server::Server(int listening_port) {
     PORT = listening_port;
-    running = false;
-    has_msg = false;
+    running.store(false);
+    has_msg.store(false);
 }
 
 void Server::start() {
     if (!running.load()) {
-        running = true;
+        running.store(true);
+        __android_log_print(ANDROID_LOG_DEBUG, "server socket", "Starting Server");
         listening_thread = thread([this] { listening_function(); });
         sending_thread = thread([this] { sending_function(); });
     }
@@ -32,7 +33,7 @@ void Server::start() {
 
 void Server::stop() {
     if (running.load()) {
-        running = false;
+        running.store(false);
         listening_thread.join();
     }
 }
@@ -136,6 +137,7 @@ void Server::listening_function() {
                 read(new_socket, container.buffer, BUFFER_SIZE);
 
                 string ip_string = get_ip_string(address);
+                //__android
 
                 container.from_addr = ip_string;
 
@@ -259,19 +261,27 @@ void Server::add_message_listener(IMessageListener *listener) {
 }
 
 void Server::sending_function() {
+    __android_log_print(ANDROID_LOG_DEBUG, "sending function", "started");
     while (running.load()) {
         if (messages.empty()) {
+            //__android_log_print(ANDROID_LOG_DEBUG, "sending function", "Messages are empty");
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         } else {
+            __android_log_print(ANDROID_LOG_DEBUG, "sending function", "Messages are NOT empty");
             msg_vector_mutex.lock();
+            __android_log_print(ANDROID_LOG_DEBUG, "sending function", "After msg_vector_mutex.lock()");
 
-            MessageData msg_data = messages[0];
-            messages.erase(messages.begin());
+            //MessageData msg_data = messages.back();
+            //messages.pop_back();
+            __android_log_print(ANDROID_LOG_DEBUG, "sending function", "Assigning msg_data");
 
             char *buffer = new char[BUFFER_SIZE];
-            int size = msg_data.msg->to_bytes(buffer);
+            int size = 0;
 
-            send_data(buffer, size, msg_data.addr, msg_data.port);
+            size = messages.back().msg->get_bytes(buffer);
+            __android_log_print(ANDROID_LOG_DEBUG, "sending function", "After to_bytes");
+            send_data(buffer, size, messages.back().addr, messages.back().port);
+            messages.pop_back();
 
             delete[] buffer;
 

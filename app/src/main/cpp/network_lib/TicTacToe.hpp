@@ -256,9 +256,9 @@ public:
      * broadcasts the current board state to the slave
      */
     void broadCastBoardUpdate() {
-        TTTBoardUpdateMessage bum(&board);
-        bum.hosts_turn = my_turn;
-        broadcast(&bum);
+        TTTBoardUpdateMessage *bum = new TTTBoardUpdateMessage(&board);
+        bum->hosts_turn = my_turn;
+        broadcast(bum);
     }
 
     /**
@@ -317,11 +317,11 @@ public:
      * @param y
      */
     void makeMove(int x, int y) {
-        TTTClickMessage cm;
-        cm.pos_x = x;
-        cm.pos_y = y;
+        TTTClickMessage * cm = new TTTClickMessage();
+        cm->pos_x = x;
+        cm->pos_y = y;
 
-        send(&cm);
+        send(cm);
     }
 };
 
