@@ -215,6 +215,7 @@ public:
                 i++;
             }
         }
+        return 11;
     }
 
     virtual bool from_bytes(char *buffer) override {

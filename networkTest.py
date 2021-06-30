@@ -166,7 +166,7 @@ def run_slave(ip):
     n = Network(SLAVE_PORT)
     n.start()
 
-    n.send(ip, MASTER_PORT, buildConnectMessage(MASTER_PORT, "slave"))
+    n.send(ip, MASTER_PORT, buildConnectMessage(SLAVE_PORT, "slave"))
 
     board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
     hosts_turn = 1
@@ -185,20 +185,21 @@ def run_slave(ip):
                 waiting = False
 
     #wait for board update message
-    waiting = True
-    while waiting:
-        time.sleep(0.1)
-        for msg in n.get_data():
-            val = getBoardMessage(msg)
-            if val:
-                board = val[0]
-                hosts_turn = val[1]
-                if hosts_turn == 0:
-                    waiting = False
-
+    while True:
+        waiting = True
+        while waiting:
+            time.sleep(0.1)
+            for msg in n.get_data():
+                val = getBoardMessage(msg)
+                if val:
+                    board = val[0]
+                    hosts_turn = val[1]
+                    if hosts_turn == 0:
+                        waiting = False
+                        print(val)
         for i in board:
             print(i)
-        #make own move with ClickMessage
+            #make own move with ClickMessage
         x, y = get_move()
         n.send(ip, MASTER_PORT, buildClickMessage(x, y))
 

@@ -278,7 +278,7 @@ void Server::sending_function() {
             char *buffer = new char[BUFFER_SIZE];
             int size = 0;
 
-            size = messages.back().msg->get_bytes(buffer);
+            size = messages.back().msg->to_bytes(buffer);
             __android_log_print(ANDROID_LOG_DEBUG, "sending function", "After to_bytes");
             send_data(buffer, size, messages.back().addr, messages.back().port);
             messages.pop_back();
