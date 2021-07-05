@@ -215,6 +215,7 @@ public:
                 i++;
             }
         }
+        return 11;
     }
 
     virtual bool from_bytes(char *buffer) override {
@@ -240,16 +241,14 @@ public:
 
     TTTMaster() : Master("master", 7080, 1) {}
 
-    virtual void handle_messages(std::vector<RawContainer> &containers) override {
-        for (auto container : containers) {
-            TTTClickMessage clickMessage;
-            if (clickMessage.from_bytes(container.buffer)) {
-                //Master is always X and Slave always O
-                if (!my_turn) {
-                    board.set(clickMessage.pos_x, clickMessage.pos_y, PLAYER_O);
-                    my_turn = true;
-                    broadCastBoardUpdate();
-                }
+    virtual void on_game_specific_message(RawContainer container) override {
+        TTTClickMessage clickMessage;
+        if (clickMessage.from_bytes(container.buffer)) {
+            //Master is always X and Slave always O
+            if (!my_turn) {
+                board.set(clickMessage.pos_x, clickMessage.pos_y, PLAYER_O);
+                my_turn = true;
+                broadCastBoardUpdate();
             }
         }
     }
@@ -258,9 +257,9 @@ public:
      * broadcasts the current board state to the slave
      */
     void broadCastBoardUpdate() {
-        TTTBoardUpdateMessage bum(&board);
-        bum.hosts_turn = my_turn;
-        broadcast(&bum);
+        TTTBoardUpdateMessage *bum = new TTTBoardUpdateMessage(&board);
+        bum->hosts_turn = my_turn;
+        broadcast(bum);
     }
 
     /**
@@ -301,15 +300,12 @@ public:
      * handles incoming messages that are specific to the TicTacToe game.
      * @param containers contains the raw message data.
      */
-    virtual void handle_messages(std::vector<RawContainer> &containers)override {
-        //__android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Handle Messages was called");
-        for (auto container : containers) {
-           // __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Got an fieldUpdate");
-            TTTBoardUpdateMessage bum(&board);
-            if (bum.from_bytes(container.buffer)) {
-                // if incoming message is TTTBoardUpdateMessage the board is updated now
-                my_turn = bum.hosts_turn == 0;
-            }
+    virtual void on_game_specific_message(RawContainer container) override {
+        // __android_log_print(ANDROID_LOG_VERBOSE,"TTTSlave","Got an fieldUpdate");
+        TTTBoardUpdateMessage bum(&board);
+        if (bum.from_bytes(container.buffer)) {
+            // if incoming message is TTTBoardUpdateMessage the board is updated now
+            my_turn = bum.hosts_turn == 0;
         }
     }
 
@@ -322,11 +318,11 @@ public:
      * @param y
      */
     void makeMove(int x, int y) {
-        TTTClickMessage cm;
-        cm.pos_x = x;
-        cm.pos_y = y;
+        TTTClickMessage * cm = new TTTClickMessage();
+        cm->pos_x = x;
+        cm->pos_y = y;
 
-        send(&cm);
+        send(cm);
     }
 };
 

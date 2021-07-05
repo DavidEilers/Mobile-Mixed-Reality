@@ -7,8 +7,8 @@
 #include "TicTacToe.hpp"
 #include "NetworkInterface.h"
 
-TTTMaster * master = new TTTMaster();
-TTTSlave *slave = new TTTSlave();
+TTTMaster * master= NULL;// = new TTTMaster();
+TTTSlave *slave = NULL;// = new TTTSlave();
 
 bool hosting = false;
 
@@ -17,27 +17,36 @@ extern "C" {
 
 JNIEXPORT jlong
 Java_com_example_teampraktikum_HostGameActivity_getMaster(JNIEnv *env, jobject /* this */) {
-    master->tick();
+   // master->tick();
     return (jlong) master;
 }
 JNIEXPORT jboolean
 Java_com_example_teampraktikum_HostGameActivity_isSlaveConnected(JNIEnv *env, jobject /* this */) {
-master->tick();
+//master->tick();
+if(master!=NULL){
 return master->slaves.size()>0?JNI_TRUE:JNI_FALSE;
+}
+master = new TTTMaster();
+return JNI_FALSE;
+
 }
 
 JNIEXPORT void
 Java_com_example_teampraktikum_JoinGameActivity_slaveConnectToMaster(JNIEnv *env, jobject /* this */,jstring ip) {
+    slave = new TTTSlave();
     const char *ip_chars = env->GetStringUTFChars(ip, NULL);
     std::string ip_string = std::string(ip_chars);
     slave->connect_to_master(ip_string,7080);
-    slave->tick();
+    //slave->tick();
 }
 
 JNIEXPORT jboolean
 Java_com_example_teampraktikum_JoinGameActivity_hasSlaveConnectToMasterSucceeded(JNIEnv *env, jobject /* this */) {
-    slave->tick();
+   // slave->tick();
+   if(slave!=NULL){
     return slave->connected?JNI_TRUE:JNI_FALSE;
+   }
+   return JNI_FALSE;
 }
 
 JNIEXPORT jlong

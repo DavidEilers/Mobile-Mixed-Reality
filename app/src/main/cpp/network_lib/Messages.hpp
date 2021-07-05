@@ -31,6 +31,10 @@ public:
 
     }
 
+    int get_bytes(char* buffer){
+        return to_bytes(buffer);
+    }
+
     /**
      * converts the message to bytes to be sent over the network
      * @param buffer buffer of size BUFFERSIZE to store the message in
