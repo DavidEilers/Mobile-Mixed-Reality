@@ -1,0 +1,3 @@
+[submodule "mobilemixedrealityreport"]
+	path = mobilemixedrealityreport
+	url = git@gitlab.hrz.tu-chemnitz.de:daei--tu-chemnitz.de/mobilemixedrealityreport.git
