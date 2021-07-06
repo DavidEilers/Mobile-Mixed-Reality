@@ -122,8 +122,7 @@ void Server::listening_function() {
     }
 
     while (running.load()) {
-
-        do {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
             //address is used again but as incoming address
             new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addr_len);
 
@@ -157,7 +156,7 @@ void Server::listening_function() {
             __android_log_print(ANDROID_LOG_DEBUG, "server new_socket value", "%s",
                                 strerror(errno));
         }
-        }while(new_socket==-1&&errno==11);
+
     }
 
     close(server_fd);
@@ -263,6 +262,7 @@ void Server::add_message_listener(IMessageListener *listener) {
 void Server::sending_function() {
     __android_log_print(ANDROID_LOG_DEBUG, "sending function", "started");
     while (running.load()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
         if (messages.empty()) {
             //__android_log_print(ANDROID_LOG_DEBUG, "sending function", "Messages are empty");
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
