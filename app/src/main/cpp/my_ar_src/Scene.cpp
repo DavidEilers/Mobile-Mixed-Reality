@@ -19,9 +19,14 @@ void Scene::setProjection(glm::mat4 projection_) {
 Scene::Scene(AAssetManager *assetManager_,jlong serverPointer, jboolean isMaster) {
     this->isMaster = isMaster==JNI_TRUE?true:false;
     if(isMaster){
+        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum Scene", "YOU ARE THE MASTER");
         this->master = (TTTMaster*)serverPointer;
+        playerType = PLAYER_X;
     }else{
         this->slave = (TTTSlave *) serverPointer;
+
+        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum Scene", "YOU ARE THE SLAVE");
+        playerType = PLAYER_O;
     }
     this->assetManager = assetManager_;
     this->rootNode = new Node(this);
@@ -33,7 +38,6 @@ Scene::Scene(AAssetManager *assetManager_,jlong serverPointer, jboolean isMaster
     crossMesh = new Mesh("objects","cross",this);
     circleMesh = new Mesh("objects","circle",this);
 
-    TTTBoard *board;
     __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","Before usage");
     if(isMaster){board = &(master->board);}else{board = &(slave->board);}
     __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","After usage");
@@ -91,8 +95,8 @@ glm::mat4 Scene::getProjection(){
 
 void Scene::draw() {
 
-    TTTBoard *board;
-    if(isMaster){board = &(master->board);}else{board = &(slave->board);}
+    //TTTBoard *board;
+    //if(isMaster){board = &(master->board);}else{board = &(slave->board);}
 
     for(int i=0;i<9;i++){
         int row = (i/3);
@@ -101,13 +105,13 @@ void Scene::draw() {
 //            fields[i]->setMesh(circleMesh);
 //        }
         switch(board->board[row][column]){
-            case 0:
+            case FIELD_EMPTY:
                 fields[i]->setMesh(nullptr);
                 break;
-            case 1:
+            case PLAYER_X:
                 fields[i]->setMesh(crossMesh);
                 break;
-            case 2:
+            case PLAYER_O:
                 fields[i]->setMesh(circleMesh);
                 break;
             default:
@@ -118,6 +122,12 @@ void Scene::draw() {
     rootNode->setModel(model);
     glm::mat4 identityMatrix(1.0f);
     rootNode->draw(identityMatrix);
+
+    if(board->check_win()==playerType){
+        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","You won!");
+    }else if(board->check_win()!=0){
+        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","You loose!");
+    }
 }
 
 void Scene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {

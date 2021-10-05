@@ -20,7 +20,7 @@
 #include "Scene.h"
 #include "ext.hpp"
 
-extern class Scene;
+class Scene;
 
 class Mesh {
 public:

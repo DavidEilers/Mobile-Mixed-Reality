@@ -7,6 +7,7 @@
 #include "cameraBackground.h"
 #include "objRenderer.h"
 #include "Scene.h"
+#include "TicTacToeScene.h"
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include "arServer.h"
@@ -19,7 +20,7 @@ extern "C" {
 
 ArServer* arServer= nullptr;
 cameraBackground *camBack = nullptr;
-Scene * scene = nullptr;
+TicTacToeScene * scene = nullptr;
 PlaneRenderer* planeRenderer = nullptr;
 int displayWidth=0;
 int displayHeight=0;
@@ -66,7 +67,7 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_ARCoreActivity_nativeOnSur
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
     camBack = new cameraBackground(mgr);
     planeRenderer = new PlaneRenderer(mgr);
-    scene = new Scene(mgr,serverPointer,isMaster);
+    scene = new TicTacToeScene(mgr,serverPointer,isMaster);
 
 }
 

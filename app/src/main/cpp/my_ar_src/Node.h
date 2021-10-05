@@ -21,8 +21,8 @@
 #include "BoundingBox.h"
 #include "ext.hpp"
 
-extern class Mesh;
-extern class Scene;
+class Mesh;
+class Scene;
 
 class Node {
 public:
