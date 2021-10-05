@@ -1,0 +1,7 @@
+vorlage.pdf
+vorlage.log
+*.aux
+*.dvi
+*.lof
+*.lot
+*.toc
