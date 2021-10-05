@@ -23,8 +23,8 @@
 
 #include "TicTacToe.hpp"
 
-extern class Mesh;
-extern class Node;
+class Mesh;
+class Node;
 
 class Scene {
 public:
@@ -34,10 +34,12 @@ public:
     void setView(glm::mat4 view_);
     void setProjection(glm::mat4 projection_);
     void draw();
-    void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination);
+
     glm::mat4 getView();
     glm::mat4 getProjection();
     AAssetManager* getAssetManager();
+
+    void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination);
 
 private:
 
@@ -51,6 +53,8 @@ private:
     Mesh * circleMesh;
     TTTSlave *slave;
     TTTMaster *master;
+    TTTBoard *board;
+    unsigned int playerType;
     bool isMaster;
 
 };

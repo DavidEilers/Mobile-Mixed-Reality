@@ -286,6 +286,12 @@ public:
             broadCastBoardUpdate();
         }
     }
+
+    bool isMyTurn(){
+        return my_turn;
+    }
+
+
 };
 
 class TTTSlave : public Slave {
@@ -323,6 +329,11 @@ public:
         cm->pos_y = y;
 
         send(cm);
+    }
+
+
+    bool isMyTurn(){
+        return my_turn;
     }
 };
 
