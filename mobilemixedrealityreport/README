@@ -1,0 +1,26 @@
+Mini-Anleitung zur Benutzung des Pakets "Diplomarbeit mit LaTeX"
+================================================================
+
+1. Paket auspacken
+   mkdir Arbeit
+   cd Arbeit
+   tar xvfz <pfad>/vorlage.tar.gz
+
+2. Pseudoarbeit generieren
+   make
+
+3. Das Ergebnis 'vorlage.ps' bildet (vom Layout her) eben gerade
+   die 'Vorlage', als Inhalt findet man eine kurze Anleitung zur
+   Benutzung der einzelnen Dateien.
+   
+   
+
+Bekannte Probleme:
+1. Beim Formatieren ('make' oder 'latex' direkt) kommt ein Fehler
+   im Zusammenhang mit 'sectioning' 
+   ODER
+   auf dem erzeugten Titelblatt erscheint "disposition" als Text (oben)
+   -----------------------------------------------------------
+   bei neueren KOMAskript-Versionen müssen in titel.tex alle
+   Kommandos  '\usekomafont{sectioning}' in
+   '\usekomafont{disposition}' geändert werden!

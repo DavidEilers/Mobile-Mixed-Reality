@@ -1,0 +1,41 @@
+%======================================================================
+%	Metadaten
+%======================================================================
+%	$Id$
+%	Matthias Kupfer
+%======================================================================
+
+\newcommand{\dcsubject}{Praktikumsbericht}
+% z.B. (Diplom/Studien/Haus)arbeit, Praktikumsbericht, Studie, Beleg,
+% (Pro/Haupt/Ober)seminar, Seminar usw.
+\newcommand{\dctitle}{MobileMixedReality Report}
+\newcommand{\dcsubtitle}{~} % Untertitel, falls erforderlich
+
+\newcommand{\dcauthorlastname}{David Eilers, Oskar Hippe}
+\newcommand{\dcauthorfirstname}{}
+\newcommand{\dcauthoremail}{name@subdomain.domain}
+\newcommand{\dcdate}{\today}
+
+\newcommand{\dcplace}{Chemnitz} % Ort, kann an der TU meist so bleiben
+\newcommand{\dcuni}{Technische Universitt \dcplace}
+\newcommand{\dcdepart}{Fakultät} % Fakulttsangabe
+\newcommand{\dcprof}{Professur} % Angabe der Professur
+
+\newcommand{\dcpruefer}{Tom Uhlmann}% Prfer der Arbeit
+\newcommand{\dcadvisor}{Tom Uhlmann}% Betreuer der Arbeit
+
+\newcommand{\dckeywords}{Liste,von,Stichworten,die,als,Schlagworte,geeignet,
+sind}
+
+%%======================================================================
+% Einstellungen des Hyperref-Paketes
+\hypersetup{%
+	pdftitle	= {\dctitle}, %
+	pdfsubject	= {\dcsubject, \dcdate}, %
+	pdfauthor	= {\dcauthorfirstname~\dcauthorlastname, \dcauthoremail}, %
+	pdfkeywords	= {\dckeywords}, %
+	pdfcreator	= {pdfTeX with Hyperref and Thumbpdf}, %
+	pdfproducer	= {LaTeX, hyperref, thumbpdf}, %
+	% weitere PDF-Einstellungen in hyperref.cfg
+}
+%%======================================================================
