@@ -30,7 +30,7 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         #native-lib.cpp
-        cameraBackground.cpp objLoader.cpp shader.cpp objRenderer.cpp arServer.cpp planeRenderer.cpp Mesh.cpp Node.cpp Scene.cpp BoundingBox.cpp TicTacToeScene.cpp)
+        cameraBackground.cpp objLoader.cpp shader.cpp objRenderer.cpp arServer.cpp planeRenderer.cpp Mesh.cpp Node.cpp Scene.cpp BoundingBox.cpp TicTacToeScene.cpp FourInARowScene.cpp)
 
 #add_library(cameraBackground SHARED cameraBackground.cpp)
 

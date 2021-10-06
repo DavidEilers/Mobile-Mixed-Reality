@@ -13,7 +13,18 @@ public:
                    const jboolean &isMaster);
 
     virtual ~TicTacToeScene();
+    void update()override;
+
+    void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) override;
+
+private:
+    Node * fields[9];
+    Mesh * crossMesh;
+    Mesh * circleMesh;
+    TTTSlave *slave;
+    TTTMaster *master;
+    TTTBoard *board;
+    unsigned int playerType;
+    bool isMaster;
 };
-
-
 #endif //TEAMPRAKTIKUM_TICTACTOESCENE_H
