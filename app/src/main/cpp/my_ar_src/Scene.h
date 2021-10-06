@@ -28,7 +28,7 @@ class Node;
 
 class Scene {
 public:
-    Scene(AAssetManager *assetManager_,jlong serverPointer, jboolean isMaster);
+    Scene(AAssetManager *assetManager_);
     virtual ~Scene();
     void setModel(glm::mat4 model_);
     void setView(glm::mat4 view_);
@@ -39,23 +39,17 @@ public:
     glm::mat4 getProjection();
     AAssetManager* getAssetManager();
 
-    void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination);
+    virtual void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination)=0;
+    virtual void update()=0;
 
-private:
 
+protected:
+    Node* getHitTestNode(glm::vec3 rayOrigin, glm::vec3 rayDestination);
+    AAssetManager *assetManager=nullptr;
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;
     Node * rootNode= nullptr;
-    AAssetManager *assetManager=nullptr;
-    Node * fields[9];
-    Mesh * crossMesh;
-    Mesh * circleMesh;
-    TTTSlave *slave;
-    TTTMaster *master;
-    TTTBoard *board;
-    unsigned int playerType;
-    bool isMaster;
 
 };
 
