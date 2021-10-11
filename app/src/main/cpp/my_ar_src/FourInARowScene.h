@@ -12,12 +12,16 @@
 #include <android/asset_manager_jni.h>
 
 
-class FourInARowScene:Scene {
+class FourInARowScene:public Scene {
 public:
-    FourInARowScene(AAssetManager *assetManager, const jlong &serverPointer,
-                    const jboolean &isMaster);
+    FourInARowScene(AAssetManager *assetManager);
 
     virtual ~FourInARowScene();
+
+    void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) override;
+
+private:
+    void update() override;
 };
 
 
