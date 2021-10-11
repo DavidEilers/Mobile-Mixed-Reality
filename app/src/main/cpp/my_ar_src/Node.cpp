@@ -19,6 +19,10 @@ Node::~Node() {
 
 }
 
+size_t Node::getChildCount() {
+    return childs->size();
+}
+
 void Node::prepareBoundingBoxShader() {
     AAssetManager * assetMgr = scene->getAssetManager();
     boundingBoxShader = new Shader(assetMgr);

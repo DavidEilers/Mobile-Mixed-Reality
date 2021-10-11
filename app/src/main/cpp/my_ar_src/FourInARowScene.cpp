@@ -52,10 +52,13 @@ FourInARowScene::~FourInARowScene() {
 
 void FourInARowScene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
   Node * hitBoxNode = getHitTestNode(rayOrigin,rayDestination);
-  animNode = new Node(this);
-  animationAlpha=0.0f;
-  animNode->setMesh(chip);
-  hitBoxNode->addChild(animNode);
+  if(hitBoxNode->getChildCount()<=6&&animNode==nullptr) {
+      animNode = new Node(this);
+      animationAlpha = 0.0f;
+      animNode->setMesh(chip);
+      endPos = startPos+glm::vec3(0,0,-0.275+(0.05*hitBoxNode->getChildCount()));
+      hitBoxNode->addChild(animNode);
+  }
 
 }
 
