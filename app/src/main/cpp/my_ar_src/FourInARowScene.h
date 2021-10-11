@@ -22,6 +22,15 @@ public:
 
 private:
     void update() override;
+    float animationAlpha=0.0f;
+    float speed=0.1f;
+    glm::vec3 startPos;
+    glm::vec3 endPos;
+    glm::vec3 transformPos;
+    Node * leftUpperMidOfBoundingBox;
+    Node * boundingBoxes[8];
+    Node * animNode;
+    Mesh* chip;
 };
 
 
