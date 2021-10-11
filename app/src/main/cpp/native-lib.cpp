@@ -11,6 +11,7 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include "arServer.h"
+#include "FourInARowScene.h"
 
 
 extern char* test();
@@ -20,7 +21,7 @@ extern "C" {
 
 ArServer* arServer= nullptr;
 cameraBackground *camBack = nullptr;
-TicTacToeScene * scene = nullptr;
+FourInARowScene * scene = nullptr;
 PlaneRenderer* planeRenderer = nullptr;
 int displayWidth=0;
 int displayHeight=0;
@@ -67,7 +68,7 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_ARCoreActivity_nativeOnSur
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
     camBack = new cameraBackground(mgr);
     planeRenderer = new PlaneRenderer(mgr);
-    scene = new TicTacToeScene(mgr,serverPointer,isMaster);
+    scene = new FourInARowScene(mgr);
 
 }
 
