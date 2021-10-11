@@ -30,6 +30,7 @@ public:
     virtual ~Node();
     void setModel(glm::mat4 model_);
     void addChild(Node* node);
+    size_t getChildCount();
     void draw(glm::mat4 parentTransform);
     void setMesh(Mesh *mesh);
     void setBoundingBox(glm::vec3 *box);
