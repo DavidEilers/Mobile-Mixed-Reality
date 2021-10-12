@@ -8,8 +8,8 @@
 #include "Messages.hpp"
 #include <android/log.h>
 
-#ifndef TEAMPRAKTIKUM_TICTACTOE_HPP
-#define TEAMPRAKTIKUM_TICTACTOE_HPP
+#ifndef TEAMPRAKTIKUM_FOURINAROW_HPP
+#define TEAMPRAKTIKUM_FOURINAROW_HPP
 
 
 #define MSG_FOUR_CLICK 200
@@ -324,6 +324,13 @@ public:
 
 class FourGame {
 public:
+    FourGame(FourMaster& master):master{master},is_master{true}{
+
+    }
+
+    FourGame(FourSlave& slave):slave{slave},is_master{false}{
+
+    }
     FourGame(bool is_master) {
         this->is_master = is_master;
     }

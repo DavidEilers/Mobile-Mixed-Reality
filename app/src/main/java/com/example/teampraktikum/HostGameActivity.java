@@ -34,7 +34,8 @@ public class HostGameActivity extends AppCompatActivity {
     Bitmap qrCode;
     LinearLayout main;
     Timer timer;
-
+    GameModes gamemode;
+    String gamemodeStr;
     public final static int QRcodeWidth = 350 ;
 
     @Override
@@ -45,6 +46,8 @@ public class HostGameActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         imageView = findViewById(R.id.imageView);
         main = findViewById(R.id.main);
+        gamemodeStr = getIntent().getStringExtra("GameMode");
+        gamemode = GameModes.valueOf(gamemodeStr);
 
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -117,10 +120,17 @@ public class HostGameActivity extends AppCompatActivity {
     private void switchToArCore(){
         Intent switchActivityIntent = new Intent(this,ARCoreActivity.class);
         switchActivityIntent.putExtra("Type","master");
-        switchActivityIntent.putExtra("TTTMasterPointer",getMaster());
+        if(gamemode==GameModes.TICTACTOE) {
+            switchActivityIntent.putExtra("TTTGamePointer", getTTTGame());
+        }else{
+            switchActivityIntent.putExtra("FourGamePointer",getFourGame());
+        }
+        switchActivityIntent.putExtra("GameMode",gamemodeStr);
         startActivity(switchActivityIntent);
     }
 
     public native boolean isSlaveConnected();
     public native long getMaster();
+    public native long getTTTGame();
+    public native long getFourGame();
 }

@@ -21,7 +21,6 @@
 #include "Node.h"
 #include "ext.hpp"
 
-#include "TicTacToe.hpp"
 
 class Mesh;
 class Node;

@@ -5,19 +5,10 @@
 #include "TicTacToeScene.h"
 //#include "../../../../../../../../../../programs/AndroidSDK/ndk/21.1.6352462/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h"
 
-TicTacToeScene::TicTacToeScene(AAssetManager *assetManager, const jlong &serverPointer,
-                               const jboolean &isMaster) : Scene(assetManager) {
-    this->isMaster = isMaster==JNI_TRUE?true:false;
-    if(isMaster){
-        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum Scene", "YOU ARE THE MASTER");
-        this->master = (TTTMaster*)serverPointer;
-        playerType = PLAYER_X;
-    }else{
-        this->slave = (TTTSlave *) serverPointer;
+TicTacToeScene::TicTacToeScene(AAssetManager *assetManager, const jlong &gamePointer) : Scene(assetManager) {
+    this->gamePointer = (TTTGame*)gamePointer;
+    playerType= PLAYER_X;
 
-        __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum Scene", "YOU ARE THE SLAVE");
-        playerType = PLAYER_O;
-    }
     Mesh * fieldMesh = new Mesh("objects","field",this);
     Node* fieldNode = new Node(this);
     rootNode->addChild(fieldNode);
@@ -27,7 +18,7 @@ TicTacToeScene::TicTacToeScene(AAssetManager *assetManager, const jlong &serverP
     circleMesh = new Mesh("objects","circle",this);
 
     __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","Before usage");
-    if(isMaster){board = &(master->board);}else{board = &(slave->board);}
+    board = &(gamePointer->board);
     __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","After usage");
     //Node * fields[9];
     for(int i=0; i<9;i++){
@@ -116,6 +107,6 @@ void TicTacToeScene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
         }
     }
     __android_log_print(ANDROID_LOG_VERBOSE, "HitTest", "%d, %d", row, column);
-    if(isMaster){master->makeMove(row,column);}else{slave->makeMove(row, column);}
+    gamePointer->makeMove(row,column);
 
 }

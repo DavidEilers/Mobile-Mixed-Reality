@@ -213,7 +213,7 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
 
     public native void onDrawFrame();
 
-    public native void nativeOnSurfaceCreated(AssetManager assetManager,long pointer, boolean isMaster);
+    public native void nativeOnSurfaceCreated(AssetManager assetManager,long pointer, String gamemode);
 
     public native void nativeOnTouched(float x, float y);
 
@@ -241,10 +241,12 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(0.7f, 0.0f, 0.0f, 1.0f);
         Intent intent=getIntent();
-        if(intent.getStringExtra("Type").equals("master")){
-            nativeOnSurfaceCreated(getAssets(),intent.getLongExtra("TTTMasterPointer",0),true);
-        }else if (intent.getStringExtra("Type").equals("slave")){
-            nativeOnSurfaceCreated(getAssets(),intent.getLongExtra("TTTSlavePointer",0),false);
+        String gameModeStr = intent.getStringExtra("GameMode");
+        GameModes gameMode = GameModes.valueOf(gameModeStr);
+        if(gameMode==GameModes.TICTACTOE){
+            nativeOnSurfaceCreated(getAssets(),intent.getLongExtra("TTTGamePointer",0),gameModeStr);
+        }else if(gameMode==GameModes.FOURINAROW){
+            nativeOnSurfaceCreated(getAssets(),intent.getLongExtra("FourGamePointer",0),gameModeStr);
         }
     }
 

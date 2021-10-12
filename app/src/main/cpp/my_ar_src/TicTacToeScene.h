@@ -6,11 +6,11 @@
 #define TEAMPRAKTIKUM_TICTACTOESCENE_H
 #import "Scene.h"
 #include "../../../../../../../../../../programs/AndroidSDK/ndk/21.1.6352462/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/android/asset_manager.h"
+#include "TicTacToe.hpp"
 
 class TicTacToeScene:public Scene {
 public:
-    TicTacToeScene(AAssetManager *assetManager, const jlong &serverPointer,
-                   const jboolean &isMaster);
+    TicTacToeScene(AAssetManager *assetManager, const jlong &gamePointer);
 
     virtual ~TicTacToeScene();
     void update()override;
@@ -21,8 +21,7 @@ private:
     Node * fields[9];
     Mesh * crossMesh;
     Mesh * circleMesh;
-    TTTSlave *slave;
-    TTTMaster *master;
+    TTTGame* gamePointer;
     TTTBoard *board;
     unsigned int playerType;
     bool isMaster;

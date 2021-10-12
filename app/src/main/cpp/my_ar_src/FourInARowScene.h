@@ -10,11 +10,12 @@
 #include <android/log.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
+#include "FourInARow.hpp"
 
 
 class FourInARowScene:public Scene {
 public:
-    FourInARowScene(AAssetManager *assetManager);
+    FourInARowScene(AAssetManager *assetManager, const jlong& gamePointer);
 
     virtual ~FourInARowScene();
 
@@ -31,6 +32,8 @@ private:
     Node * boundingBoxes[8];
     Node * animNode;
     Mesh* chip;
+    FourGame* gamePointer;
+
 };
 
 

@@ -26,6 +26,8 @@ public class JoinGameActivity extends AppCompatActivity {
     Button qrCodeBtn;
     EditText ipEdit;
     Timer timer;
+    GameModes gamemode;
+    String gamemodeStr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +37,8 @@ public class JoinGameActivity extends AppCompatActivity {
         connectBtn = findViewById(R.id.button_connect);
         qrCodeBtn = findViewById(R.id.button_qrCode);
         ipEdit = findViewById(R.id.editText_ip);
+        gamemodeStr = getIntent().getStringExtra("GameMode");
+        gamemode = GameModes.valueOf(gamemodeStr);
 
 
 
@@ -56,7 +60,7 @@ public class JoinGameActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //startButtonPressed();
-                slaveConnectToMaster(ipEdit.getText().toString());
+                slaveConnectToMaster(ipEdit.getText().toString(),gamemodeStr);
             }
         });
 
@@ -107,11 +111,18 @@ public class JoinGameActivity extends AppCompatActivity {
         System.out.println("Switching to ARCore");
         Intent switchActivityIntent = new Intent(this,ARCoreActivity.class);
         switchActivityIntent.putExtra("Type","slave");
-        switchActivityIntent.putExtra("TTTSlavePointer",getSlave());
+        if(gamemode==GameModes.TICTACTOE){
+            switchActivityIntent.putExtra("TTTGamePointer",getTTTGame());
+        }else if(gamemode==GameModes.FOURINAROW) {
+            switchActivityIntent.putExtra("FourGamePointer",getFourGame());
+        }
+        switchActivityIntent.putExtra("GameMode",gamemodeStr);
         startActivity(switchActivityIntent);
     }
 
-    public native void slaveConnectToMaster(String ip);
+    public native void slaveConnectToMaster(String ip,String gamemode);
     public native boolean hasSlaveConnectToMasterSucceeded();
-    public native long getSlave();
+    public native long getTTTGame();
+    public native long getFourGame();
+
 }

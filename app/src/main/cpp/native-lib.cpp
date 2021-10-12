@@ -21,12 +21,13 @@ extern "C" {
 
 ArServer* arServer= nullptr;
 cameraBackground *camBack = nullptr;
-FourInARowScene * scene = nullptr;
+Scene * scene = nullptr;
 PlaneRenderer* planeRenderer = nullptr;
 int displayWidth=0;
 int displayHeight=0;
 bool anchorWasTracked=false;
 int frameCount=0;
+std::string gameMode_string;
 
 
 JNIEXPORT int JNICALL
@@ -62,13 +63,19 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_ARCoreActivity_nativeOnSur
         JNIEnv *env,
         jobject activity,
         jobject assetManager,
-        jlong serverPointer,
-        jboolean isMaster
+        jlong gamePointer,
+        jstring gameMode
 ) {
+    const char *gameMode_chars = env->GetStringUTFChars(gameMode, NULL);
+    gameMode_string = std::string(gameMode_chars);
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
     camBack = new cameraBackground(mgr);
     planeRenderer = new PlaneRenderer(mgr);
-    scene = new FourInARowScene(mgr);
+    if(gameMode_string=="FOURINAROW"){
+        scene = new FourInARowScene(mgr,gamePointer);
+    }else if(gameMode_string=="TICTACTOE"){
+        scene = new TicTacToeScene(mgr,gamePointer);
+    }
 
 }
 
