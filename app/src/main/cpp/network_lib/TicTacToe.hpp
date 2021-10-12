@@ -337,5 +337,47 @@ public:
     }
 };
 
+class TTTGame {
+public:
+    TTTGame(bool is_master) {
+        this->is_master = is_master;
+    }
+
+    void makeMove(int x) {
+        if (is_master) {
+            master.makeMove(x);
+        } else {
+            slave.makeMove(x);
+        }
+    }
+
+    char checkWin() {
+        if (is_master) {
+            return master.board.check_win();
+        } else {
+            return slave.board.check_win();
+        }
+    }
+
+    bool myTurn() {
+        if (is_master) {
+            return master.my_turn;
+        } else {
+            return slave.my_turn;
+        }
+    }
+
+    void restartGame() {
+        if (is_master) {
+            master.restartGame();
+        }
+    }
+
+private:
+    TTTMaster master;
+    TTTSlave slave;
+
+    bool is_master;
+};
 
 #endif //TEAMPRAKTIKUM_TICTACTOE_HPP
