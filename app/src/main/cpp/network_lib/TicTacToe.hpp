@@ -339,14 +339,21 @@ public:
 
 class TTTGame {
 public:
+    TTTBoard* board;
+
     TTTGame(TTTMaster *master) {
         this->is_master = true;
         this->master = master;
+        board = &(master->board);
     }
 
     TTTGame(TTTSlave *slave) {
         this->is_master = false;
         this->slave = slave;
+        board = &(slave->board);
+        if(slave==NULL){
+            __android_log_print(ANDROID_LOG_VERBOSE, "TTTGame", "Slave==NULL");
+        }
     }
 
     void makeMove(int x, int y) {
@@ -378,6 +385,8 @@ public:
             master->restartGame();
         }
     }
+
+
 
 private:
     TTTMaster *master;

@@ -21,11 +21,10 @@ extern "C" {
 jlong getTTTGame(){
     // master->tick();
     if(slave!= nullptr){
-        //return (jlong) new TTTGame((TTTSlave*) (slave) );
+        return (jlong) new TTTGame((TTTSlave*) (slave) );
     }else{
-        // return (jlong) new TTTGame((TTTMaster*) (master));
+        return (jlong) new TTTGame((TTTMaster*) (master));
     }
-    return (jlong) nullptr;
 }
 
 jlong getFourGame(){
@@ -70,9 +69,9 @@ Java_com_example_teampraktikum_HostGameActivity_isSlaveConnected(JNIEnv *env, jo
     if(master!=NULL){
         return master->slaves.size()>0?JNI_TRUE:JNI_FALSE;
     }
-    if(gameMode_string=="TICTACTOE"){
+    if(gameMode_string=="TicTacToe"){
         master = new TTTMaster();
-    }else if(gameMode_string=="FOURINAROW"){
+    }else if(gameMode_string=="Four in a row"){
         master = new FourMaster();
     }else{
         return JNI_FALSE;//ERROR gameMode should be one of the above
@@ -87,9 +86,9 @@ Java_com_example_teampraktikum_JoinGameActivity_slaveConnectToMaster(JNIEnv *env
     std::string ip_string = std::string(ip_chars);
     const char *gameMode_chars = env->GetStringUTFChars(gameMode, NULL);
     gameMode_string = std::string(gameMode_chars);
-    if(gameMode_string=="TICTACTOE"){
+    if(gameMode_string=="TicTacToe"){
         slave = new TTTSlave();
-    }else if(gameMode_string=="FOURINAROW"){
+    }else if(gameMode_string=="Four in a row"){
         slave = new FourSlave();
     }else{
         return;//ERROR gameMode should be one of the above
@@ -135,6 +134,7 @@ Java_com_example_teampraktikum_ARCoreActivity_startConnection(JNIEnv *env, jobje
 JNIEXPORT void
 Java_com_example_teampraktikum_TicTacToeActivity_boardPressedAt(JNIEnv *env, jobject /* this */, jint x,
                                                            jint y) {
+    /*
     TTTClickMessage clickMessage;
     clickMessage.pos_x = x;
     clickMessage.pos_y = y;
@@ -146,7 +146,7 @@ Java_com_example_teampraktikum_TicTacToeActivity_boardPressedAt(JNIEnv *env, job
     }
     slave->send(&clickMessage);
     slave->my_turn = false;
-    slave->board.set(x, y, PLAYER_O);
+    slave->board.set(x, y, PLAYER_O);*/
 }
 
 JNIEXPORT void
@@ -170,17 +170,17 @@ JNIEXPORT jint
 Java_com_example_teampraktikum_TicTacToeActivity_getStatusAt(JNIEnv *env, jobject /* this */, jint x,
                                                         jint y) {
     if (hosting) {
-        return (jint) master->board.get((int) x, (int) y);
+        return (jint) 0;//master->board.get((int) x, (int) y);
     }
-    return (jint) slave->board.get((int) x, (int) y);
+    return (jint) 0;//slave->board.get((int) x, (int) y);
 }
 
 JNIEXPORT jboolean
 Java_com_example_teampraktikum_TicTacToeActivity_getMyTurn(JNIEnv *env, jobject /* this */) {
     if (hosting) {
-        return (jboolean) master->my_turn;
+        return (jboolean) JNI_FALSE;//master->my_turn;
     }
-    return (jboolean) slave->my_turn;
+    return (jboolean) JNI_FALSE;//slave->my_turn;
 }
 
 JNIEXPORT jboolean

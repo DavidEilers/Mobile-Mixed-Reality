@@ -2,6 +2,6 @@
 <resources>
     <string-array name="game_modes">
         <item name="TICTACTOE">TicTacToe</item>
-        <item name="FOURINAROW">Four in a Row</item>
+        <item name="FOURINAROW">Four in a row</item>
     </string-array>
 </resources>

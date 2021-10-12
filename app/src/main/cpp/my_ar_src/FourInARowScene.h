@@ -15,7 +15,7 @@
 
 class FourInARowScene:public Scene {
 public:
-    FourInARowScene(AAssetManager *assetManager, const jlong& gamePointer);
+    FourInARowScene(AAssetManager *assetManager, jlong& gamePointer);
 
     virtual ~FourInARowScene();
 

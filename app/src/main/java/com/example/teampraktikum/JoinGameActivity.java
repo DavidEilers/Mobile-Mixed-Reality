@@ -26,7 +26,6 @@ public class JoinGameActivity extends AppCompatActivity {
     Button qrCodeBtn;
     EditText ipEdit;
     Timer timer;
-    GameModes gamemode;
     String gamemodeStr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +37,6 @@ public class JoinGameActivity extends AppCompatActivity {
         qrCodeBtn = findViewById(R.id.button_qrCode);
         ipEdit = findViewById(R.id.editText_ip);
         gamemodeStr = getIntent().getStringExtra("GameMode");
-        gamemode = GameModes.valueOf(gamemodeStr);
 
 
 
@@ -111,9 +109,9 @@ public class JoinGameActivity extends AppCompatActivity {
         System.out.println("Switching to ARCore");
         Intent switchActivityIntent = new Intent(this,ARCoreActivity.class);
         switchActivityIntent.putExtra("Type","slave");
-        if(gamemode==GameModes.TICTACTOE){
+        if(gamemodeStr.equals("TicTacToe")){
             switchActivityIntent.putExtra("TTTGamePointer",getTTTGame());
-        }else if(gamemode==GameModes.FOURINAROW) {
+        }else if(gamemodeStr.equals("Four in a row")) {
             switchActivityIntent.putExtra("FourGamePointer",getFourGame());
         }
         switchActivityIntent.putExtra("GameMode",gamemodeStr);

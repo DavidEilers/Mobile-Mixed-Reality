@@ -242,10 +242,9 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
         GLES20.glClearColor(0.7f, 0.0f, 0.0f, 1.0f);
         Intent intent=getIntent();
         String gameModeStr = intent.getStringExtra("GameMode");
-        GameModes gameMode = GameModes.valueOf(gameModeStr);
-        if(gameMode==GameModes.TICTACTOE){
+        if(gameModeStr.equals("TicTacToe")){
             nativeOnSurfaceCreated(getAssets(),intent.getLongExtra("TTTGamePointer",0),gameModeStr);
-        }else if(gameMode==GameModes.FOURINAROW){
+        }else if(gameModeStr.equals("Four in a row")){
             nativeOnSurfaceCreated(getAssets(),intent.getLongExtra("FourGamePointer",0),gameModeStr);
         }
     }

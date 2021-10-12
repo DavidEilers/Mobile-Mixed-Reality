@@ -71,9 +71,9 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_ARCoreActivity_nativeOnSur
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
     camBack = new cameraBackground(mgr);
     planeRenderer = new PlaneRenderer(mgr);
-    if(gameMode_string=="FOURINAROW"){
+    if(gameMode_string=="Four in a row"){
         scene = new FourInARowScene(mgr,gamePointer);
-    }else if(gameMode_string=="TICTACTOE"){
+    }else if(gameMode_string=="TicTacToe"){
         scene = new TicTacToeScene(mgr,gamePointer);
     }
 

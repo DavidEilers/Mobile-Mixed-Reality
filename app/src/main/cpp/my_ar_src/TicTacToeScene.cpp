@@ -5,8 +5,8 @@
 #include "TicTacToeScene.h"
 //#include "../../../../../../../../../../programs/AndroidSDK/ndk/21.1.6352462/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h"
 
-TicTacToeScene::TicTacToeScene(AAssetManager *assetManager, const jlong &gamePointer) : Scene(assetManager) {
-    this->gamePointer = (TTTGame*)gamePointer;
+TicTacToeScene::TicTacToeScene(AAssetManager *assetManager, jlong gamePointer_) : Scene(assetManager) {
+    this->gamePointer = (TTTGame*)gamePointer_;
     playerType= PLAYER_X;
 
     Mesh * fieldMesh = new Mesh("objects","field",this);
@@ -18,7 +18,7 @@ TicTacToeScene::TicTacToeScene(AAssetManager *assetManager, const jlong &gamePoi
     circleMesh = new Mesh("objects","circle",this);
 
     __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","Before usage");
-    board = &(gamePointer->board);
+    board = gamePointer->board;
     __android_log_print(ANDROID_LOG_VERBOSE,"TTTMaster","After usage");
     //Node * fields[9];
     for(int i=0; i<9;i++){

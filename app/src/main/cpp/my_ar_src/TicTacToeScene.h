@@ -10,7 +10,7 @@
 
 class TicTacToeScene:public Scene {
 public:
-    TicTacToeScene(AAssetManager *assetManager, const jlong &gamePointer);
+    TicTacToeScene(AAssetManager *assetManager, jlong gamePointer);
 
     virtual ~TicTacToeScene();
     void update()override;
