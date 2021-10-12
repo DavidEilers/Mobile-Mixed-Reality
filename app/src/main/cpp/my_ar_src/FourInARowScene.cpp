@@ -5,7 +5,8 @@
 #include "FourInARowScene.h"
 #include "../../../../../../../../../../programs/AndroidSDK/ndk/21.1.6352462/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h"
 
-FourInARowScene::FourInARowScene(AAssetManager *assetManager) : Scene(assetManager) {
+FourInARowScene::FourInARowScene(AAssetManager *assetManager,const jlong& gamePointer) : Scene(assetManager) {
+ gamePointer= (FourGame*) gamePointer;
  Mesh* field = new Mesh("objects","fourInARowField",this);
  chip  = new  Mesh("objects","fourInARowChip",this);
  Node * fieldNode = new Node(this);

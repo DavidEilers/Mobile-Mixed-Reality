@@ -5,15 +5,57 @@
 #include <android/log.h>
 
 #include "TicTacToe.hpp"
+#include "FourInARow.hpp"
 #include "NetworkInterface.h"
 
-TTTMaster * master= NULL;// = new TTTMaster();
-TTTSlave *slave = NULL;// = new TTTSlave();
+Master * master= NULL;// = new TTTMaster();
+Slave *slave = NULL;// = new TTTSlave();
+std::string gameMode_string="TicTacToe";
+
 
 bool hosting = false;
 
 
 extern "C" {
+
+jlong getTTTGame(){
+    // master->tick();
+    if(slave!= nullptr){
+        //return (jlong) new TTTGame((TTTSlave*) (slave) );
+    }else{
+        // return (jlong) new TTTGame((TTTMaster*) (master));
+    }
+    return (jlong) nullptr;
+}
+
+jlong getFourGame(){
+    // master->tick();
+    if(slave!= nullptr){
+        return (jlong) new FourGame((FourSlave*) (slave) );
+    }else{
+        return (jlong) new FourGame((FourMaster*) (master));
+    }
+}
+
+JNIEXPORT jlong
+Java_com_example_teampraktikum_HostGameActivity_getTTTGame(JNIEnv *env, jobject /* this */) {
+    return getTTTGame();
+}
+
+JNIEXPORT jlong
+Java_com_example_teampraktikum_HostGameActivity_getFourGame(JNIEnv *env, jobject /* this */) {
+    return getFourGame();
+}
+
+JNIEXPORT jlong
+Java_com_example_teampraktikum_JoinGameActivity_getTTTGame(JNIEnv *env, jobject /* this */) {
+   return getTTTGame();
+}
+
+JNIEXPORT jlong
+Java_com_example_teampraktikum_JoinGameActivity_getFourGame(JNIEnv *env, jobject /* this */) {
+   return getFourGame();
+}
 
 JNIEXPORT jlong
 Java_com_example_teampraktikum_HostGameActivity_getMaster(JNIEnv *env, jobject /* this */) {
@@ -21,21 +63,37 @@ Java_com_example_teampraktikum_HostGameActivity_getMaster(JNIEnv *env, jobject /
     return (jlong) master;
 }
 JNIEXPORT jboolean
-Java_com_example_teampraktikum_HostGameActivity_isSlaveConnected(JNIEnv *env, jobject /* this */) {
+Java_com_example_teampraktikum_HostGameActivity_isSlaveConnected(JNIEnv *env, jobject /* this */,jstring gameMode) {
 //master->tick();
-if(master!=NULL){
-return master->slaves.size()>0?JNI_TRUE:JNI_FALSE;
-}
-master = new TTTMaster();
-return JNI_FALSE;
+    const char *gameMode_chars = env->GetStringUTFChars(gameMode, NULL);
+    gameMode_string = std::string(gameMode_chars);
+    if(master!=NULL){
+        return master->slaves.size()>0?JNI_TRUE:JNI_FALSE;
+    }
+    if(gameMode_string=="TICTACTOE"){
+        master = new TTTMaster();
+    }else if(gameMode_string=="FOURINAROW"){
+        master = new FourMaster();
+    }else{
+        return JNI_FALSE;//ERROR gameMode should be one of the above
+    }
+    return JNI_FALSE;
 
 }
 
 JNIEXPORT void
-Java_com_example_teampraktikum_JoinGameActivity_slaveConnectToMaster(JNIEnv *env, jobject /* this */,jstring ip) {
-    slave = new TTTSlave();
+Java_com_example_teampraktikum_JoinGameActivity_slaveConnectToMaster(JNIEnv *env, jobject /* this */,jstring ip ,jstring gameMode) {
     const char *ip_chars = env->GetStringUTFChars(ip, NULL);
     std::string ip_string = std::string(ip_chars);
+    const char *gameMode_chars = env->GetStringUTFChars(gameMode, NULL);
+    gameMode_string = std::string(gameMode_chars);
+    if(gameMode_string=="TICTACTOE"){
+        slave = new TTTSlave();
+    }else if(gameMode_string=="FOURINAROW"){
+        slave = new FourSlave();
+    }else{
+        return;//ERROR gameMode should be one of the above
+    }
     slave->connect_to_master(ip_string,7080);
     //slave->tick();
 }
