@@ -2,15 +2,14 @@
 // Created by Oskar on 28.09.2021.
 //
 
+#ifndef TEAMPRAKTIKUM_FOUR_HPP
+#define TEAMPRAKTIKUM_FOUR_HPP
+
 #include <vector>
 #include <string>
 #include "GameManager.h"
 #include "Messages.hpp"
 #include <android/log.h>
-
-#ifndef TEAMPRAKTIKUM_TICTACTOE_HPP
-#define TEAMPRAKTIKUM_TICTACTOE_HPP
-
 
 #define MSG_FOUR_CLICK 200
 #define MSG_FOUR_END 201
@@ -324,46 +323,56 @@ public:
 
 class FourGame {
 public:
-    FourGame(bool is_master) {
-        this->is_master = is_master;
+    FourGame(FourMaster *master) {
+        this->is_master = true;
+        this->master = master;
+    }
+
+    FourGame(FourSlave *slave) {
+        this->is_master = false;
+        this->slave = slave;
+    }
+
+    ~FourGame() {
+
     }
 
     void makeMove(int x) {
         if (is_master) {
-            master.makeMove(x);
+            master->makeMove(x);
         } else {
-            slave.makeMove(x);
+            slave->makeMove(x);
         }
     }
 
     char checkWin() {
         if (is_master) {
-            return master.board.check_win();
+            return master->board.check_win();
         } else {
-            return slave.board.check_win();
+            return slave->board.check_win();
         }
     }
 
     bool myTurn() {
         if (is_master) {
-            return master.my_turn;
+            return master->my_turn;
         } else {
-            return slave.my_turn;
+            return slave->my_turn;
         }
     }
 
     void restartGame() {
         if (is_master) {
-            master.restartGame();
+            master->restartGame();
         }
     }
 
 private:
-    FourMaster master;
-    FourSlave slave;
+    FourMaster *master;
+    FourSlave *slave;
 
     bool is_master;
 };
 
 
-#endif //TEAMPRAKTIKUM_TICTACTOE_HPP
+#endif //TEAMPRAKTIKUM_FOUR_HPP

@@ -339,43 +339,49 @@ public:
 
 class TTTGame {
 public:
-    TTTGame(bool is_master) {
-        this->is_master = is_master;
+    TTTGame(TTTMaster *master) {
+        this->is_master = true;
+        this->master = master;
     }
 
-    void makeMove(int x) {
+    TTTGame(TTTSlave *slave) {
+        this->is_master = false;
+        this->slave = slave;
+    }
+
+    void makeMove(int x, int y) {
         if (is_master) {
-            master.makeMove(x);
+            master->makeMove(x, y);
         } else {
-            slave.makeMove(x);
+            slave->makeMove(x, y);
         }
     }
 
     char checkWin() {
         if (is_master) {
-            return master.board.check_win();
+            return master->board.check_win();
         } else {
-            return slave.board.check_win();
+            return slave->board.check_win();
         }
     }
 
     bool myTurn() {
         if (is_master) {
-            return master.my_turn;
+            return master->my_turn;
         } else {
-            return slave.my_turn;
+            return slave->my_turn;
         }
     }
 
     void restartGame() {
         if (is_master) {
-            master.restartGame();
+            master->restartGame();
         }
     }
 
 private:
-    TTTMaster master;
-    TTTSlave slave;
+    TTTMaster *master;
+    TTTSlave *slave;
 
     bool is_master;
 };
