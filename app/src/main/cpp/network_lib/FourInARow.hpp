@@ -230,7 +230,6 @@ public:
     }
 };
 
-
 class FourMaster : public Master {
 public:
     FourBoard board;
@@ -285,13 +284,13 @@ public:
     }
 };
 
-class TTTSlave : public Slave {
+class FourSlave : public Slave {
 public:
     FourBoard board;
 
     bool my_turn = false;
 
-    TTTSlave() : Slave("slave", 7081) {}
+    FourSlave() : Slave("slave", 7081) {}
 
     /**
      * handles incoming messages that are specific to the TicTacToe game.
@@ -320,6 +319,50 @@ public:
 
         send(cm);
     }
+};
+
+
+class FourGame {
+public:
+    FourGame(bool is_master) {
+        this->is_master = is_master;
+    }
+
+    void makeMove(int x) {
+        if (is_master) {
+            master.makeMove(x);
+        } else {
+            slave.makeMove(x);
+        }
+    }
+
+    char checkWin() {
+        if (is_master) {
+            return master.board.check_win();
+        } else {
+            return slave.board.check_win();
+        }
+    }
+
+    bool myTurn() {
+        if (is_master) {
+            return master.my_turn;
+        } else {
+            return slave.my_turn;
+        }
+    }
+
+    void restartGame() {
+        if (is_master) {
+            master.restartGame();
+        }
+    }
+
+private:
+    FourMaster master;
+    FourSlave slave;
+
+    bool is_master;
 };
 
 
