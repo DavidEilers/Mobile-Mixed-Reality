@@ -117,6 +117,15 @@ public:
         }
     }
 
+    int amountInRow(int x){
+        if(x<0||x>width)return -1;
+        size_t counter=0;
+        for(int y=0;y<height;y++){
+            if(board[x][y]!=FIELD_EMPTY)counter++;
+        }
+        return counter;
+    }
+
     bool is_column_full(int x) {
         if (x < 0) return false;
         if (x >= width) return false;
@@ -323,14 +332,28 @@ public:
 
 class FourGame {
 public:
+
+    FourBoard* board;
+
     FourGame(FourMaster *master) {
         this->is_master = true;
         this->master = master;
+        board = &(master->board);
     }
 
     FourGame(FourSlave *slave) {
         this->is_master = false;
         this->slave = slave;
+        board = &(slave->board);
+    }
+
+    FourGame(FourMaster* master_, FourSlave* slave_){
+        this->master=master_;
+        this->slave=slave_;
+        board = &(master->board);
+        this->is_master = true;
+        this->debug=true;
+
     }
 
     ~FourGame() {
@@ -342,6 +365,9 @@ public:
             master->makeMove(x);
         } else {
             slave->makeMove(x);
+        }
+        if(debug){
+            this->is_master = !this->is_master;
         }
     }
 
@@ -361,6 +387,14 @@ public:
         }
     }
 
+    char whoAmI(){
+        if(is_master){
+            return PLAYER_1;
+        }else{
+            return PLAYER_2;
+        }
+    }
+
     void restartGame() {
         if (is_master) {
             master->restartGame();
@@ -372,6 +406,7 @@ private:
     FourSlave *slave;
 
     bool is_master;
+    bool debug=false;
 };
 
 

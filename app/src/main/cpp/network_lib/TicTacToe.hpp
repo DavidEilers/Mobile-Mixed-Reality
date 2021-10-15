@@ -356,7 +356,18 @@ public:
         }
     }
 
+    TTTGame(TTTMaster * master_, TTTSlave* slave_){
+        this->master = master_;
+        this->slave = slave_;
+        board = &(slave->board);
+        this->debug=true;
+        this->is_master=true;
+    }
+
     void makeMove(int x, int y) {
+        if(debug){
+            this->is_master= !this->is_master;
+        }
         if (is_master) {
             master->makeMove(x, y);
         } else {
@@ -393,6 +404,7 @@ private:
     TTTSlave *slave;
 
     bool is_master;
+    bool debug=false;
 };
 
 #endif //TEAMPRAKTIKUM_TICTACTOE_HPP

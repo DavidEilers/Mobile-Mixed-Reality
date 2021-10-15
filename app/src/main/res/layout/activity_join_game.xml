@@ -49,5 +49,11 @@
             android:layout_height="wrap_content"
             android:text="Connect" />
 
+        <Button
+            android:id="@+id/button_connectDEBUG"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Local Connet" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

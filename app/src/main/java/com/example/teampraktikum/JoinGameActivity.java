@@ -24,6 +24,7 @@ public class JoinGameActivity extends AppCompatActivity {
 
     Button connectBtn;
     Button qrCodeBtn;
+    Button connectDBGBtn;
     EditText ipEdit;
     Timer timer;
     String gamemodeStr;
@@ -35,6 +36,7 @@ public class JoinGameActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         connectBtn = findViewById(R.id.button_connect);
         qrCodeBtn = findViewById(R.id.button_qrCode);
+        connectDBGBtn = findViewById(R.id.button_connectDEBUG);
         ipEdit = findViewById(R.id.editText_ip);
         gamemodeStr = getIntent().getStringExtra("GameMode");
 
@@ -53,6 +55,13 @@ public class JoinGameActivity extends AppCompatActivity {
         };
         timer.schedule(updateTask, 1000, 1000);
 
+
+        connectDBGBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                slaveConnectToMaster("127.0.0.1",gamemodeStr);
+            }
+        });
 
         connectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
