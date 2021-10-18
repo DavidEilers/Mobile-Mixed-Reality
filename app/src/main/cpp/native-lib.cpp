@@ -12,6 +12,7 @@
 #include <android/asset_manager_jni.h>
 #include "arServer.h"
 #include "FourInARowScene.h"
+#include "MenueScene.h"
 
 
 extern char* test();
@@ -37,7 +38,7 @@ Java_com_example_teampraktikum_ARCoreActivity_nativeOnResume(
         jobject context){
     __android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum", "In nativeOnResume");
     //__android_log_print(ANDROID_LOG_VERBOSE, "Teampraktikum","%s",test());
-
+    //jni_interface_env = env;
     if(arServer==nullptr){
         arServer = new ArServer();
     }
@@ -66,6 +67,8 @@ JNIEXPORT void JNICALL Java_com_example_teampraktikum_ARCoreActivity_nativeOnSur
         jlong gamePointer,
         jstring gameMode
 ) {
+
+    //jni_interface_env = env;
     const char *gameMode_chars = env->GetStringUTFChars(gameMode, NULL);
     gameMode_string = std::string(gameMode_chars);
     AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
@@ -131,6 +134,7 @@ Java_com_example_teampraktikum_ARCoreActivity_onDrawFrame(
         JNIEnv *env,
         jobject activity) {
 
+
     __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum", "");
 
    if(arServer->onDrawBackground(camBack->getTextureID())==true){
@@ -180,6 +184,25 @@ JNIEXPORT jboolean JNICALL
         }
         return static_cast<jboolean>(arServer->hasDetectedSurface()
                                                                ? JNI_TRUE : JNI_FALSE);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_example_teampraktikum_ARCoreActivity_shouldExit(
+        JNIEnv *env,
+        jobject activity){
+    bool shouldExit;
+    if(gameMode_string=="Four in a row"){
+        shouldExit = ((FourInARowScene*)(scene))->menueScene->getShouldExit();
+    }else if(gameMode_string=="TicTacToe"){
+        shouldExit = ((TicTacToeScene*)(scene))->menueScene->getShouldExit();
+    }else{
+        shouldExit=false;
+    }
+    if(shouldExit){
+        __android_log_print(ANDROID_LOG_VERBOSE,"TeampraktikumEXIT","shouldExit should Exit");
+    }
+    return static_cast<jboolean>(shouldExit
+                                 ? JNI_TRUE : JNI_FALSE);
 }
 
 }

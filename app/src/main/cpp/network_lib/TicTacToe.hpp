@@ -391,6 +391,14 @@ public:
         }
     }
 
+    char whoAmI(){
+        if(is_master){
+            return PLAYER_O;
+        }else{
+            return PLAYER_X;
+        }
+    }
+
     void restartGame() {
         if (is_master) {
             master->restartGame();

@@ -23,7 +23,6 @@
 #include <string>
 #include <android/log.h>
 
-//#include "jni_interface.h"
 
 bool LoadTextFileFromAssetManager(const char* file_name,
                                   AAssetManager* asset_manager,

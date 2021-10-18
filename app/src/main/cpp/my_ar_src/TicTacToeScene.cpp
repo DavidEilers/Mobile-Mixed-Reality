@@ -53,6 +53,7 @@ TicTacToeScene::TicTacToeScene(AAssetManager *assetManager, jlong gamePointer_) 
         box[7]=glm::vec3(0,0.06,0)+box[3];
         fields[i]->setBoundingBox(box);
     }
+    this->menueScene = new MenueScene(assetManager);
 
 }
 
@@ -91,22 +92,51 @@ void TicTacToeScene::update()  {
     }else if(board->check_win()!=0){
         __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","You loose!");
     }
+    char tmp =gamePointer->checkWin();
+    if(tmp!=0) {
+        if (tmp == gamePointer->whoAmI()) {
+            menueScene->setHaveWon(true);
+            menueScene->setShow(true);
+        } else {
+            menueScene->setHaveWon(false);
+            menueScene->setShow(true);
+        }
+    }
+
 }
 
 void TicTacToeScene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
-    Node* result = this->getHitTestNode(rayOrigin, rayDestination);
-    int row;int column;
-    for(int i=0; i<9; i++){
-        if(fields[i]==result){
-            row = (i/3);
-            column = i%3;
-            break;
+    if(gamePointer->checkWin()==0) {
+        Node *result = this->getHitTestNode(rayOrigin, rayDestination);
+        int row=0;
+        int column=0;
+        for (int i = 0; i < 9; i++) {
+            if (fields[i] == result) {
+                row = (i / 3);
+                column = i % 3;
+                break;
+            }
+            if (i == 8) {
+                return;//The result is no field
+            }
         }
-        if(i==8){
-            return;//The result is no field
+        __android_log_print(ANDROID_LOG_VERBOSE, "HitTest", "%d, %d", row, column);
+        gamePointer->makeMove(row, column);
+    }else {
+        menueScene->hitTest(rayOrigin, rayDestination);
+        if(menueScene->getPlayAgain()==true){
+            gamePointer->restartGame();
+            resetGame();
         }
     }
-    __android_log_print(ANDROID_LOG_VERBOSE, "HitTest", "%d, %d", row, column);
-    gamePointer->makeMove(row,column);
+
+}
+
+void TicTacToeScene::draw() {
+    Scene::draw();
+    menueScene->draw();
+}
+
+void TicTacToeScene::resetGame() {
 
 }

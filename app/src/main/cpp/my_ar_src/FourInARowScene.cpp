@@ -65,6 +65,8 @@ FourInARowScene::FourInARowScene(AAssetManager *assetManager, jlong& gamePointer
  endPos = startPos+glm::vec3(0,0,-0.275);
  transformPos = startPos;
 
+ menueScene = new MenueScene(assetManager);
+
 }
 
 FourInARowScene::~FourInARowScene() {
@@ -72,19 +74,21 @@ FourInARowScene::~FourInARowScene() {
 }
 
 void FourInARowScene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
-  Node * hitBoxNode = getHitTestNode(rayOrigin,rayDestination);
-  int number = -1;
-  for(int i=0;i<8;i++){
-   if(boundingBoxes[i]==hitBoxNode)number=i;
-  }
-  if(number==-1){
-   __android_log_print(ANDROID_LOG_VERBOSE,"TeampraktikumHitTest","NOT IN BOUNDINGBOX ARRAY");
-  }
-  if(number!=-1) {
 
-   __android_log_print(ANDROID_LOG_VERBOSE,"TeampraktikumHitTest","Clicked Field %d",number);
+ if(gamePointer->checkWin()==0) {
+  Node *hitBoxNode = getHitTestNode(rayOrigin, rayDestination);
+  int number = -1;
+  for (int i = 0; i < 8; i++) {
+   if (boundingBoxes[i] == hitBoxNode)number = i;
+  }
+  if (number == -1) {
+   __android_log_print(ANDROID_LOG_VERBOSE, "TeampraktikumHitTest", "NOT IN BOUNDINGBOX ARRAY");
+  }
+  if (number != -1) {
+
+   __android_log_print(ANDROID_LOG_VERBOSE, "TeampraktikumHitTest", "Clicked Field %d", number);
    int amountInRow = gamePointer->board->amountInRow(number);
-   if(gamePointer->myTurn()) {
+   if (gamePointer->myTurn()) {
     char player = gamePointer->whoAmI();
     gamePointer->makeMove(number);
     if (amountInRow <= 6 && animNode == nullptr) {
@@ -93,17 +97,24 @@ void FourInARowScene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
      animNode->setMesh(chip);
      endPos = startPos + glm::vec3(0, 0, -0.275 + (0.05 * amountInRow));
      hitBoxNode->addChild(animNode);
-     if(player==PLAYER_1){
-      animNode->setColor(glm::vec4(1.0f,0.0f,0.0f,1.0f));
-     }else{
-       animNode->setColor(glm::vec4(1.0f,1.0f,0.0f,1.0f));
+     if (player == PLAYER_1) {
+      animNode->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+     } else {
+      animNode->setColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
      }
     }
-   }else{
-     //try turn for debugging to work
-     gamePointer->makeMove(number);
+   } else {
+    //try turn for debugging to work
+    gamePointer->makeMove(number);
    }
   }
+ }else{
+  menueScene->hitTest(rayOrigin, rayDestination);
+  if(menueScene->getPlayAgain()==true){
+   gamePointer->restartGame();
+   resetGame();
+  }
+ }
 
 }
 
@@ -144,10 +155,30 @@ void FourInARowScene::updateField() {
      fourInArowFields[i*6+j]->setColor(glm::vec4(1.0f,1.0f,0.0f,1.0f));
     }
     else{
+     fourInArowFields[i*6+j]->setMesh(nullptr);
      a.append("_");
     }
   }
   a.append(";");
  }
  __android_log_print(ANDROID_LOG_VERBOSE,"TeampraktikumFieldUpdate","%s",a.c_str());
+ char tmp =gamePointer->checkWin();
+ if(tmp!=0) {
+  if (tmp == gamePointer->whoAmI()) {
+   menueScene->setHaveWon(true);
+   menueScene->setShow(true);
+  } else {
+   menueScene->setHaveWon(false);
+   menueScene->setShow(true);
+  }
+ }
+}
+
+void FourInARowScene::resetGame() {
+ //updateField();
+}
+
+void FourInARowScene::draw() {
+ Scene::draw();
+ menueScene->draw();
 }
