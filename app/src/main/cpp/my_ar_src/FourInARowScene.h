@@ -11,17 +11,22 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include "FourInARow.hpp"
+#include "MenueScene.h"
 
 
 class FourInARowScene:public Scene {
 public:
+    MenueScene* menueScene;
     FourInARowScene(AAssetManager *assetManager, jlong& gamePointer);
 
     virtual ~FourInARowScene();
 
     void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) override;
+    void draw() override;
 
 private:
+    void resetGame();
+    void updateField();
     void update() override;
     float animationAlpha=0.0f;
     float speed=0.1f;
@@ -29,7 +34,9 @@ private:
     glm::vec3 endPos;
     glm::vec3 transformPos;
     Node * leftUpperMidOfBoundingBox;
+    Node * lowerLeftField;
     Node * boundingBoxes[8];
+    Node* fourInArowFields[48];
     Node * animNode;
     Mesh* chip;
     FourGame* gamePointer;

@@ -10,6 +10,8 @@
 
 Master * master= NULL;// = new TTTMaster();
 Slave *slave = NULL;// = new TTTSlave();
+TTTGame *tttGame = NULL;
+FourGame *fourGame = NULL;
 std::string gameMode_string="TicTacToe";
 
 
@@ -20,20 +22,12 @@ extern "C" {
 
 jlong getTTTGame(){
     // master->tick();
-    if(slave!= nullptr){
-        return (jlong) new TTTGame((TTTSlave*) (slave) );
-    }else{
-        return (jlong) new TTTGame((TTTMaster*) (master));
-    }
+    return (jlong) tttGame;
 }
 
 jlong getFourGame(){
     // master->tick();
-    if(slave!= nullptr){
-        return (jlong) new FourGame((FourSlave*) (slave) );
-    }else{
-        return (jlong) new FourGame((FourMaster*) (master));
-    }
+    return (jlong) fourGame;
 }
 
 JNIEXPORT jlong
@@ -71,8 +65,10 @@ Java_com_example_teampraktikum_HostGameActivity_isSlaveConnected(JNIEnv *env, jo
     }
     if(gameMode_string=="TicTacToe"){
         master = new TTTMaster();
+        tttGame = new TTTGame((TTTMaster*)master);
     }else if(gameMode_string=="Four in a row"){
         master = new FourMaster();
+        fourGame = new FourGame((FourMaster*)master);
     }else{
         return JNI_FALSE;//ERROR gameMode should be one of the above
     }
@@ -88,8 +84,21 @@ Java_com_example_teampraktikum_JoinGameActivity_slaveConnectToMaster(JNIEnv *env
     gameMode_string = std::string(gameMode_chars);
     if(gameMode_string=="TicTacToe"){
         slave = new TTTSlave();
+        if(ip_string=="127.0.0.1"){
+            master = new TTTMaster();
+            tttGame = new TTTGame((TTTMaster*)master,(TTTSlave*)slave);
+        }else{
+            tttGame = new TTTGame((TTTSlave*)slave);
+        }
+
     }else if(gameMode_string=="Four in a row"){
         slave = new FourSlave();
+        if(ip_string=="127.0.0.1"){
+            master = new FourMaster();
+            fourGame = new FourGame((FourMaster*)master,(FourSlave*)slave);
+        }else{
+            fourGame = new FourGame((FourSlave*)slave);
+        }
     }else{
         return;//ERROR gameMode should be one of the above
     }

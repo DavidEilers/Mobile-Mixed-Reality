@@ -8,6 +8,7 @@ Node::Node(Scene * scene_) {
     model = glm::mat4(1.0f);//identity matrix
     childs = new std::vector<Node*>();
     this->scene = scene_;
+    this->color = glm::vec4(1.0f,0.0f,0.0f,1.0f);
     prepareBoundingBoxShader();//TODO Delete this Bounding Box Shader
 }
 
@@ -79,9 +80,9 @@ void Node::draw(glm::mat4 parentTransform) {
     glm::mat4 newModel = parentTransform*model;
     if(mesh!= nullptr) {
         if(wasHit==false){
-            mesh->draw(newModel,glm::vec4(1.0f,0.0f,0.0f,1.0f));
+            mesh->draw(newModel,color);
         }else{
-            mesh->draw(newModel,glm::vec4(0.0f,1.0f,0.0f,1.0f));
+            mesh->draw(newModel,color);
         }
 
     }else if(box!= nullptr){
@@ -91,6 +92,7 @@ void Node::draw(glm::mat4 parentTransform) {
         e->draw(newModel);
     }
 }
+
 
 void Node::setBoundingBox(glm::vec3 *box) {
     boundingBox = new BoundingBox();
@@ -123,4 +125,12 @@ Node* Node::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDirection,glm::mat4 parent
     }
     return nullptr;
 
+}
+
+void Node::clearChilds() {
+    childs->clear();
+}
+
+void Node::setColor(glm::vec4 color_) {
+    this->color = color_;
 }

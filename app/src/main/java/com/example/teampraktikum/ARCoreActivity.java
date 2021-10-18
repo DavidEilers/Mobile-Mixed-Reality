@@ -207,6 +207,8 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
      * @param context
      */
 
+    public native boolean shouldExit();
+
     public native int nativeOnResume(Context context);
 
     public native void onDisplayGeometryChanged(int display_rotation, int width, int height);
@@ -258,6 +260,10 @@ public class ARCoreActivity extends AppCompatActivity implements GLSurfaceView.R
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        if(shouldExit()==true){
+            System.out.println("SHOULD EXIT");
+            finish();
+        }
         double timeNow = System.currentTimeMillis();
         double frameTime = timeNow-prevTimeInMillis;
         //System.out.println("Frametime: "+frameTime+"ms or"+(1000/frameTime)+"fps");

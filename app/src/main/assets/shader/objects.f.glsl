@@ -15,5 +15,5 @@ void main() {
     color=baseColor;//vec4(1.0f,0.0f,0.0f,1.0f);
     lowp vec3 viewLightDir= (view*vec4(light_dir,1.0f)).xyz;
     viewLightDir = normalize(-viewLightDir);
-    color= dot(viewLightDir,normalize(normals))*color;
+    color= dot(viewLightDir,normalize(normals))*color+0.3*color;
 }

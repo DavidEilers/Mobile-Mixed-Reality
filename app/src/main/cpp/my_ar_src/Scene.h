@@ -32,7 +32,7 @@ public:
     void setModel(glm::mat4 model_);
     void setView(glm::mat4 view_);
     void setProjection(glm::mat4 projection_);
-    void draw();
+    virtual void draw();
 
     glm::mat4 getView();
     glm::mat4 getProjection();
