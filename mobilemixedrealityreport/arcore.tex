@@ -1,0 +1,90 @@
+\subsection{Entwicklung eines Prototypen}
+Am Anfang musste ich erstmal die Abhängigkeiten im Buildsystem auflöse, um
+ArCore verlinken zu können. Auch musste ich mich mit dem grundlegenden Lebenszyklus von Apps
+auseinander setzten. Zusätzlich musste ich mich wegen Android NDK damit beschäftigen, wie man
+Parameter von einer Java-Funktion an C übergibt.
+Ich habe im nachhinen gemerkt, dass es die Möglichkeit gibt direkt in Android eine
+´´Native activity´´ zu erstellen die nur C++ nutzt, aber alle OpenGL ES Code-samples von Google
+sowie das AR-Core C Beispiel nutzen Java mit eingehängten C++ und auch beim erstellen einer
+´´Native App´´ in Android Studio, wird einem Java mit gelinked C++-Code geboten.
+\par
+Nachdem ich die Grundlagen von Android NDK verstanden hatte, habe ich eine Dummy-
+Implementation von ArCore geschrieben, um generell ArCore zum laufen zu bringen.
+Als erstes hatte ich das Problem, dass die Kamera kein Bild anzeigte, es stellte sich
+heraus, dass ArCore ein samplerExternalOES anstatt eines einfachen sampler2D benötigt.
+\par
+Danach merkte ich, dass der Android Emulator nur bedingt OpenGL ES 3.0 supportet,
+deswegen musste ich dann den Code auf OpenGL ES 2.0 porten, was gerade wegen
+Vertex-Array-Objects und eigene Sampler-Objects die nur ab OpenGL ES 3.0 supportet sind ein
+wenig umschreiben benötigt hat.
+\par
+Danach stellte sich raus, dass der Android Emulator ein Bug hat und somit die ArCore App nicht
+auf die virtuelle Kamera zugreifen kann. Das Problem bestand auch bei der Google Beispiel App
+``\verb|hello_ar_c|``, aber auch in der Java Version.
+\par
+Da sich auch heraustellte, dass mein Smartphone ArCore nicht supportet, wurde ich darauf
+aufmerksam, dass es eine Liste von supporten Geräten gibt. \url{https://developers.google.com/ar/devices}
+\par
+Zu dem Zeitpunkt schlug Herr Uhlmann vor auf OpenCV zu wechseln, um dementsprechend dem Problem
+zu entgehen. Ich schaute mir OpenCV an, aber da die Entwicklung in OpenCV wohl einen sehr viel
+Größeren Arbeitsaufwand benötigt, entschied ich mich ein ArCore supportetes Gerät zu kaufen.
+
+\subsection{Rendering}
+Für das Rendering habe ich am Anfang ein paar Hilfsklassen gebaut:\\
+Shader in Shader.cpp für das lesen von Shadern aus Dateien, compilen und linken.
+objRenderer in objRenderer.cpp für das Rendern von obj-Files, später wurde die
+Funktionalität in Mesh Klasse überführt.
+Sowie cameraBackground, die das Kamerabild auf einen ScreenQuad sampelt.
+Aus dem \verb|hello_ar_c| von Google habe ich die objLoader.cpp entnommen, um obj-Dateien
+laden zu können.
+Nachdem ich den Würfel erfolgreich setzen konnte und richtig getracked wurde, habe ich
+dann einen simples Szenen System implementiert.
+Wir haben Mesh, diese enthält ein Mesh was gerendert werden kann.
+Eine Node kann ein Mesh enthalten und es enthätlt die eigene Modelmatrix in Relation zur
+ElternNode und die Nodes kann Kinder haben, die widerrum Nodes sind.
+Am Ende gibt es eine Scene, diese enthält die Root-Node und hängt im Konstruktor die nötigen
+Child-Nodes an. Beim draw, wird das draw der Root-Node aufgerufen und jede Node ruft widderum
+die draw Methode ihrer Childnodes auf und übergibt dabei die eigene Modelmatrix.
+\\ \\
+Damit wurde das Rendering sehr viel leichter und der Code sehr viel aufgeräumter.
+
+\subsection{ArCore}
+Das entwickeln mit ArCore verursachte mehrere Schwierigkeiten, dass größte Problem dabei war
+die NDK(C) Version von ArCore. Dabei wurde die objektorientierte API in eine C-API
+umgewandelt, was dazu führt, dass wenn man in Java in ARCore ein Objekt ein anderes managed,
+muss in C immer wieder das Objekt in Aufrufen mitgeschliffen werden.
+\\
+Hier ein Beispiel, um in der C API, die Modelmatrix von einem getrackten Punkt(anchor) zu bekommen:
+\begin{verbatim}
+ArPose *pose_;
+ArPose_create(arSession, nullptr, &pose_);
+ArAnchor_getPose(arSession, anchor, pose_);
+ArPose_getMatrix(arSession, pose_, glm::value_ptr(modelMatrix));
+ArPose_destroy(pose_);
+\end{verbatim}
+Wie zu sehen, muss erst eine ArPose erstellt werden, die ArCore erzeugt, dann muss man an diese Pose, die Pose des Anchors binden und kann dann die ModelMatrix bekommen und am Ende muss die Pose wieder gelöscht werden. Dabei muss die arSession immer wieder übergeben werden.
+Der gleiche Code in Java:
+\begin{verbatim}
+modelMatrix = anchor.getPose().toMatrix();
+\end{verbatim}
+
+Somit hat es recht lange gedauert, bis ich einen guten Überblick über die C-API
+hatte. Am Anfang hatte ich die API direkt in der Nativelib.cpp Datei, die die
+Schnittstelle zwischen Java und C++ darstellt und habe diese später in arServer.cpp
+migriert, was widerrum die Codekomplexität massiv senkte.
+
+\subsection{Game}
+Nachdem ich ArCore und ein gute Szenenabstraktion hatte, habe ich noch einen Hitbox detection geschrieben, diese basiert auf \url{https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection}
+die mir Herr Uhlmann gab.\\ \\
+
+Danach haben wir unsere beiden Entwicklungsbranches gemerged, damit konnte ich
+dann auf die GameStates zugreifen und dementsprechend für TicTacToe das Feld rendern.
+Dabei sind keine größeren Probleme aufgetreten. \\ \\
+
+Da wir jetzt `Vier Gewinnt` implementieren sollten, habe ich die Scene zu einer vererbaren Klasse refactored und daraufhin Vier gewinnt implementiert. \\ \\
+
+Zu guter Schluss habe ich ein Menü eingebaut, dass am Ende des Spiels angibt, ob man
+verloren oder gewonnen hat und ein Button, um das Spiel neuzustarten.
+Um den Text anzuzeigen habe ich dafür eine TGA Loader geschrieben habe, musste ich
+erfahren, dass vom Compiler nicht gewährleistet wird, dass structs tightly packed
+sind, weshalb die Headerdaten der TGA nicht richtig ausgelesen wurden. Wofür ich mehrere Stunden debuggen musste. Mit dem fertigen Menü, war dann auch die App fertig.

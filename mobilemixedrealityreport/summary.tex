@@ -1,0 +1,20 @@
+\section{NDK}
+Für NDK wäre es zu empfehlen, direkt eine Native Activity zu nutzen.
+Dabei ist zu bedenken, dass NDK keine UI Elemente hat, somit muss alles selbst
+gerendert werden. Es wäre also zu empfehlen, mindestens auf eine UI Library zu setzten
+wie beispielsweise Nuklear oder ImGUI oder auf ein komplettes Rendering-Framework,
+wie beispielsweise Raylib.
+
+\section{ARCore}
+Für ArCore sollte man entweder auf die Java API(oder Unity-/Unreal Plugin) setzen.
+Wenn man es in C++ benutzten möchte, wäre zu empfehlen einen Wrapper zu bauen, der die
+C-API in eine C++ API wandelt, die ähnlich zu der Java-API ist.
+
+\section{Projektstruktur}
+Die Projektstruktur unterscheidet zwischen network und arCore. Generell sollte man
+die Klassen ein wenig generischer miteinander Verknüpfen.
+Dann könnte man einen GameState haben, der von einer Managementklasse bearbeitet wird
+und mit einer Netzwerklasse uptoDate gehalten werden könnte und grafisch
+angezeigt werden könnte. Zwar wären weitere Zwischendarstellungen notwendig
+(wie beispielsweise für Animationen),
+aber man könnte dann den geschriebenen Code wie eine Bibliothek benutzen.
