@@ -1,9 +1,9 @@
-Generell war am Anfang nicht klar, ob wir ein VR oder AR Projekt mache. Deswegen haben wir als erstes nach einem Framework gesucht, welches erlaubt VR oder AR Apps zu bauen.
+Am Anfang nicht klar, ob wir ein VR oder AR Projekt machen. Deswegen haben wir als erstes nach einem Framework gesucht, welches erlaubt VR oder AR Apps zu bauen.
 \\
 Wir haben mehrere potentielle Lösungen gefunden:
 
 \begin{itemize}
-  \item \verb|C#| Xamarin wurde von unserem Betreuer vorgeschlagen.
+  \item \verb|C#| Xamarin
   \item WebVR in Webassembly
   \item WebXR in Webassembly
   \item OpenXR in Webassembly
@@ -11,33 +11,36 @@ Wir haben mehrere potentielle Lösungen gefunden:
 \end{itemize}
 
 \subsection{Xamarin}
-Wir haben Xamarin getestet und leider hat es unter Linux nicht kompiliert. Auch war das AR
+Wir haben Xamarin getestet und hat unter Linux nicht
+kompiliert. Auch war das AR
 Framework sehr klein und es wurde längere Zeit nicht upgedatet.
 
 \subsection{WebVr}
-WebVr hat zwar funktioniert, aber die API gilt als deprecated und es gab nur eine nicht
+WebVr hat funktioniert, aber die API gilt als deprecated.
+Außerdem gab es nur ein nicht
 funktionierendes Beispiel unter Webassembly.
 
 \subsection{WebXR}
 WebXR ist der geistige Nachfolger von WebVR und integriert neben VR auch AR support.
-Leider ist WebXR sehr neu gewesen und wird bis heute nur in Chromium basierten Browsern
-supported. Leider stand in Webassembly lediglich eine WebVR API zu verfügung.
+WebXR war sehr neu und wird bis heute nur in Chromium
+basierten Browsern
+supported. In Webassembly gab es keine WebXR API.
 
 \subsection{OpenXR}
-Für OpenXR gab es keinen Webassembly support, generell ist WebXR als Webalternative für OpenXR gedacht.
+Für OpenXR gab es keinen Webassembly support, WebXR als Webalternative für OpenXR gedacht.
 
 \subsection{ArCore}
 Das Testprojekt in ARCore wurde erfolgreich kompiliert.
 Da wir in C++ programmieren sollten, mussten wir auf Android NDK zugreifen.
-Unser Betreuer hatte schlechte Erfahrungen mit Android NDK gemacht und uns
-dementsprechend davon abgeraten.
+Unser Betreuer hatte schlechte Erfahrungen mit Android NDK
+gemacht und uns dementsprechend davon abgeraten.
 
 \subsection{OpenCV}
 Im Verlauf des Projekts entstanden einige Schwierigkeiten und es wurde darüber nachgedacht
 unter Android NDK auf OpenCV zurückzugreifen, wir haben uns dabei nur sehr oberflächlich
-mit Anchor erkennung mit OpenCV auseinander gesetzt, aber nach grober Recherche, wäre der
+mit Anchor Erkennung mit OpenCV auseinander gesetzt, aber nach grober Recherche, wäre der
 Aufwand OpenCV zu benutzten, wahrscheinlich größer gewesen als in ArCore.
 
 \subsection{Entscheidung}
 Wir haben uns nach der Recherche für ArCore entschieden, da es aktiv von Google entwickelt
-wird, kompiliert werden konnte und auch die Demo recht gut funktioniert. 
+wird, kompiliert werden konnte und auch die Demo funktionierte.
