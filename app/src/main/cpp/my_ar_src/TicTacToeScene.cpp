@@ -5,6 +5,7 @@
 #include "TicTacToeScene.h"
 //#include "../../../../../../../../../../programs/AndroidSDK/ndk/21.1.6352462/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h"
 
+
 TicTacToeScene::TicTacToeScene(AAssetManager *assetManager, jlong gamePointer_) : Scene(assetManager) {
     this->gamePointer = (TTTGame*)gamePointer_;
     playerType= PLAYER_X;

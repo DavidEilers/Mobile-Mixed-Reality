@@ -99,7 +99,7 @@ void Node::setBoundingBox(glm::vec3 *box) {
     this->box = box;
 }
 
-Node* Node::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDirection,glm::mat4 parentTransform, glm::mat4 view) {
+Node* Node::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDirection,glm::mat4 parentTransform) {
     glm::mat4 newModel = parentTransform*model;
 
     __android_log_print(ANDROID_LOG_VERBOSE,"Teampraktikum","BoundingBox Test");
@@ -120,7 +120,7 @@ Node* Node::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDirection,glm::mat4 parent
     }
 
     for(Node* e: *childs){
-        Node* result = e->hitTest(rayOrigin,rayDirection,newModel,view);
+        Node* result = e->hitTest(rayOrigin,rayDirection,newModel);
         if(result!=nullptr){return result;}
     }
     return nullptr;

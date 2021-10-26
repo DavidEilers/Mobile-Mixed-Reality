@@ -13,15 +13,33 @@
 #include "FourInARow.hpp"
 #include "MenueScene.h"
 
-
+/**
+ * @class FourInARowScene
+ * Implements the graphic presentation of "Four in a row" and user-input
+ */
 class FourInARowScene:public Scene {
 public:
     MenueScene* menueScene;
+
+    /**
+     * @brief Constructor for FourInARowScene
+     * @param assetManager For reading shader and images
+     * @param gamePointer Expecting a FourGame pointer for managing game-state
+     */
     FourInARowScene(AAssetManager *assetManager, jlong& gamePointer);
 
     virtual ~FourInARowScene();
 
+    /**
+     * @brief Does a hitTest against the scene
+     * @param rayOrigin The Origin of the ray in world-space
+     * @param rayDestination The direction of the ray in world-space
+     */
     void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) override;
+
+    /**
+     * @brief Draws the Scene
+     */
     void draw() override;
 
 private:
