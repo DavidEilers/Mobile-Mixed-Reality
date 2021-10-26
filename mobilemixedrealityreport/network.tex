@@ -52,7 +52,7 @@ Dieser Thread ruft dann eine Callbackfunktion auf, die dann mit der Nachricht we
 Das asynchrone Senden hatte ich mir erst im späteren Verlauf des Projektes vorgenommen. Ich dachte das das Senden nicht sonderlich
 zeitaufwendig sein würde und den Spielfluss kaum beeinträchtigen könnte. Damit lag ich falsch. Wenn nämlich ein Fehler beim Senden
 auftritt oder das Senden länger braucht als sonst, kann das die ganze App anhalten. Das ist natürlich nicht erstrebenswert.
-Also realisierte ich eine Warteschlange in die Nachrichten eingefügt werden. Diese versendet dann der Reihe nach anderer Thread.
+Also realisierte ich eine Warteschlange in die Nachrichten eingefügt werden. Diese versendet dann der Reihe nach ein anderer Thread.
 Bei einer langsamen Verbindung wird dann nicht die gesamte App verlangsamt.
 \subsection{Abstaktion}
 In Spielen gibt es im Netzwerk oft eine Hierarchie, welche regelt wer der Host eines Spiels ist und wer nur als Client beitritt.
