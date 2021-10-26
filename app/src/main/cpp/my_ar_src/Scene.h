@@ -25,20 +25,71 @@
 class Mesh;
 class Node;
 
+/**
+ * @class Scene
+ * A class for a scene-graph and rendering this scene-graph
+ */
 class Scene {
 public:
+
+    /**
+     * @brief A Constructor for Scene
+     * @param assetManager_  An AssetManager for reading Files
+     */
     Scene(AAssetManager *assetManager_);
     virtual ~Scene();
+
+    /**
+     * @brief Set the model-matrix for the Scene
+     * @param model_ A glm::mat4 model-matrix
+     */
     void setModel(glm::mat4 model_);
+
+    /**
+     * @brief Set the view-matrix for the Scene
+     * @param view_ A glm::mat4 view-matrix
+     */
     void setView(glm::mat4 view_);
+
+    /**
+    * @brief Set the projection-matrix for the Scene
+    * @param view_ A glm::mat4 projection-matrix
+    */
     void setProjection(glm::mat4 projection_);
+
+    /**
+     * @brief Draws the Scene (rootNode)
+     */
     virtual void draw();
 
+    /**
+     * @brief Get the view-matrix of the Scene
+     * @return Returns glm::mat4 view-matrix
+     */
     glm::mat4 getView();
+
+    /**
+     * @brief Get the projection-matrix of the Scene
+     * @return Returns glm::mat4 projection-matrix
+     */
     glm::mat4 getProjection();
+
+    /**
+    * @brief Get the assetManager of the Scene
+    * @return Returns the assetManager
+    */
     AAssetManager* getAssetManager();
 
+    /**
+     * @brief Expecting a hitTest function which handles hitTests
+     * @param rayOrigin The Origin of the ray in world-space
+     * @param rayDestination The direction of the ray in world-space
+     */
     virtual void hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination)=0;
+
+    /**
+     * @brief Expecting a update function, which updates the Scene state
+     */
     virtual void update()=0;
 
 

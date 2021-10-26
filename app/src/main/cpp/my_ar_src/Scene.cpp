@@ -65,7 +65,7 @@ Node* Scene::getHitTestNode(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
 
     rootNode->setModel(model);
     glm::mat4 identityMatrix(1.0f);
-    Node* result = rootNode->hitTest(rayOriginWS,rayDirectionWS,identityMatrix,view);
+    Node* result = rootNode->hitTest(rayOriginWS,rayDirectionWS,identityMatrix);
     return result;
 }
 
