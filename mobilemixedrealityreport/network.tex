@@ -11,10 +11,10 @@ durch neuere Informationen obsolet werden. Der Client sollte sich also nicht dam
 möglichst immer bereit für das neuste Paket sein.
 \par
 Es gibt aber verschiedene Gründe TCP in Spielen zu verwenden.
-Gerade wenn es sich bei den zu übertragenden Daten um wichtige Statusmeldungen handelt, die nur einmalich kommuniziert werden,
+Gerade wenn es sich bei den zu übertragenden Daten um wichtige Statusmeldungen handelt, die nur einmalig kommuniziert werden,
 ist es wichtig, dass diese beim Empfänger ankommen. Wenn beispielsweise ein Spieler in einem Spiel beitritt, wäre es fatal
 wenn diese Information bei einem der Mitspieler nicht ankommt. Die Spielumgebung wäre nicht mehr gleich für alle Teilnehmer
-und das Spiel unter umständen garnicht spielbar. TCP eignet sich sehr gut für solche Statusmeldungen, da es erst eine Verbindung aufbaut.
+und das Spiel unter Umständen garnicht spielbar. TCP eignet sich sehr gut für solche Statusmeldungen, da es erst eine Verbindung aufbaut.
 Solange diese Verbindung existiert, ist garantiert, dass die gesendeten Pakete eintreffen. Auch die richtige Reihenfolge ist garantiert.
 \par
 Wenn man sich Spiele wie TicTacToe und Vier gewinnt anschaut, bemerkt man schnell das diese Spiele keine großen Mengen von Updates
@@ -31,17 +31,17 @@ Statusmeldung über den Abschluss des Spiels wenn das Spielbrett voll ist und es
 \newline
 Statusmeldung für den Neustart des Spiels.
 \par
-Alle diese Meldungen sind per TCP besser umzusetzen, da sie in jedem Fall beim Empfänger ankommen mussen. Sonst wäre das Spiel
+Alle diese Meldungen sind per TCP besser umzusetzen, da sie in jedem Fall beim Empfänger ankommen müssen. Sonst wäre das Spiel
 nicht mehr synchron und ggf. in einem undefinierten Zustand.
 \subsection{Implementierung der Grundfunktionen}
 Da wir uns für die Entwicklung für Android NDK entschieden haben, setzte ich die Implementierung in C++ um.
 Dafür war es notwendig zu verstehen wie C++ mit der normalerweise unter Android verwendeten Programmiersprache Java
 zusammen arbeitet.
 Das Java Native Interface (JNI) wird benutzt um Objecte zwischen Java und C++ hin und her zu "senden". Diese Übertragungen sind allerdings
-zeitaufwendig. Da der Visuelle Teil mit ARCore von David auch in C++ implementiert wurde, wollte ich das Netzwerk auch in C++ umsetzen.
+zeitaufwendig. Da der visuelle Teil mit ARCore von David auch in C++ implementiert wurde, wollte ich das Netzwerk auch in C++ umsetzen.
 \par
 Zuerst habe ich Sockets verwendet um Rohdaten empfangen und senden zu können.
-In unseren Meetings mit Herr Uhlmann wurde mir dann vorgeschlagen statt Rohdaten Structs zu verschicken.
+In unseren Meetings mit Herrn Uhlmann wurde mir dann vorgeschlagen statt Rohdaten Structs zu verschicken.
 Nachdem ich das umgesetzt hatte wurde diese Idee in einem weiteren Meeting erweitert zu Message-Klassen, welche Methoden mitbringen
 mit denen die Objekte sich selbst in einen Bytestrom übersetzen und sich aus einem solchen Bytestrom wieder rekonstruieren können.
 \subsection{Asnychrones Empfangen}
@@ -49,13 +49,13 @@ Als nächstes befasste ich mit dem Asynchronen empfangen der Daten. Da man dauer
 um dann die Nachricht zu verarbeiten, macht es Sinn zumindest das Warten auf neue Verbindungen in einem seperaten Thread zu realisieren.
 Dieser Thread ruft dann eine Callbackfunktion auf, die dann mit der Nachricht weiterarbeiten kann.
 \subsection{Asynchrones Senden}
-Das Asynchrone Senden hatte ich mir erst im späteren Verlauf des Projektes vorgenommen. Ich dachte das das Senden nicht sonderlich
-Zeitaufwendig sein würde und den Spielfluss kaum beeinträchtigen könnte. Damit lag ich falsch. Wenn nämlich ein Fehler beim Senden
+Das asynchrone Senden hatte ich mir erst im späteren Verlauf des Projektes vorgenommen. Ich dachte das das Senden nicht sonderlich
+zeitaufwendig sein würde und den Spielfluss kaum beeinträchtigen könnte. Damit lag ich falsch. Wenn nämlich ein Fehler beim Senden
 auftritt oder das Senden länger braucht als sonst, kann das die ganze App anhalten. Das ist natürlich nicht erstrebenswert.
-Also realisierte ich eine Warteschlange in die Nachrichten eingefügt werden. Diese versendet dann der Reihe nach anderer Thread.
+Also realisierte ich eine Warteschlange in die Nachrichten eingefügt werden. Diese versendet dann der Reihe nach ein anderer Thread.
 Bei einer langsamen Verbindung wird dann nicht die gesamte App verlangsamt.
 \subsection{Abstaktion}
-In Spielen gibt es im Netzwerk oft eine Hirarchie, welche Regelt wer der Host eines Spiels ist und wer nur als Client beitritt.
+In Spielen gibt es im Netzwerk oft eine Hierarchie, welche regelt wer der Host eines Spiels ist und wer nur als Client beitritt.
 In unserem Projekt haben wir die Begriffe Master und Slave gewählt.
 Der Master hält den einzig wahren Spielzustand. Die Slaves übernehmen diesen und senden dem Master ihre Spielzüge wenn
 sie an der Reihe sind. Wenn der Master den Spielzug als valide einstuft werden entsprechende Änderung
@@ -71,6 +71,6 @@ einheitlich aufrufen kann.
 Ursprünglich wollte ich den Emulator nutzen um die Kommunikation zwischen zwei Instanzen der App zu testen.
 Der Emulator hat allerdings eine eigene Firewall, welche für mich nicht so offensichtlich zu konfigurieren war.
 Zusätzlich hatte ich das Problem das mein eigentlicher Arbeitscomputer durch unglückliche Umstände keine Virtualisierung unterstützt.
-Dadurch musste ich für die Emulation immer einen seperaten PC verwenden. Das war mir auf dauer dann zu aufwendig und so entschied ich mich
+Dadurch musste ich für die Emulation immer einen seperaten PC verwenden. Das war mir auf Dauer dann zu aufwendig und so entschied ich mich
 ein Python-Skript zum schreiben. Damit sollte man das TicTacToe-Spiel in der Kommandozeile gegen einen Spieler mit der App spielen können.
 Das Skript kann die Rolle das Masters und des Slaves einnehmen. Damit gelang es dann auch die Netzwerkfunktionen zu testen.
