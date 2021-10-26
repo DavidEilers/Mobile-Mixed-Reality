@@ -18,6 +18,7 @@
 #define FIELD_EMPTY 0
 #define PLAYER_1 1
 #define PLAYER_2 2
+#define BOARD_FULL 3
 
 /**
  * class that holds the game board state
@@ -121,7 +122,7 @@ public:
         }
 
         if (used_positions_counter >= width * height) {
-            return 3 //Board is full
+            return BOARD_FULL;
         }
         return 0; //No one has won yet
     }
@@ -288,7 +289,7 @@ public:
                 i++;
             }
         }
-        return 12;
+        return i;
     }
 
     /**
