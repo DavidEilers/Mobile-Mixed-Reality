@@ -10,5 +10,11 @@ Für ArCore sollte man entweder auf die Java API(oder Unity-/Unreal Plugin) setz
 Wenn man es in C++ benutzten möchte, wäre zu empfehlen einen Wrapper zu bauen, der die
 C-API in eine C++ API wandelt, die ähnlich zu der Java-API ist.
 
+\section{Netzwerk}
+Durch die Socket-Struktur, welche in eigentlich allen Programmiersprachen zum Einsatz kommt,
+ist die Umsetzung einer Netzwerkschnittstelle im Kern unkompliziert. Die Hauptaufgabe ist es darauf
+dann eine oder mehrere abstrakte Schichten aufzubauen, die sich nach den Anforderungen des Projekts
+richten. Auf diese Weise gelang es mir die Interaktion mit dem Netzwerk stark zu vereinfachen.
+
 \section{Projektstruktur}
 Die Projektstruktur unterscheidet zwischen network und arCore. Generell wäre es empfehlenswert, das Projekt stärker wie eine Bibliothek oder Framework zu strukturieren, damit wäre von "TicTacToe" zu "Four in a row" weniger aufwand notwendig gewesen.
