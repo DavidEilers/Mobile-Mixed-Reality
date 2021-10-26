@@ -87,7 +87,7 @@ void FourInARowScene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
   if (number != -1) {
 
    __android_log_print(ANDROID_LOG_VERBOSE, "TeampraktikumHitTest", "Clicked Field %d", number);
-   int amountInRow = gamePointer->board->amountInRow(number);
+   int amountInRow = gamePointer->board->amountInColumn(number);
    if (gamePointer->myTurn()) {
     char player = gamePointer->whoAmI();
     gamePointer->makeMove(number);
