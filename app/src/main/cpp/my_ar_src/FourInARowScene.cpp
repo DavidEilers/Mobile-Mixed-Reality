@@ -113,6 +113,9 @@ void FourInARowScene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
   if(menueScene->getPlayAgain()==true){
    gamePointer->restartGame();
    resetGame();
+  }else if(gamePointer->isGameRestarted()){
+   menueScene->reset();
+   resetGame();
   }
  }
 
@@ -164,13 +167,14 @@ void FourInARowScene::updateField() {
  __android_log_print(ANDROID_LOG_VERBOSE,"TeampraktikumFieldUpdate","%s",a.c_str());
  char tmp =gamePointer->checkWin();
  if(tmp!=0) {
-  if (tmp == gamePointer->whoAmI()) {
-   menueScene->setHaveWon(true);
-   menueScene->setShow(true);
-  } else {
-   menueScene->setHaveWon(false);
-   menueScene->setShow(true);
-  }
+  if (tmp == gamePointer->whoAmI())
+   menueScene->setGameEndState(GameEndState::WON);
+  else if(tmp == 3) //3 Means draw
+   menueScene->setGameEndState(GameEndState::DRAW);
+  else
+   menueScene->setGameEndState(GameEndState::LOST);
+
+  menueScene->setShow(true);
  }
 }
 

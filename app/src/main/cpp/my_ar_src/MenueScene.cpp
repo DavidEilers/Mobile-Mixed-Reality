@@ -16,9 +16,13 @@ void MenueScene::hitTest(glm::vec3 rayOrigin, glm::vec3 rayDestination) {
 //        shouldExit=true;
 //    }
     if(result==playAgainHitBox){
-        show=false;
         playAgain=true;
+        reset();
     }
+}
+
+void MenueScene::reset(){
+    show=false;
 }
 
 void MenueScene::update() {
@@ -46,11 +50,12 @@ glm::vec3* MenueScene::getHitBox(glm::vec2 posUpperLeft,float width,float height
 
 
 MenueScene::MenueScene(AAssetManager *assetManager) : Scene(assetManager) {
-    this->haveWon=false;
+    this->gameEndState=GameEndState::DRAW;
     this->playAgain=false;
     this->show=false;
     winQuad = new TexturedQuad(assetManager,"you_won.tga",-0.7f,0.5f,1.4f,0.28f);
     lostQuad = new TexturedQuad(assetManager,"you_lost.tga",-0.7f,0.5f,1.4f,0.28f);
+    drawQuad = new TexturedQuad(assetManager,"draw.tga",-0.7f,0.5f,1.4f,0.28f);
     playAgainQuad = new TexturedQuad(assetManager,"play_again.tga",-0.7f,0.1f,1.4f,0.28f);
     playAgainHitBox = new Node(this);
     glm::vec3 * playAgainHitboxData = getHitBox(glm::vec2(-0.7f,0.1f),1.4f,0.28f);
@@ -64,8 +69,8 @@ MenueScene::MenueScene(AAssetManager *assetManager) : Scene(assetManager) {
     this->shouldExit=false;
 }
 
-void MenueScene::setHaveWon(bool haveWon_){
-    this->haveWon = haveWon_;
+void MenueScene::setGameEndState(GameEndState gameEndState){
+    this->gameEndState = gameEndState;
 }
 
 void MenueScene::draw() {
@@ -73,11 +78,21 @@ void MenueScene::draw() {
     if(show) {
         Scene::draw();
         //winQuad->draw();
-        if (haveWon) {
-            winQuad->draw();
-        } else {
-            lostQuad->draw();
+        switch (gameEndState) {
+            case GameEndState::WON:
+                winQuad->draw();
+                break;
+            case GameEndState::LOST:
+                lostQuad->draw();
+                break;
+            case GameEndState::DRAW:
+                drawQuad->draw();
+                break;
+            default:
+                drawQuad->draw();
+                break;
         }
+
         playAgainQuad->draw();
         //exitQuad->draw();
     }

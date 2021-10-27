@@ -11,6 +11,7 @@
 #include "TexturedQuad.h"
 #include <android/native_activity.h>
 
+enum GameEndState{WON,LOST,DRAW};
 
 /**
  * @class MenueScene
@@ -45,10 +46,10 @@ public:
     void draw() override;
 
     /**
-     * @brief Set if someone won or lost the game
-     * @param haveWon_ Expected to be true if one and false if lost
+     * @brief Set if someone won or lost the game or draw
+     * @param gameEndState_ expected to be WON LOST or DRAW
      */
-    void setHaveWon(bool haveWon_);
+    void setGameEndState(GameEndState gameEndState);
 
     /**
      * @brief Returns if the menue is shown
@@ -74,15 +75,21 @@ public:
      */
     bool getShouldExit();
 
+    /**
+     * @brief Resets Menu, after a game restart
+     */
+    void reset();
+
 private:
     glm::vec3* getHitBox(glm::vec2 posUpperLeft,float width,float height);
     TexturedQuad* winQuad;
     TexturedQuad* lostQuad;
+    TexturedQuad* drawQuad;
     TexturedQuad* playAgainQuad;
     TexturedQuad* exitQuad;
     Node* playAgainHitBox;
     Node* exitHitBox;
-    bool haveWon;
+    GameEndState gameEndState;
     bool playAgain;
     bool show;
     bool shouldExit;
