@@ -7,7 +7,7 @@ Das bedeutet bei einer Übertragung wird ein Paket ohne Absicherung verschickt. 
 beim Empfänger angekommen ist oder, falls mehrere Pakete gesendet wurden, ob diese in der richtigen Reinheinfolge beim Empfänger
 eingetoffen sind.
 Bei kurzen Statusmeldungen in Spielen, wie Positionsupdates von Spielern, ist UDP passend, da diese Updates sehr schnell wieder
-durch neuere Informationen obsolet werden. Der Client sollte sich also nicht damit beschäftigen alte Pakete zu "retten" sondern
+durch neuere Informationen obsolet werden. Der Client sollte sich also nicht damit beschäftigen alte Pakete zu `retten` sondern
 möglichst immer bereit für das neuste Paket sein.
 \par
 Es gibt aber verschiedene Gründe TCP in Spielen zu verwenden.
@@ -37,7 +37,7 @@ nicht mehr synchron und ggf. in einem undefinierten Zustand.
 Da wir uns für die Entwicklung für Android NDK entschieden haben, setzte ich die Implementierung in C++ um.
 Dafür war es notwendig zu verstehen wie C++ mit der normalerweise unter Android verwendeten Programmiersprache Java
 zusammen arbeitet.
-Das Java Native Interface (JNI) wird benutzt um Objecte zwischen Java und C++ hin und her zu "senden". Diese Übertragungen sind allerdings
+Das Java Native Interface (JNI) wird benutzt um Objecte zwischen Java und C++ hin und her zu `senden`. Diese Übertragungen sind allerdings
 zeitaufwendig. Da der visuelle Teil mit ARCore von David auch in C++ implementiert wurde, wollte ich das Netzwerk auch in C++ umsetzen.
 \par
 Zuerst habe ich Sockets verwendet um Rohdaten empfangen und senden zu können.

@@ -41,7 +41,7 @@ arCamera: gibt einem Metainformationen über das Kamerabild,sowei eine Projektio
 \\ \\
 arPlane sind Oberflächen die von ArCore erkannt worden sind.(Wird automatisch generiert)
 \\ \\
-arPoint sind Punkte reellen 3D Raum die erkannt worden sind.(Wird automatisch generiert)
+arPoint sind Punkte im reellen 3D Raum die erkannt worden sind.(Wird automatisch generiert)
 \\ \\
 arAnchor wird vom Entwickler erzeugt, arAnchor erwaret eine Bildposition(zumeist Touchposition), an dieser Bildposition versucht ArCore anhand von eigenen Daten (arPlane,arPoint), den Punkt auf dem geklickt wurde zu erzeugen. Wenn das geklappt hat, wird pro Kameraframe versucht diesen Anchor zu tracken und gibt für diesen Anchor eine Transformationmatrix zurück.
 
@@ -101,7 +101,7 @@ Schnittstelle zwischen Java und C++ darstellt und habe diese später in arServer
 migriert, was widerrum die Codekomplexität massiv senkte.
 
 \subsection{Game}
-Nachdem ich ArCore und ein gute Szenenabstraktion hatte, habe ich noch einen Hitbox detection geschrieben, diese basiert auf \url{https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection}
+Nachdem ich ArCore und ein gute Szenenabstraktion hatte, habe ich noch eine Hitbox detection geschrieben, diese basiert auf \url{https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection}
 die mir Herr Uhlmann gab.\\
 
 Danach haben wir unsere beiden Entwicklungsbranches(Netzwerk, ArCore) gemerged, damit konnte ich
