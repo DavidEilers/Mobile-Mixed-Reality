@@ -22,15 +22,12 @@ der Spielumgebung benötigen. Es sind nur wenige, dafür aber kritische Meldunge
 synchron zu halten.
 \par
 Benötigt werden beispielsweise für TicTacToe:
-\newline
-Statusmeldung wo ein Spieler sein X oder O setzt.
-\newline
-Statusmeldung ob jemand gewonnen hat und wer.
-\newline
-Statusmeldung über den Abschluss des Spiels wenn das Spielbrett voll ist und es keinen Sieger gibt.
-\newline
-Statusmeldung für den Neustart des Spiels.
-\par
+\begin{itemize}
+    \item Statusmeldung wo ein Spieler sein X oder O setzt.
+    \item Statusmeldung ob jemand gewonnen hat und wer.
+    \item Statusmeldung über den Abschluss des Spiels wenn das Spielbrett voll ist und es keinen Sieger gibt.
+    \item Statusmeldung für den Neustart des Spiels.
+\end{itemize}
 Alle diese Meldungen sind per TCP besser umzusetzen, da sie in jedem Fall beim Empfänger ankommen müssen. Sonst wäre das Spiel
 nicht mehr synchron und ggf. in einem undefinierten Zustand.
 \subsection{Implementierung der Grundfunktionen}
@@ -67,6 +64,7 @@ Um für David den Netzwerkcode einfach zugreifbar zu machen, habe ich Subklassen
 Diese können dann genutzt werden um Spielzüge zu machen, ohne dass man sich um die Netzwerkschnittstelle kümmern muss.
 Master und Slave sind dann nochmal in einem Game-Objekt zusamengefasst damit David den Code für Master und Slave
 einheitlich aufrufen kann.
+
 \subsection{Testen der Netzwerkfunktionen}
 Ursprünglich wollte ich den Emulator nutzen um die Kommunikation zwischen zwei Instanzen der App zu testen.
 Der Emulator hat allerdings eine eigene Firewall, welche für mich nicht so offensichtlich zu konfigurieren war.
@@ -74,3 +72,11 @@ Zusätzlich hatte ich das Problem das mein eigentlicher Arbeitscomputer durch un
 Dadurch musste ich für die Emulation immer einen seperaten PC verwenden. Das war mir auf Dauer dann zu aufwendig und so entschied ich mich
 ein Python-Skript zum schreiben. Damit sollte man das TicTacToe-Spiel in der Kommandozeile gegen einen Spieler mit der App spielen können.
 Das Skript kann die Rolle das Masters und des Slaves einnehmen. Damit gelang es dann auch die Netzwerkfunktionen zu testen.
+
+\subsection{Aufbauen der Verbindung in der App}
+Damit Spieler nicht IP-Adressen auslesen und eintippen müssen erfolgt der Austausch über einen
+QR-Code. Diese Idee kam David als er beim Testen der App ständig seine IP-Adresse eingeben musste.
+Der Spieler, der das Spiel als master eröffnet, kann nun einfach einen QR-Code generieren
+und anzeigen lassen, welcher die lokale IP-Adresse des Geräts enthält.
+Der beitretende Spieler kann diesen in seiner App einscannen
+und die Verbindung einfach und bequem aufbauen.

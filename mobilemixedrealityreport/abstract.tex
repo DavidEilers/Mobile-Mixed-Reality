@@ -1,1 +1,18 @@
-This is a Project about playing four wins in AR
+In diesem Praktikum war es unsere Aufgabe eine augmented reality App zu entwickeln,
+in der zwei Spieler auf einem Gerät oder auf zwei Geräten im lokalen Netzwerk gegeneinander
+Vier gewinnt spielen können. Dabei sind wir bei der Wahl der AR-Umgebung auf mehrere Sackgassen
+gestoßen, haben aber mit AR-Core eine ausreichende Lösung gefunden. Die App wurde hauptsächlich in C++ geschrieben.
+Um dies auf Android zu ermöglichen nutzten wir das Android NDK (native development kit). Damit ist es möglich
+den für Android üblichen Jave-Code über das Java Native Interface (JNI) mit dem C++ Code kommunizieren
+zu lassen. Nicht nur der grafische Teil der App sondern auch die Netzwerkfunktionen wurden mit C++ umgesetzt.
+Lediglich die Activities und Menüelemente wurden in Java implementiert.
+Beim Testen der App stießen wir auf mehrere Probleme. Zum einen sind Smartphones noch nicht flächendeckend
+AR-Core-fähig. Ältere Geräte sind dadurch für Tests ausgeschlossen. Zum anderen ist der Umgang mit dem Android-Emulator
+noch schwierig und teilweise garnicht möglich, wenn der PC keine Virtualisierung unterstützt.
+Zum Testen der Netzwerkfunktionen kam deshalb ein Python-Skript zum Einsatz.
+Die Entwicklung der Netzwerkschnittstelle war insgesamt gesehen aber unkompliziert im Vergleich zum grafischen Teil.
+Die App war am Ende des Praktikums Funktionsfähig und kann auf AR-Core-fähigen Smartphones ausgeführt werden.
+Für die Zukunft wäre es jedoch Vorteilhafter die Anwendung entweder vollständig in Java oder vollständig in C++
+zu entwickeln. Das JNI ist kompliziert und langsam und dadurch hätte man auch auf eine native avtiviy setzen können.
+Auf diese Weise wäre der eigentliche Code der App vollstädig in C++ gewesen. Die App ist aber auch
+problemlos in Java umsetzbar und im Context von Android ist Java als Programmiersprache die unkompliziertere Wahl.
