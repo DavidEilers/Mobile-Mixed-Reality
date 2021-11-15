@@ -86,7 +86,7 @@ void Node::draw(glm::mat4 parentTransform) {
         }
 
     }else if(box!= nullptr){
-        renderBoundingBox(newModel);
+        //renderBoundingBox(newModel);
     }
     for(Node* e: *childs){
         e->draw(newModel);
