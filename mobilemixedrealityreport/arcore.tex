@@ -8,8 +8,8 @@ ArCore verlinken zu können. Zusätzlich musste ich mich mit dem grundlegenden L
 auseinander setzten und wegen Android NDK damit beschäftigen, wie man
 Parameter von einer Java-Funktion an C übergibt.
 Ich habe im nachhinen gemerkt, dass es die Möglichkeit gibt direkt in Android eine
-´Native activity´ zu erstellen die nur C++ nutzt, aber alle OpenGL ES Code-samples von Google,
-sowie das AR-Core C Beispiel nutzen Java mit eingehängten C++ und auch beim erstellen einer
+´Native activity´\cite{android_native_activity} zu erstellen die nur C++ nutzt, aber alle OpenGL ES Code-samples von Google\cite{android_ndk_samples_2021},
+sowie das AR-Core C Beispiel\cite{ar_core_sdk} nutzen Java mit eingehängten C++ und auch beim erstellen einer
 ´Native App´ in Android Studio, wird eine Java Activity mit gelinked C++-Code bereitgestellt.
 \par
 Daraufhin habe ich eine Dummy-
@@ -17,7 +17,7 @@ Implementation von ArCore geschrieben, um ArCore zum laufen zu bringen und besse
 Die Dokumentation von Google zu AR-Core war ein wenig kurz gefasst und ich musste dementsprechend immer wieder auf das Beispiel `\verb|hello_ar_c|`, um die Funktionsweise von ArCore zu verstehen.
 Lange Zeit zeigte die Kamera kein Bild an, dabei stellte sich heraus das ArCore ein samplerExternalOES anstatt eines einfachen sampler2D benötigt.
 \par
-Danach merkte ich, dass der Android Emulator nur bedingt OpenGL ES 3.0 supportet,
+Danach merkte ich, dass der Android Emulator nur bedingt OpenGL ES 3.0 supportet\cite{android_emulator_gles3_issue},
 deswegen musste ich den Code auf OpenGL ES 2.0 porten, was gerade wegen
 Vertex-Array-Objects und eigene Sampler-Objects
 umschreiben benötigt hat.
@@ -27,16 +27,16 @@ auf die virtuelle Kamera zugreifen. Das Problem bestand auch bei der Google Beis
 ``\verb|hello_ar_c|``, aber auch in der Java Version.
 \par
 Da sich auch heraustellte, dass mein Smartphone ArCore nicht supportet, wurde ich darauf
-aufmerksam, dass es eine Liste von supporten Geräten gibt. \url{https://developers.google.com/ar/devices}
+aufmerksam, dass es eine Liste von supporten Geräten gibt. \cite{ar_core_supported_devices}
 \par
-Zu dem Zeitpunkt schlug unser Betreuer, Herr Uhlmann, vor auf OpenCV zu wechseln, um dementsprechend dem Problem
+Zu dem Zeitpunkt schlug unser Betreuer, Herr Uhlmann, vor auf OpenCV\cite{openCV} zu wechseln, um dementsprechend dem Problem
 zu entgehen. Ich schaute mir OpenCV an, aber da die Entwicklung in OpenCV wohl einen sehr viel
 größeren Arbeitsaufwand benötigt hätte, entschied ich mich ein ArCore supportetes Gerät zu kaufen.
 \par
 Auch unser Betreuer, war dementsprechend entgegen kommend und holte sich ein supportes Tablet.
 
 \subsection{Funktionsweise von ArCore}
-ArCore ist eine Bibliothek von Google die unter Android ermöglicht AR Applikationen zu entwickeln.
+ArCore\cite{ar_core} ist eine Bibliothek von Google die unter Android ermöglicht AR Applikationen zu entwickeln.
 ArCore analysiert dafür den Kamerastream und kann anhand dessen, die Umgebung erkennen.\\
 ArCore bietet dafür folgendes:
 \\ \\
@@ -92,19 +92,20 @@ ArAnchor_getPose(arSession, anchor, pose_);
 ArPose_getMatrix(arSession, pose_, glm::value_ptr(modelMatrix));
 ArPose_destroy(pose_);
 \end{verbatim}
+Siehe \cite{ar_anchor_c} für mehr Details.\\
 Wie zu sehen, muss erst eine ArPose erstellt werden, die ArCore erzeugt, dann muss man an diese Pose, die Pose des Anchors binden und kann dann die ModelMatrix bekommen und am Ende muss die Pose wieder gelöscht werden. Dabei muss die arSession immer wieder übergeben werden.
 Der gleiche Code in Java:
 \begin{verbatim}
 modelMatrix = anchor.getPose().toMatrix();
 \end{verbatim}
-
+Siehe \cite{ar_anchor_java} für mehr Details.\\
 Somit hat es recht lange gedauert, bis ich einen guten Überblick über die C-API
 hatte. Am Anfang hatte ich die API direkt in der Nativelib.cpp Datei, die die
 Schnittstelle zwischen Java und C++ darstellt und habe diese später in arServer.cpp
 migriert, was widerrum die Codekomplexität massiv senkte.
 
 \subsection{Game}
-Nachdem ich ArCore und ein gute Szenenabstraktion hatte, habe ich noch eine Hitbox detection geschrieben, diese basiert auf \url{https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection}
+Nachdem ich ArCore und ein gute Szenenabstraktion hatte, habe ich noch eine Hitbox detection geschrieben, diese basiert auf \cite{hitbox_detection}
 die mir Herr Uhlmann gab.\\
 
 Danach haben wir unsere beiden Entwicklungsbranches(Netzwerk, ArCore) gemerged, damit konnte ich
@@ -115,6 +116,6 @@ Da wir jetzt `Vier Gewinnt` implementieren sollten, habe ich die Scene zu einer 
 
 Zu guter Schluss habe ich ein Menü eingebaut, dass am Ende des Spiels angibt, ob man
 verloren oder gewonnen hat und ein Button, um das Spiel neuzustarten.
-Um den Text anzuzeigen habe ich dafür eine TGA Loader geschrieben und musste
+Um den Text anzuzeigen habe ich einen TGA Loader geschrieben und musste
 erfahren, dass vom Compiler nicht gewährleistet wird, dass structs tightly packed
-sind, weshalb die Headerdaten der TGA nicht richtig ausgelesen wurden. Wofür ich mehrere Stunden debuggen musste. Mit dem fertigen Menü, war dann auch die App fertig.
+sind, weshalb die Headerdaten der TGA nicht richtig ausgelesen wurden. Weswegen ich das Problem mehrere Stunden debuggen musste. Mit dem fertigen Menü, war dann auch die App fertig.
