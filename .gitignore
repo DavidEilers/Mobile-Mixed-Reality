@@ -14,3 +14,8 @@
 .externalNativeBuild
 .cxx
 /ip.png
+
+# some latex files
+*.bbl
+*.blg
+*.synctex.gz
