@@ -5,7 +5,7 @@
 #ifndef TEAMPRAKTIKUM_TICTACTOESCENE_H
 #define TEAMPRAKTIKUM_TICTACTOESCENE_H
 #import "Scene.h"
-#include "../../../../../../../../../../programs/AndroidSDK/ndk/21.1.6352462/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/android/asset_manager.h"
+#include <android/asset_manager.h>
 #include "TicTacToe.hpp"
 #include "MenueScene.h"
 
